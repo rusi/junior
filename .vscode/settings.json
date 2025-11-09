@@ -1,0 +1,6 @@
+{
+  "workbench.editorAssociations": {
+    "*.md": "vscode.markdown.preview.editor",
+    "*.mdc": "vscode.markdown.preview.editor"
+  }
+}
