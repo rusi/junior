@@ -1,0 +1,673 @@
+---
+alwaysApply: true
+---
+
+# Documentation Standards
+
+## Core Principle
+
+**Documentation should enable understanding and usage, not just describe what exists.**
+
+Good documentation:
+- Explains **why** things exist, not just what they are
+- Provides **examples** that work
+- Answers the questions newcomers actually have
+- Ages well as the codebase evolves
+
+---
+
+## Code Documentation
+
+### Function and Method Documentation
+
+**Document all public functions, methods, and classes.**
+
+#### Python Example
+
+```python
+def retry_with_exponential_backoff(
+    func: Callable[[], T],
+    max_attempts: int = 3,
+    base_delay: float = 1.0,
+    max_delay: float = 60.0
+) -> T:
+    """
+    Retry a function with exponential backoff on failure.
+    
+    Useful for handling transient failures in external APIs or services.
+    Implements exponential backoff to avoid overwhelming failing services.
+    
+    Args:
+        func: A callable that takes no arguments and returns a value.
+              Will be retried on any exception.
+        max_attempts: Maximum number of retry attempts. Must be >= 1.
+        base_delay: Initial delay in seconds. Doubles after each failure.
+        max_delay: Maximum delay in seconds. Caps the exponential growth.
+    
+    Returns:
+        The return value of func() if successful.
+    
+    Raises:
+        Exception: The last exception raised by func() if all retries fail.
+    
+    Example:
+        >>> def fetch_data():
+        ...     return requests.get('https://api.example.com/data').json()
+        >>> data = retry_with_exponential_backoff(fetch_data, max_attempts=5)
+    """
+```
+
+#### TypeScript Example
+
+```typescript
+/**
+ * Calculate the total cost including tax and shipping.
+ * 
+ * Applies the tax rate to the subtotal, then adds flat-rate shipping.
+ * Shipping is free for orders over the free shipping threshold.
+ * 
+ * @param items - Array of cart items with price and quantity
+ * @param taxRate - Tax rate as a decimal (e.g., 0.08 for 8%)
+ * @param shippingCost - Flat shipping cost in dollars
+ * @param freeShippingThreshold - Minimum subtotal for free shipping
+ * @returns Total cost including tax and shipping
+ * 
+ * @example
+ * ```typescript
+ * const items = [{ price: 10, quantity: 2 }, { price: 5, quantity: 1 }];
+ * const total = calculateTotal(items, 0.08, 5.99, 25);
+ * // Returns: 26.99 (subtotal: 25, tax: 2.00, shipping: 0)
+ * ```
+ */
+function calculateTotal(
+    items: CartItem[],
+    taxRate: number,
+    shippingCost: number,
+    freeShippingThreshold: number
+): number {
+    // Implementation...
+}
+```
+
+### What to Document
+
+**Always document:**
+- **Purpose** — What does this do and why does it exist?
+- **Parameters** — What are they, what type, what constraints?
+- **Return value** — What does it return, what type, what does it mean?
+- **Exceptions/Errors** — What can go wrong and why?
+- **Side effects** — Does it modify state, make network calls, write files?
+- **Examples** — Especially for non-trivial usage
+
+**Don't document:**
+- Obvious getters/setters with no logic
+- Private helper functions (unless complex)
+- Generated code
+- Trivial wrappers
+
+---
+
+### Inline Comments
+
+**Use comments to explain "why", not "what".**
+
+#### Good Examples
+
+```python
+# Using binary search because the list is sorted and can be large (10k+ items)
+index = binary_search(sorted_list, target)
+
+# Cache miss rate is ~5%, but when it hits it saves 500ms per request
+cached = cache.get(key)
+
+# WARNING: This modifies the list in-place to avoid memory allocation
+# for large datasets. Clone first if you need the original.
+items.sort(key=lambda x: x.priority)
+```
+
+#### Bad Examples
+
+```python
+# Bad: Explains what the code does (obvious from reading it)
+i = i + 1  # Increment i
+
+# Bad: Repeats the code in English
+user = get_user_by_id(user_id)  # Get user by ID
+
+# Bad: Outdated comment (code was refactored, comment wasn't updated)
+# TODO: Refactor this function
+def well_refactored_function():
+    pass
+```
+
+### Complex Logic
+
+**Explain non-obvious code.**
+
+```python
+# Using Set for O(1) lookups instead of list.index() which is O(n)
+# With 10k+ items, this reduces query time from ~50ms to <1ms
+existing_ids = set(item.id for item in existing_items)
+if new_id not in existing_ids:
+    add_item(new_id)
+```
+
+```javascript
+// Debounce API calls to avoid rate limiting (100 req/min limit)
+// User typing triggers this constantly, so we wait 300ms of idle time
+const debouncedSearch = debounce(searchAPI, 300);
+```
+
+### Gotchas and Warnings
+
+**Call out surprising behavior.**
+
+```python
+# WARNING: Returns None if user not found (not an exception)
+def find_user_by_email(email: str) -> User | None:
+    """..."""
+```
+
+```javascript
+// CAUTION: Mutates the original array
+function sortByPriority(items) {
+    items.sort((a, b) => a.priority - b.priority);
+    return items;
+}
+```
+
+---
+
+## Project Documentation
+
+### README.md
+
+**Every project should have a clear README with:**
+
+#### 1. One-Sentence Summary
+What is this project?
+
+```markdown
+# UserAuth
+
+A lightweight JWT authentication library for Express.js applications.
+```
+
+#### 2. Why It Exists
+What problem does it solve?
+
+```markdown
+## Why UserAuth?
+
+Most authentication libraries are either too basic (no refresh tokens, no role management) 
+or too complex (require database migrations, specific ORMs, etc.). UserAuth provides 
+production-ready JWT auth that's flexible enough to work with any backend.
+```
+
+#### 3. Quick Start
+How do I use it in 5 minutes?
+
+```markdown
+## Quick Start
+
+```bash
+npm install @example/user-auth
+```
+
+```javascript
+const express = require('express');
+const { createAuthMiddleware } = require('@example/user-auth');
+
+const app = express();
+const auth = createAuthMiddleware({ secret: process.env.JWT_SECRET });
+
+app.post('/login', auth.login);
+app.get('/protected', auth.requireAuth, (req, res) => {
+    res.json({ user: req.user });
+});
+```
+```
+
+#### 4. Installation
+Detailed setup steps.
+
+```markdown
+## Installation
+
+### Prerequisites
+- Node.js 16 or higher
+- PostgreSQL 13+ or MySQL 8+
+
+### Setup
+1. Install the package: `npm install @example/user-auth`
+2. Set environment variables:
+   ```bash
+   JWT_SECRET=your-secret-key
+   JWT_EXPIRY=1h
+   ```
+3. Run migrations: `npm run migrate`
+```
+
+#### 5. Usage Examples
+Common use cases.
+
+```markdown
+## Usage
+
+### Basic Authentication
+```javascript
+// Login returns access and refresh tokens
+const { accessToken, refreshToken } = await auth.login(email, password);
+```
+
+### Role-Based Access
+```javascript
+app.delete('/admin', auth.requireRole('admin'), (req, res) => {
+    // Only admins can access this
+});
+```
+```
+
+#### 6. Architecture (for non-trivial projects)
+How is it structured?
+
+```markdown
+## Architecture
+
+```
+src/
+├── auth/          # Authentication logic
+│   ├── jwt.ts     # Token generation/validation
+│   └── session.ts # Session management
+├── middleware/    # Express middleware
+└── utils/         # Helper functions
+```
+
+The library uses JWT tokens with refresh token rotation for security.
+Access tokens expire after 1 hour; refresh tokens expire after 30 days.
+```
+
+#### 7. Configuration
+What can be configured and how?
+
+```markdown
+## Configuration
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| JWT_SECRET | Yes | - | Secret key for signing tokens |
+| JWT_EXPIRY | No | 1h | Access token expiration |
+| REFRESH_EXPIRY | No | 30d | Refresh token expiration |
+```
+
+#### 8. Contributing (for open source)
+How to contribute.
+
+#### 9. License
+License information.
+
+---
+
+### API Documentation
+
+**For libraries and APIs, provide comprehensive API docs.**
+
+#### REST API Example
+
+```markdown
+## API Reference
+
+### POST /api/users
+
+Create a new user.
+
+**Request:**
+```json
+{
+    "email": "user@example.com",
+    "password": "securePassword123",
+    "name": "John Doe"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+    "id": "usr_123abc",
+    "email": "user@example.com",
+    "name": "John Doe",
+    "createdAt": "2024-01-15T10:30:00Z"
+}
+```
+
+**Errors:**
+- `400 Bad Request` - Invalid email or password format
+- `409 Conflict` - Email already exists
+- `500 Internal Server Error` - Server error
+
+**Example:**
+```bash
+curl -X POST https://api.example.com/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"secure123","name":"John Doe"}'
+```
+```
+
+---
+
+### Architecture Documentation
+
+**For complex systems, document the architecture.**
+
+#### Architecture Decision Records (ADRs)
+
+Use ADRs to document important architectural decisions.
+
+```markdown
+# ADR 001: Use PostgreSQL for Primary Database
+
+## Status
+Accepted
+
+## Context
+We need to choose a primary database for storing user data, transactions, 
+and audit logs. The system needs to handle:
+- ~1M users
+- ~10k transactions per day
+- Strong consistency for financial data
+- Complex relational queries
+
+## Decision
+Use PostgreSQL as the primary database.
+
+## Alternatives Considered
+
+### MongoDB
+- **Pros:** Flexible schema, horizontal scaling
+- **Cons:** Weak consistency by default, poor support for complex joins
+- **Verdict:** Rejected due to consistency requirements
+
+### MySQL
+- **Pros:** ACID compliant, mature, team has experience
+- **Cons:** Less advanced features than PostgreSQL (JSON, full-text search)
+- **Verdict:** Viable but PostgreSQL offers more features
+
+## Rationale
+- Strong ACID guarantees needed for financial transactions
+- Data is highly relational (users, accounts, transactions, audit logs)
+- PostgreSQL's JSON support allows schema flexibility where needed
+- Team has PostgreSQL experience
+- Excellent tooling and extension ecosystem
+
+## Consequences
+
+### Positive
+- Strong consistency and data integrity
+- Powerful query capabilities with joins, CTEs, window functions
+- JSON columns for flexible data where needed
+- Great monitoring and debugging tools
+
+### Negative
+- Vertical scaling limits (can be addressed with read replicas)
+- More complex to operate than managed NoSQL solutions
+- Requires careful index management for performance
+
+## Compliance
+- Satisfies SOC 2 Type II requirements for data integrity
+- Meets PCI DSS requirements for transaction data
+
+## Review Date
+2024-07-01 (6 months from decision)
+```
+
+---
+
+### Technical Design Documents
+
+**For major features, write design docs.**
+
+```markdown
+# Design: Real-Time Collaboration System
+
+## Objective
+Enable multiple users to edit documents simultaneously with real-time updates.
+
+## Requirements
+
+### Functional
+- Users see changes from other users within 100ms
+- Changes are applied in consistent order across all clients
+- Handles network interruptions gracefully
+- Supports 50+ concurrent editors per document
+
+### Non-Functional
+- 99.9% uptime
+- <100ms latency for updates
+- Horizontal scalability
+- Data consistency
+
+## Proposed Solution
+
+### High-Level Architecture
+```
+Client (Browser)
+  ↓ WebSocket
+Load Balancer
+  ↓
+Application Servers (Node.js)
+  ↓ Pub/Sub
+Redis (Message Broker)
+  ↓
+Database (PostgreSQL)
+```
+
+### Key Components
+
+#### 1. Operational Transformation (OT)
+- Use OT algorithm to resolve concurrent edits
+- Transforms operations based on document state
+- Ensures eventual consistency
+
+#### 2. WebSocket Communication
+- Persistent connection for low-latency updates
+- Automatic reconnection with exponential backoff
+- Message queue for offline changes
+
+#### 3. Conflict Resolution
+- Last-write-wins for simple properties
+- OT for text edits
+- Custom merge strategies for complex objects
+
+### Data Model
+
+#### Document State
+```typescript
+interface DocumentState {
+    id: string;
+    content: string;
+    version: number;
+    lastModified: Date;
+}
+```
+
+#### Operation
+```typescript
+interface Operation {
+    type: 'insert' | 'delete' | 'update';
+    position: number;
+    content: string;
+    userId: string;
+    timestamp: Date;
+}
+```
+
+### Alternatives Considered
+
+#### CRDT (Conflict-Free Replicated Data Types)
+- **Pros:** Simpler than OT, no central authority needed
+- **Cons:** Larger data structures, less mature libraries
+- **Decision:** Rejected due to lack of production-ready libraries
+
+## Implementation Plan
+
+### Phase 1: Core OT Engine (2 weeks)
+- Implement OT algorithm
+- Unit tests for conflict scenarios
+- Performance benchmarks
+
+### Phase 2: WebSocket Infrastructure (1 week)
+- Set up WebSocket servers
+- Implement reconnection logic
+- Message queue for offline sync
+
+### Phase 3: Integration (1 week)
+- Connect OT engine to WebSocket
+- Redis pub/sub for scaling
+- End-to-end testing
+
+### Phase 4: Production Rollout (1 week)
+- Feature flag for gradual rollout
+- Monitoring and alerting
+- Documentation
+
+## Risks and Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| OT bugs cause data corruption | High | Extensive testing, gradual rollout, ability to disable feature |
+| WebSocket scaling issues | Medium | Redis pub/sub, load testing before launch |
+| High latency in distant regions | Low | CDN for static assets, regional deployments later |
+
+## Success Metrics
+- <100ms p95 latency for updates
+- <1% error rate
+- >99% user satisfaction in surveys
+- Zero data corruption incidents
+
+## Open Questions
+- How to handle very large documents (>1MB)?
+- Rate limiting strategy for rapid edits?
+- Long-term storage strategy for operation logs?
+```
+
+---
+
+## Documentation Maintenance
+
+### Keep Docs Updated
+
+**When you change code, update the docs.**
+
+- Update function docstrings when signatures change
+- Update README when setup process changes
+- Update API docs when endpoints change
+- Update architecture docs when major systems change
+
+### Mark Outdated Docs
+
+If you find outdated documentation, either:
+1. **Fix it immediately** (if quick)
+2. **Add a warning** (if fixing requires research)
+   ```markdown
+   > ⚠️ **WARNING:** This documentation may be outdated. Last updated: 2023-01-15
+   > See issue #123 for details.
+   ```
+
+### Delete Dead Docs
+
+**Remove documentation for deleted features.**
+
+Don't leave behind docs for removed code — it confuses newcomers.
+
+---
+
+## Examples and Code Samples
+
+### Make Examples Realistic
+
+**Bad:**
+```python
+# Bad: Trivial example that doesn't show real usage
+result = add(2, 3)
+print(result)  # 5
+```
+
+**Good:**
+```python
+# Good: Shows realistic usage with context
+def process_order(order_id: str) -> bool:
+    """
+    Example:
+        >>> # Process a customer order
+        >>> order_id = "ORD-12345"
+        >>> success = process_order(order_id)
+        >>> if success:
+        ...     send_confirmation_email(order_id)
+    """
+```
+
+### Make Examples Runnable
+
+Examples should actually work. Test them.
+
+```python
+# Include necessary imports
+import requests
+from typing import Dict, List
+
+# Show complete working example
+def fetch_user_data(user_id: str) -> Dict:
+    """
+    Fetch user data from the API.
+    
+    Example:
+        >>> # Assuming API server is running on localhost:8000
+        >>> user = fetch_user_data("user_123")
+        >>> print(user['name'])
+        'John Doe'
+    """
+    response = requests.get(f"http://localhost:8000/api/users/{user_id}")
+    response.raise_for_status()
+    return response.json()
+```
+
+---
+
+## Documentation Anti-Patterns
+
+### Don't
+
+- **Obvious comments:** `i = i + 1  # increment i`
+- **Outdated docs:** Fix or delete them
+- **Vague descriptions:** "This function processes data" — What data? How?
+- **Missing examples:** For anything non-trivial
+- **Copy-paste from code:** Docs should add value, not repeat
+- **Wall of text:** Use headings, bullets, code blocks
+- **Assuming knowledge:** Define terms, link to resources
+
+### Do
+
+- **Explain why:** Not just what
+- **Provide examples:** That actually work
+- **Keep it current:** Update with code changes
+- **Be specific:** Concrete details, not vague descriptions
+- **Use structure:** Headers, lists, tables
+- **Link generously:** To related docs, external resources
+- **Test examples:** Make sure they work
+
+---
+
+## The Documentation Standard
+
+Good documentation:
+1. **Answers the questions users actually have**
+2. **Provides working examples**
+3. **Explains why, not just what**
+4. **Stays current with the code**
+5. **Is easy to navigate and search**
+
+**Documentation is part of the code. Incomplete docs = incomplete feature.**
+
+---
+
+**Every feature should be documented well enough that a new team member can understand and use it without asking questions.**

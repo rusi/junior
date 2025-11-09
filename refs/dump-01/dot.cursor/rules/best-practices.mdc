@@ -1,0 +1,512 @@
+---
+alwaysApply: true
+---
+
+# Software Engineering Best Practices
+
+## Context
+
+**These principles apply to ALL software projects** across any language, framework, or domain — from Python web APIs to C++ applications, from JavaScript frontends to Bash automation scripts.
+
+---
+
+## Core Engineering Principles
+
+### Keep It Simple
+
+**Complexity is the enemy of maintainability.**
+
+- **Implement solutions in the fewest lines possible**
+  - Every line of code is a liability that must be maintained
+  - More code = more bugs = more maintenance cost
+
+- **Avoid over-engineering**
+  - Choose straightforward approaches over clever ones
+  - "Simple" beats "elegant" when "elegant" is hard to understand
+  - Don't build for hypothetical future needs
+
+- **Prefer explicit over implicit**
+  - Make intent clear in code
+  - Avoid "magic" behavior that surprises readers
+  - Explicit is better than implicit (Python's Zen applies universally)
+
+- **Question every abstraction**
+  - Only abstract when you have concrete duplication
+  - Premature abstraction is worse than duplication
+  - Abstractions must earn their keep
+
+---
+
+### Optimize for Readability
+
+**Code is read far more often than it's written.**
+
+- **Prioritize code clarity over micro-optimizations**
+  - Clear code is maintainable code
+  - Optimize only when profiling shows a bottleneck
+  - Readable code that's slightly slower is better than fast code nobody understands
+
+- **Write self-documenting code**
+  - Clear variable and function names explain intent
+  - `calculateUserTaxOwed()` not `calc()` or `process()`
+  - `MAX_RETRY_ATTEMPTS` not `MAX_A` or `3` (magic number)
+
+- **Add comments for "why" not "what"**
+  - Explain reasoning, trade-offs, and non-obvious decisions
+  - Don't explain what the code does — the code itself should do that
+  - Document gotchas, edge cases, and important constraints
+
+- **Consistent formatting and style**
+  - Follow language conventions (PEP 8, Go fmt, etc.)
+  - Follow team/project standards
+  - Use automated formatters when available
+  - Consistency > personal preference
+
+---
+
+### Fail Fast, Don't Be Defensive
+
+**Errors should be loud, clear, and early.**
+
+- **Validate inputs early**
+  - Check preconditions at function/method entry points
+  - Fail immediately if requirements aren't met
+  - Don't proceed with invalid data
+
+- **Use proper error handling**
+  - Throw exceptions, return error types, or use language-appropriate mechanisms
+  - Make errors specific and actionable
+  - Different languages have different idioms — use them
+
+- **Avoid silent failures**
+  - Don't swallow errors or return success when operations fail
+  - Log errors before re-throwing or propagating
+  - Make failures visible and debuggable
+
+- **Make errors actionable**
+  - Provide clear error messages that help users/developers fix issues
+  - Include context: what was attempted, what failed, why it failed
+  - Bad: "Error occurred"
+  - Good: "Failed to connect to database: connection timeout after 30s (host: db.example.com:5432)"
+
+- **Distinguish error types**
+  - **User errors:** Invalid input, authentication failures (user can fix)
+  - **System errors:** Database down, network issues (ops can fix)
+  - **Programming errors:** Null pointer, type mismatch (developer must fix)
+
+- **DON'T handle errors unless resolution is clear**
+  - If you don't know how to properly handle an error, don't
+  - Let it crash with a clear message
+  - Better to fail visibly than silently corrupt data
+
+---
+
+### DRY (Don't Repeat Yourself)
+
+**Duplication is the root of maintenance burden.**
+
+- **Extract repeated logic into functions/methods**
+  - Identical operations should use shared code
+  - If you copy-paste, you're doing it wrong
+  - Each piece of knowledge should have a single source of truth
+
+- **Create utility libraries for common operations**
+  - File I/O, validation, formatting, parsing
+  - Date/time manipulation
+  - String processing
+  - Network requests
+
+- **Use configuration files for repeated values**
+  - Don't hardcode the same constants multiple times
+  - Externalize environment-specific values
+  - Single source of truth for configuration
+
+- **Template-based generation for boilerplate**
+  - Use code generation for repetitive patterns
+  - But don't generate code that could be abstracted
+  - Generation is a last resort after abstraction
+
+**Balance:**
+- DRY is a principle, not a law
+- Premature abstraction can be worse than duplication
+- Abstract when you have 3+ concrete instances
+- Some duplication is acceptable if it maintains clarity
+
+---
+
+### Clean Architecture and Organization
+
+**Structure should reveal design and intent.**
+
+- **Group related functionality together**
+  - Modules, packages, namespaces, directories
+  - High cohesion within modules
+  - Low coupling between modules
+
+- **Separate concerns clearly**
+  - Business logic ≠ presentation ≠ data access ≠ configuration
+  - Each layer has a single responsibility
+  - Dependencies flow in one direction (typically inward)
+
+- **Use consistent naming conventions**
+  - Follow language/framework standards
+  - Be consistent across the project
+  - Names should reveal purpose
+
+- **Single responsibility principle**
+  - Classes, functions, modules should have one clear purpose
+  - If you need "and" to describe it, split it
+  - Each component should have one reason to change
+
+- **Dependency direction**
+  - High-level modules shouldn't depend on low-level details
+  - Depend on abstractions, not concrete implementations
+  - Inversion of control when appropriate
+
+---
+
+### Configuration Management
+
+**Configuration should be external and validated.**
+
+- **Externalize configuration**
+  - Never hardcode environment-specific values
+  - Database URLs, API keys, feature flags — all external
+  - Different configs for dev, staging, production
+
+- **Use configuration files or environment variables**
+  - JSON, YAML, TOML, .env files, etc.
+  - Follow platform conventions
+  - Keep sensitive values out of version control
+
+- **Validate configuration on startup**
+  - Fail fast if required config is missing
+  - Don't wait until the config is needed to discover it's missing
+  - Clear error messages about what's missing and why it's needed
+
+- **Provide sensible defaults**
+  - But require explicit values for critical settings
+  - Document what's optional vs required
+  - Make it easy to get started, hard to misconfigure
+
+- **Document all configuration options**
+  - What each setting does
+  - Valid values and formats
+  - Defaults
+  - Examples
+
+---
+
+### Function-Based Design
+
+**Functions are the fundamental unit of abstraction.**
+
+- **Single purpose functions**
+  - Each function should do one thing well
+  - If you can't name it without "and", split it
+  - Small, focused functions are easier to test and reuse
+
+- **Clear input/output contracts**
+  - Document parameters, return types, exceptions
+  - Make contracts explicit through types when possible
+  - Avoid surprising side effects
+
+- **Avoid side effects when possible**
+  - Pure functions are easier to test and reason about
+  - Side effects should be isolated and explicit
+  - Functions that modify state should make it obvious
+
+- **Proper parameter validation**
+  - Check inputs at function boundaries
+  - Fail fast with clear error messages
+  - Don't proceed with invalid inputs
+
+- **Meaningful names**
+  - Function names should clearly describe what they do
+  - Verbs for actions: `calculateTotal()`, `validateEmail()`, `fetchUserData()`
+  - Boolean functions: `isValid()`, `hasPermission()`, `canDelete()`
+
+---
+
+### Error Handling Patterns
+
+**Use language-appropriate error handling mechanisms.**
+
+#### Exception-Based Languages (Python, JavaScript, C++, Java, C#)
+
+- **Throw exceptions for exceptional conditions**
+  - Not for control flow
+  - When something unexpected happens
+  - When a function can't fulfill its contract
+
+- **Return None/null/Optional for expected missing values**
+  - `findUserById()` might return None if user doesn't exist
+  - This is expected behavior, not an exception
+
+- **Specific exception types**
+  - Use or create specific exception types
+  - `ValidationError`, `AuthenticationError`, `NotFoundError`
+  - Makes error handling more precise
+
+#### Error-Return Languages (Go, Rust, Zig)
+
+- **Return error as second value (Go)**
+  ```go
+  result, err := doSomething()
+  if err != nil {
+      // handle error
+  }
+  ```
+
+- **Use Result types (Rust)**
+  ```rust
+  match do_something() {
+      Ok(result) => // handle success,
+      Err(e) => // handle error,
+  }
+  ```
+
+#### Script Languages (Bash, PowerShell)
+
+- **Check exit codes**
+  - Use `set -e` in Bash to fail on errors
+  - Check `$?` after commands
+  - Proper error output to stderr
+
+- **Validate all inputs**
+  - Check that required arguments are provided
+  - Validate file existence before operations
+  - Clear error messages for missing prerequisites
+
+---
+
+## Language-Specific Guidelines
+
+### Script and Automation (Bash, PowerShell, etc.)
+
+- **Use strict mode**
+  - Bash: `set -euo pipefail` at the top of every script
+  - PowerShell: `Set-StrictMode -Version Latest`
+  - Fail fast on errors, undefined variables, pipe failures
+
+- **Validate all inputs**
+  - Check that environment variables exist
+  - Validate script arguments
+  - Verify files/directories exist before operating on them
+
+- **Use functions for repeated operations**
+  - Don't copy-paste command sequences
+  - Extract common operations into named functions
+  - Makes scripts more maintainable
+
+- **Proper logging and output**
+  - Structured output (don't just dump text)
+  - Clear error messages to stderr
+  - Success/failure indicators
+  - Timestamps for long-running operations
+
+- **Template external files, don't inline**
+  - Never construct config files with echo/heredoc
+  - Use proper templating tools
+  - Keep templates separate from logic
+
+### Application Code (Python, JavaScript, C++, etc.)
+
+- **Use language-appropriate error handling**
+  - Exceptions, error types, return codes
+  - Follow language conventions
+  - Don't fight the language
+
+- **Proper resource management**
+  - Close files, connections, handles
+  - Use RAII in C++
+  - Use `with` statements in Python
+  - Use `defer` in Go
+  - Use `try-with-resources` in Java
+
+- **Input validation at boundaries**
+  - API endpoints
+  - Function entry points
+  - Data coming from external systems
+
+- **Unit tests for critical functionality**
+  - Test error conditions, not just happy paths
+  - Test edge cases and boundary conditions
+  - Test business logic thoroughly
+
+- **Use language idioms**
+  - Follow established patterns and conventions
+  - Don't write Java in Python or Python in JavaScript
+  - When in Rome, do as the Romans do
+
+### Build and Infrastructure
+
+- **Reproducible builds**
+  - Same inputs always produce same outputs
+  - Pin dependency versions
+  - Use lock files (package-lock.json, Pipfile.lock, go.sum)
+
+- **Environment isolation**
+  - Use containers, virtual environments, or sandboxes
+  - Don't pollute global state
+  - Development environment should match production
+
+- **Clear dependency management**
+  - Explicit version pinning
+  - Document system dependencies
+  - Automated dependency updates with testing
+
+- **Automated verification**
+  - Tests, linting, security scanning
+  - Run in CI before merging
+  - Fail fast on violations
+
+- **Documentation as code**
+  - Keep docs close to implementation
+  - Document in version control
+  - Examples that actually work
+
+---
+
+## Critical Thinking and Decision Making
+
+### Challenge Ideas and Assumptions
+
+**Don't accept requirements at face value.**
+
+- Question the "why" behind every technical decision
+- Identify unstated assumptions in requirements and designs
+- Ask "What could go wrong?" for proposed solutions
+- Consider edge cases and failure scenarios
+- Probe for missing requirements
+
+### Provide Constructive Pushback
+
+**Disagreement is valuable when backed by reasoning.**
+
+- Disagree when you have evidence-based concerns
+- Offer alternative approaches with clear reasoning
+- Challenge overly complex solutions in favor of simpler ones
+- Point out potential security, performance, or maintainability issues
+- But respect the final decision once made
+
+### Focus on Evidence Over Agreement
+
+**Base decisions on data, not consensus.**
+
+- Base decisions on data, benchmarks, and measurable outcomes
+- Cite specific examples when discussing trade-offs
+- Reference industry standards and established patterns
+- Avoid "yes, and..." responses when "no, because..." is more appropriate
+- Be willing to be wrong when evidence shows otherwise
+
+---
+
+## Dependencies
+
+### Choose Libraries Wisely
+
+**Every dependency is a long-term commitment.**
+
+When adding third-party dependencies:
+
+- **Select the most popular and actively maintained option**
+  - More users = more eyes on bugs
+  - More contributors = faster fixes and improvements
+  - Industry standard > new and shiny
+
+- **Check the library's repository for:**
+  - Recent commits (within last 6 months)
+  - Active issue resolution
+  - Number of stars/downloads
+  - Clear documentation
+  - Security track record
+  - License compatibility
+
+- **Consider the long-term maintenance burden**
+  - Will this library be maintained in 5 years?
+  - Does it have a strong community?
+  - Are there breaking changes in every release?
+
+- **Evaluate if the problem can be solved with standard library**
+  - Built-in is always better than external
+  - Less to maintain, more stable, better supported
+  - Sometimes writing 50 lines is better than importing a package
+
+- **Assess the dependency tree**
+  - How many transitive dependencies?
+  - Are they all necessary?
+  - Large dependency trees = more attack surface + more breakage risk
+
+**Rules of thumb:**
+- Don't import a library for a single function you could write in 10 lines
+- Do import well-established libraries for complex problems (crypto, parsing, etc.)
+- Prefer minimal dependencies over feature-rich ones when you only need a subset
+
+---
+
+## Security Principles
+
+### Assume Everything Is Hostile
+
+- **All input is malicious until validated**
+  - User input, API responses, file contents, database queries
+  - Validate at boundaries, sanitize appropriately
+
+- **All external systems are untrusted**
+  - Don't trust data from APIs, databases, file systems
+  - Verify, don't assume
+
+- **All failure modes will be exploited**
+  - Think like an attacker
+  - What happens if this fails?
+  - What if the user sends malicious data?
+
+- **All credentials will eventually leak**
+  - Use short-lived tokens
+  - Rotate credentials regularly
+  - Encrypt at rest
+  - Never log credentials
+
+### Security by Default
+
+- **Validate at boundaries**
+  - Type checking, range validation, format validation
+  - Reject invalid input early
+
+- **Fail closed, not open**
+  - When in doubt, deny access
+  - Errors should not grant privileges
+
+- **Encrypt sensitive data**
+  - At rest and in transit
+  - Use proven algorithms
+  - Don't roll your own crypto
+
+- **Use least-privilege principles**
+  - Grant only the permissions needed
+  - Time-bound access when possible
+  - Audit access to critical resources
+
+- **Parameterized queries always**
+  - Never string interpolation for SQL
+  - Prevents SQL injection
+  - No exceptions
+
+---
+
+## The Standard
+
+Every piece of code should be:
+- **Clear** — Intent is obvious
+- **Simple** — Minimum complexity necessary
+- **Correct** — Works as intended, handles errors properly
+- **Secure** — Validated inputs, proper access control
+- **Tested** — Critical paths have tests
+- **Maintainable** — Future developers can understand and modify it
+
+**No compromises unless there's a justified business reason.**
+
+---
+
+**These principles apply to every line of code Junior writes.**

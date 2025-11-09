@@ -1,0 +1,552 @@
+---
+alwaysApply: true
+---
+
+# Language-Specific Best Practices
+
+## Context
+
+This document provides language-specific guidelines that complement the universal engineering principles. When working in a specific language, apply both the general best practices and the language-specific patterns.
+
+---
+
+## Python
+
+### Style and Conventions
+
+- **Follow PEP 8** — The official Python style guide
+  - 4 spaces for indentation (never tabs)
+  - Maximum line length: 79-100 characters
+  - Two blank lines between top-level functions/classes
+  - One blank line between methods
+
+- **Use type hints** — For function signatures and complex variables
+  ```python
+  def calculate_total(items: list[dict], tax_rate: float) -> float:
+      total = sum(item['price'] for item in items)
+      return total * (1 + tax_rate)
+  ```
+
+- **Docstrings for all public functions/classes/modules**
+  ```python
+  def retry_with_backoff(func: Callable, max_attempts: int = 3) -> Any:
+      """
+      Retry a function with exponential backoff.
+      
+      Args:
+          func: The function to retry
+          max_attempts: Maximum number of retry attempts
+          
+      Returns:
+          The result of func() if successful
+          
+      Raises:
+          Exception: The last exception if all retries fail
+      """
+  ```
+
+### Pythonic Patterns
+
+- **Use list/dict comprehensions** — For simple transformations
+  ```python
+  # Good
+  squared = [x**2 for x in numbers]
+  
+  # Bad
+  squared = []
+  for x in numbers:
+      squared.append(x**2)
+  ```
+
+- **Context managers for resources** — Always use `with` statements
+  ```python
+  # Good
+  with open('file.txt', 'r') as f:
+      data = f.read()
+  
+  # Bad
+  f = open('file.txt', 'r')
+  data = f.read()
+  f.close()
+  ```
+
+- **f-strings for formatting** — Modern and readable
+  ```python
+  # Good
+  message = f"User {user.name} has {user.points} points"
+  
+  # Bad
+  message = "User {} has {} points".format(user.name, user.points)
+  message = "User " + user.name + " has " + str(user.points) + " points"
+  ```
+
+- **Enumerate instead of range(len())** — More Pythonic
+  ```python
+  # Good
+  for i, item in enumerate(items):
+      print(f"{i}: {item}")
+  
+  # Bad
+  for i in range(len(items)):
+      print(f"{i}: {items[i]}")
+  ```
+
+- **Use pathlib for file paths** — Modern and cross-platform
+  ```python
+  from pathlib import Path
+  
+  config_file = Path('config') / 'settings.json'
+  if config_file.exists():
+      data = config_file.read_text()
+  ```
+
+### Error Handling
+
+- **Specific exceptions** — Use or create specific exception types
+  ```python
+  class ValidationError(Exception):
+      """Raised when input validation fails."""
+      pass
+  
+  def validate_email(email: str) -> None:
+      if '@' not in email:
+          raise ValidationError(f"Invalid email: {email}")
+  ```
+
+- **EAFP over LBYL** — "Easier to Ask for Forgiveness than Permission"
+  ```python
+  # Good (EAFP)
+  try:
+      return data[key]
+  except KeyError:
+      return default_value
+  
+  # Bad (LBYL)
+  if key in data:
+      return data[key]
+  else:
+      return default_value
+  ```
+
+### Common Pitfalls
+
+- **Mutable default arguments** — Don't use mutable objects as defaults
+  ```python
+  # Bad
+  def append_to(item, list=[]):
+      list.append(item)
+      return list
+  
+  # Good
+  def append_to(item, list=None):
+      if list is None:
+          list = []
+      list.append(item)
+      return list
+  ```
+
+- **Catch specific exceptions** — Don't use bare `except:`
+  ```python
+  # Bad
+  try:
+      risky_operation()
+  except:
+      pass
+  
+  # Good
+  try:
+      risky_operation()
+  except (ValueError, KeyError) as e:
+      logger.error(f"Operation failed: {e}")
+      raise
+  ```
+
+---
+
+## JavaScript / TypeScript
+
+### Prefer TypeScript
+
+- **Use TypeScript for new projects** — Type safety catches bugs early
+- **Gradual migration for existing projects** — .js → .ts file by file
+- **Strict mode** — Enable strict type checking in tsconfig.json
+
+### Modern JavaScript (ES6+)
+
+- **const over let, never var**
+  ```javascript
+  // Good
+  const items = [1, 2, 3];
+  let count = 0;
+  
+  // Bad
+  var items = [1, 2, 3];
+  var count = 0;
+  ```
+
+- **Arrow functions** — Especially for callbacks
+  ```javascript
+  // Good
+  items.map(item => item * 2)
+  
+  // Okay for multi-line
+  items.map(item => {
+      return item * 2;
+  })
+  ```
+
+- **Destructuring** — For cleaner code
+  ```javascript
+  // Good
+  const {name, age} = user;
+  const [first, second] = items;
+  
+  // Bad
+  const name = user.name;
+  const age = user.age;
+  ```
+
+- **Template literals** — Over string concatenation
+  ```javascript
+  // Good
+  const message = `User ${name} has ${points} points`;
+  
+  // Bad
+  const message = "User " + name + " has " + points + " points";
+  ```
+
+- **Async/await** — Over raw promises
+  ```javascript
+  // Good
+  async function fetchUserData(id) {
+      try {
+          const response = await fetch(`/api/users/${id}`);
+          return await response.json();
+      } catch (error) {
+          logger.error(`Failed to fetch user ${id}:`, error);
+          throw error;
+      }
+  }
+  
+  // Bad
+  function fetchUserData(id) {
+      return fetch(`/api/users/${id}`)
+          .then(response => response.json())
+          .catch(error => {
+              logger.error(`Failed to fetch user ${id}:`, error);
+              throw error;
+          });
+  }
+  ```
+
+### TypeScript Patterns
+
+- **Explicit types for function signatures**
+  ```typescript
+  function calculateTotal(items: CartItem[], taxRate: number): number {
+      const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+      return subtotal * (1 + taxRate);
+  }
+  ```
+
+- **Interfaces for object shapes**
+  ```typescript
+  interface User {
+      id: string;
+      name: string;
+      email: string;
+      role: 'admin' | 'user';
+  }
+  ```
+
+- **Use strict null checks** — Avoid undefined/null bugs
+  ```typescript
+  function getUser(id: string): User | null {
+      // Explicitly handle the "not found" case
+      return users.find(u => u.id === id) ?? null;
+  }
+  ```
+
+### Error Handling
+
+- **Throw Error objects** — Not strings
+  ```javascript
+  // Good
+  throw new Error("User not found");
+  
+  // Bad
+  throw "User not found";
+  ```
+
+- **Custom error classes** — For specific error types
+  ```typescript
+  class ValidationError extends Error {
+      constructor(message: string) {
+          super(message);
+          this.name = 'ValidationError';
+      }
+  }
+  ```
+
+---
+
+## Go
+
+### Idiomatic Go
+
+- **Follow Go conventions** — Use `gofmt` or `goimports`
+- **Short variable names** — In short scopes
+  ```go
+  // Good for short scope
+  for i, v := range values {
+      fmt.Println(i, v)
+  }
+  
+  // Good for longer scope
+  userRepository := NewUserRepository()
+  ```
+
+- **Error handling** — Check every error
+  ```go
+  // Good
+  result, err := doSomething()
+  if err != nil {
+      return fmt.Errorf("failed to do something: %w", err)
+  }
+  
+  // Bad
+  result, _ := doSomething()  // Ignoring error
+  ```
+
+- **Defer for cleanup** — Resource management
+  ```go
+  f, err := os.Open("file.txt")
+  if err != nil {
+      return err
+  }
+  defer f.Close()
+  
+  // Use the file...
+  ```
+
+### Concurrency
+
+- **Use goroutines and channels** — Go's strength
+- **Don't communicate by sharing memory** — Share memory by communicating
+- **Use sync.WaitGroup** — For waiting on multiple goroutines
+- **Context for cancellation** — Pass context.Context for long-running operations
+
+---
+
+## Rust
+
+### Ownership and Borrowing
+
+- **Understand ownership** — Core concept
+- **Use references appropriately** — `&` for borrowing, `&mut` for mutable borrowing
+- **Leverage the type system** — Let the compiler catch bugs
+
+### Error Handling
+
+- **Result and Option** — Not exceptions
+  ```rust
+  fn divide(a: f64, b: f64) -> Result<f64, String> {
+      if b == 0.0 {
+          Err("Division by zero".to_string())
+      } else {
+          Ok(a / b)
+      }
+  }
+  ```
+
+- **? operator** — For error propagation
+  ```rust
+  fn read_file() -> Result<String, io::Error> {
+      let content = fs::read_to_string("file.txt")?;
+      Ok(content.trim().to_string())
+  }
+  ```
+
+### Safety
+
+- **Avoid unsafe unless necessary** — Rust's safety guarantees are valuable
+- **Document why unsafe is needed** — When you must use it
+
+---
+
+## C / C++
+
+### Memory Management
+
+- **RAII in C++** — Resource Acquisition Is Initialization
+  ```cpp
+  // Good: Automatic cleanup
+  {
+      std::unique_ptr<Resource> resource(new Resource());
+      // Use resource
+  }  // Automatically cleaned up
+  ```
+
+- **Smart pointers in C++** — `unique_ptr`, `shared_ptr`, `weak_ptr`
+- **Check all allocations** — malloc/new can fail
+- **Free what you allocate** — Avoid memory leaks
+
+### Safety
+
+- **Bounds checking** — Always
+- **Initialize variables** — Don't use uninitialized memory
+- **Check return values** — Especially for system calls
+- **Use const** — When values shouldn't change
+
+---
+
+## Java
+
+### Modern Java (8+)
+
+- **Use Streams API** — For collection processing
+  ```java
+  List<Integer> squared = numbers.stream()
+      .map(n -> n * n)
+      .collect(Collectors.toList());
+  ```
+
+- **Lambda expressions** — For functional interfaces
+- **Optional** — Instead of null
+  ```java
+  Optional<User> user = findUserById(id);
+  user.ifPresent(u -> System.out.println(u.getName()));
+  ```
+
+### Best Practices
+
+- **Try-with-resources** — For automatic cleanup
+  ```java
+  try (BufferedReader br = new BufferedReader(new FileReader("file.txt"))) {
+      return br.readLine();
+  }
+  ```
+
+- **Specific exceptions** — Don't catch Exception
+- **Use StringBuilder** — For string concatenation in loops
+
+---
+
+## Ruby
+
+### Ruby Idioms
+
+- **Use blocks** — Ruby's killer feature
+  ```ruby
+  items.each { |item| puts item }
+  
+  File.open('file.txt') do |f|
+      puts f.read
+  end
+  ```
+
+- **Use symbols** — For hash keys and identifiers
+  ```ruby
+  user = { name: 'John', age: 30 }
+  ```
+
+- **Duck typing** — "If it walks like a duck..."
+
+---
+
+## SQL
+
+### Query Best Practices
+
+- **Parameterized queries** — ALWAYS, for security
+  ```python
+  # Good
+  cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+  
+  # Bad - SQL injection vulnerability
+  cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
+  ```
+
+- **Explicit column names** — Don't use SELECT *
+  ```sql
+  -- Good
+  SELECT id, name, email FROM users;
+  
+  -- Bad
+  SELECT * FROM users;
+  ```
+
+- **Use indexes** — For frequently queried columns
+- **LIMIT results** — For queries that could return many rows
+- **Avoid N+1 queries** — Use JOIN instead
+
+---
+
+## Shell Scripts (Bash)
+
+### Safety First
+
+- **Use strict mode** — At the top of every script
+  ```bash
+  #!/bin/bash
+  set -euo pipefail
+  IFS=$'\n\t'
+  ```
+  - `-e`: Exit on error
+  - `-u`: Exit on undefined variable
+  - `-o pipefail`: Exit on pipe failure
+
+### Best Practices
+
+- **Quote variables** — Always
+  ```bash
+  # Good
+  echo "$variable"
+  rm "$file_name"
+  
+  # Bad
+  echo $variable
+  rm $file_name
+  ```
+
+- **Use [[ ]] for tests** — More features than [ ]
+  ```bash
+  if [[ -f "$file" ]]; then
+      echo "File exists"
+  fi
+  ```
+
+- **Functions for repeated code** — Don't copy-paste
+  ```bash
+  log() {
+      echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*"
+  }
+  
+  log "Starting process..."
+  ```
+
+---
+
+## General Language Selection Advice
+
+### Choose Based On:
+
+- **Team expertise** — Use what the team knows
+- **Ecosystem** — Libraries, tools, community
+- **Performance requirements** — Critical? Use compiled language
+- **Type safety needs** — Complex domains benefit from static typing
+- **Deployment target** — Platform constraints
+
+### Don't Choose Based On:
+
+- **Hype** — New and shiny ≠ better
+- **Resume building** — Use the right tool for the job
+- **Personal preference alone** — When team knows something else
+
+---
+
+## The Standard
+
+Follow language conventions and idioms. Write code that looks like it was written by an expert in that language, not a polyglot forcing patterns from another language.
+
+**When in Rome, do as the Romans do.**
