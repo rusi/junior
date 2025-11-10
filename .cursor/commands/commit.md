@@ -4,6 +4,10 @@
 
 Intelligent git commit that stages files from current session, analyzes changes, and generates standardized commit messages.
 
+## Type
+
+Direct execution - Immediate action with user confirmation at key points
+
 ## When to Use
 
 - Ready to commit changes from current session
