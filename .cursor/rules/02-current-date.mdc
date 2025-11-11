@@ -1,0 +1,41 @@
+---
+alwaysApply: true
+---
+
+# Rule 02: Current Date
+
+## CRITICAL: Always Determine Current Date
+
+**Before writing ANY dates or timestamps, you MUST determine the current date.**
+
+**NEVER rely on memory for dates. ALWAYS run the command.**
+
+**Get current date:**
+
+```bash
+# macOS / Linux
+date +"%Y-%m-%d"
+
+# For full timestamp
+date +"%Y-%m-%d %H:%M:%S %Z"
+```
+
+```powershell
+# Windows (PowerShell)
+Get-Date -Format "yyyy-MM-dd HH:mm:ss K"
+```
+
+**Use YYYY-MM-DD format for:**
+- File creation dates in documents
+- Feature/experiment timestamps
+- Specification creation dates
+- Decision log entries
+- Any dated content
+
+**NEVER:**
+- Hardcode dates or assume current date
+- Use dates from memory
+- Use relative dates ("today", "yesterday")
+- Skip date verification when creating dated content
+
+This ensures all Junior-created documents have accurate, verifiable timestamps.

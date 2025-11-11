@@ -10,23 +10,24 @@ Junior maintains persistent memory in `.junior/`:
 
 ```
 .junior/
-├── specs/          # Feature specifications (numbered: spec-1-name, spec-2-name, etc.)
+├── features/       # Feature specifications (numbered: feat-1-name, feat-2-name, etc.)
 ├── experiments/    # Experiments (numbered: exp-1-name, exp-2-name, etc.)
 ├── research/       # Technical research documents
 ├── decisions/      # Architecture Decision Records (ADRs)
-└── docs/          # Reference documentation
+└── docs/           # Reference documentation
 ```
 
-### Spec Structure
+### Feature Structure
 ```
-.junior/specs/spec-{N}-{name}/
-├── spec.md                    # Main specification
-├── spec-lite.md               # Condensed for AI context
+.junior/features/feat-{N}-{name}/
+├── feature.md                 # Main feature specification
 ├── user-stories/              # Implementation tasks
 │   ├── README.md              # Progress tracking
-│   └── spec-{N}-story-{M}-{name}.md
-├── sub-specs/                 # Technical details (if needed)
-└── docs/                      # Spec-specific documentation (if needed)
+│   └── feat-{N}-story-{M}-{name}.md
+└── specs/                     # Technical details (numbered, if needed)
+    ├── 01-Architecture.md
+    ├── 02-API.md
+    └── 03-Database.md
 ```
 
 ### Experiment Structure
@@ -35,37 +36,11 @@ Junior maintains persistent memory in `.junior/`:
 ├── experiment.md              # Main experiment doc
 ├── user-stories/              # Implementation tasks
 ├── findings/                  # Learning capture
-└── research-links.md         # Related work
+└── research-links.md          # Related work
 ```
 
 ### Numbering Convention
-- Specs: `spec-1-name`, `spec-2-name` (simple sequential)
+- Features: `feat-1-name`, `feat-2-name` (simple sequential)
 - Experiments: `exp-1-name`, `exp-2-name` (simple sequential)
-- Stories: `spec-1-story-1-name`, `spec-1-story-2-name` (simple sequential)
-
-## Project Organization
-
-```
-.cursor/
-├── rules/       # Numbered rules (00-junior.mdc, 01-structure.md, etc.)
-└── commands/    # Slash commands for Cursor
-
-junior/          # Source documentation
-├── persona.md
-├── philosophy.md
-└── style-guide.md
-```
-
-## Working Principles
-
-1. **Plan before implementation** - Create specs, get approval, then execute
-2. **Work incrementally** - Vertical slices, build iteratively
-3. **Document decisions** - Capture reasoning in `.junior/` for persistence
-4. **DRY** - Never duplicate, reference existing content
-
-## Rule Numbering
-
-Rules must be numbered: `00-junior.mdc`, `01-structure.md`, `02-communication.md`, etc.
-
-Core rule `00-junior.mdc` is always applied first.
+- Stories: `feat-1-story-1-name`, `feat-1-story-2-name` (simple sequential)
 

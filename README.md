@@ -57,16 +57,50 @@ cp -r /path/to/junior/.cursor .
 ### Available Commands
 
 **Core Commands:**
+- `/feature` - Plan and create feature specifications (contract-style)
 - `/commit` - Intelligent git commits with session-based staging
 - `/new-command` - Create new Junior commands
 
 **Coming Soon:**
-- `/plan` - Feature planning and specification
 - `/research` - Technical investigation
 - `/refactor` - Code improvement
 - `/review` - Code review
 
-### Example Session
+### Example Sessions
+
+**Planning a feature:**
+
+```text
+User: /feature add user authentication
+Junior: 🚀 Junior online. Let's think, then code.
+
+[Scans codebase and existing features]
+
+What authentication methods do you want to support?
+
+User: Email/password and Google OAuth
+
+Junior: [Asks focused questions about requirements...]
+
+## Feature Contract
+
+**Feature:** User authentication with email/password and Google OAuth
+**User Value:** Secure account creation and login
+**Success Criteria:** Users can register, login, and access protected routes
+
+[Shows complete contract with concerns and recommendations]
+
+Options: [yes/edit/risks/simpler]
+
+User: yes
+
+Junior: ✅ Feature specification created!
+📁 .junior/features/feat-1-auth/
+
+[3 user stories, each end-to-end integrated and user-testable]
+```
+
+**Committing changes:**
 
 ```text
 User: /commit
@@ -99,14 +133,16 @@ Proceed with commit? [yes/no/edit]
 ```text
 .cursor/
   rules/
-    00-junior.mdc       # Core identity and 14 principles
-    01-structure.md     # Working memory organization
+    00-junior.mdc       # Core identity and 15 principles
+    01-structure.mdc    # Working memory organization
+    02-current-date.mdc # Current date determination
   commands/
+    feature.md          # Feature planning (contract-style)
     commit.md           # Git commits with session staging
     new-command.md      # Create new commands
 
 .junior/                # Junior's working memory (created as needed)
-  specs/                # Feature specifications
+  features/             # Feature specifications
   experiments/          # Experiments and prototypes
   research/             # Technical research
   decisions/            # Architecture Decision Records
