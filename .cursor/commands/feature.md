@@ -40,7 +40,8 @@ Only proceed if git working directory is clean.
     {"id": "clarify", "content": "Clarify requirements", "status": "pending"},
     {"id": "contract", "content": "Present contract", "status": "pending"},
     {"id": "generate", "content": "Generate spec", "status": "pending"},
-    {"id": "review", "content": "Final consistency review", "status": "pending"}
+    {"id": "user-review", "content": "User review & refinement", "status": "pending"},
+    {"id": "final-review", "content": "Final consistency review", "status": "pending"}
   ]
 }
 ```
@@ -528,7 +529,19 @@ Template structure:
 - Responsive Design: Desktop, tablet, mobile requirements
 - Testing: Manual (user interaction scenarios), Accessibility (screen reader, keyboard)
 
-### Step 7: Present Package
+### Step 7: User Review & Refinement Phase
+
+Update todos:
+```json
+{
+  "todos": [
+    {"id": "user-review", "content": "User reviewing generated specification", "status": "in_progress"},
+    {"id": "final-review", "content": "Final consistency review", "status": "pending"}
+  ]
+}
+```
+
+Present package for user review:
 
 ```
 ✅ Feature specification created!
@@ -545,15 +558,14 @@ Template structure:
 **Total Tasks:** {X} implementation tasks
 **Approach:** TDD, end-to-end integrated, user-testable after each story
 
-Review the specification:
-- Captures your vision?
-- Missing requirements?
-- Stories appropriately scoped?
-- Need adjustments?
+Please review the generated specification. Let me know if you need any changes, or say "ready" when you're ready for final review.
+```
 
----
+**Refinement Loop:**
 
-**Ready for final review or more feedback?**
+User provides feedback naturally. Make requested changes, iterate as needed. Can push back if changes create complexity or don't align with contract.
+
+When user indicates they're done reviewing (e.g., "ready", "looks good", "all good"), proceed to Step 8.
 
 If ready for final review:
 - I'll check all documents for consistency
@@ -561,12 +573,9 @@ If ready for final review:
 - Ensure story dependencies make sense
 - Validate technical approach aligns with requirements
 
-Type 'ready' for final review or provide feedback.
-```
+### Step 8: Final Consistency Review
 
-### Step 8: Final Review (After User Says Ready)
-
-**If user says "ready" or "final review":**
+**Trigger:** Only when user says "ready" after Step 7 review phase.
 
 Update todos:
 ```json
@@ -580,7 +589,19 @@ Update todos:
 }
 ```
 
-**Review checklist:**
+**First, validate with user:**
+
+```
+Review the specification:
+- Captures your vision?
+- Missing requirements?
+- Stories appropriately scoped?
+- Need adjustments?
+```
+
+If user confirms or provides minor feedback, proceed to automated consistency checks.
+
+**Automated consistency checklist:**
 
 1. **Contract consistency:** feature.md contract matches stories and specs
 2. **Story dependencies:** Stories reference each other correctly
@@ -593,18 +614,27 @@ Update todos:
 9. **Database consistency:** If DB spec exists, matches data requirements
 10. **UI/UX consistency:** If wireframes exist, match functional requirements
 
+**Review all documents for consistency:**
+
+- Read feature.md contract
+- Read all user stories
+- Read all specs (if exist)
+- Verify cross-references work
+- Check alignment and consistency
+
 **Present review results:**
 
 ```
 🔍 Final Review Complete
 
-✅ Contract consistency - All docs align with locked contract
-✅ Story dependencies - Correct sequential order
-✅ Cross-references - All links verified
-✅ TDD approach - Test-first in all stories
-✅ Working output - User-testable emphasized
-✅ Vertical slices - No horizontal layering
-✅ Technical specs - Align with requirements
+- ✅ Contract consistency - All docs align with locked contract
+- ✅ Story dependencies - Correct sequential order
+- ✅ Cross-references - All links verified
+- ✅ TDD approach - Test-first in all stories
+- ✅ Working output - User-testable emphasized
+- ✅ Vertical slices - No horizontal layering
+- ✅ Technical specs - Align with requirements
+- ✅ Document consistency - All files reviewed and aligned
 
 [OR if issues found:]
 
