@@ -23,7 +23,8 @@ Create todos using `todo_write`:
 ```json
 {
   "todos": [
-    {"id": "analyze-status", "content": "Analyze git status and determine staging", "status": "in_progress"},
+    {"id": "analyze-status", "content": "Analyze git status and identify changes", "status": "in_progress"},
+    {"id": "update-docs", "content": "Update related documentation", "status": "pending"},
     {"id": "stage-files", "content": "Stage session files with user confirmation", "status": "pending"},
     {"id": "generate-message", "content": "Generate commit message", "status": "pending"},
     {"id": "commit-changes", "content": "Execute commit", "status": "pending"}
@@ -31,7 +32,7 @@ Create todos using `todo_write`:
 }
 ```
 
-### Step 2: Git Status Analysis & Staging Strategy
+### Step 2: Git Status Analysis
 
 **Check current git state:**
 
@@ -39,30 +40,64 @@ Create todos using `todo_write`:
 git status --porcelain
 ```
 
+**Analyze changes:**
+
+1. **Identify session files:**
+   - Files edited/created in current agent session
+   - Exclude files from previous sessions
+
+2. **If no changes:**
+   - Display clean status and exit
+
+3. **Categorize changes:**
+   - Code files (implementation)
+   - Test files (validation)
+   - Configuration files
+   - Documentation files
+
+### Step 3: Update Related Documentation
+
+**CRITICAL: Update docs BEFORE staging so they're included in commit**
+
+Intelligently identify and update any documentation that relates to the code changes:
+
+**What to look for:**
+- READMEs that describe changed functionality
+- Story files that track the changed code
+- Technical specs that document changed components
+- API docs for changed endpoints
+- Any documentation referencing the changed files
+
+**What to update:**
+- Mark completed tasks: `- [ ]` → `- ✅`
+- Update progress tracking
+- Update status fields
+- Add notes about implementation changes
+- Keep documentation in sync with reality
+
+**Skip if:**
+- Changes are only documentation
+- No related docs found
+
+### Step 4: Stage Files
+
 **Session-Based Staging Logic:**
 
 **CRITICAL: Stage only files from current agent session**
 
 **CRITICAL: NEVER use `git add .` - Always stage files explicitly file-by-file**
 
-1. **If no staged files exist:**
-   - Identify files edited/created in this session only
-   - Exclude all other modified files
-   - Present staging plan for confirmation
-   - Stage explicitly: `git add file1.ts file2.ts file3.ts`
-
-2. **If staged files exist:**
-   - Review what's staged
-   - Proceed or modify
-
-3. **If no changes:**
-   - Display clean status and exit
-
 **Present staging plan:**
 ```
 📁 Files to stage (from this session):
+
+Code changes:
   M  src/auth.ts
-  ?? src/auth.test.ts
+  M  src/auth.test.ts
+
+Documentation updates:
+  M  .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md
+  M  .junior/features/feat-1-auth/user-stories/README.md
 
 📋 Excluding (not part of this session):
   M  backend/other.py
@@ -72,11 +107,16 @@ Stage these session files? [yes/no/all]
 ```
 
 **Options:**
-- **yes** - Stage session files (default)
+- **yes** - Stage session files (code + docs) (default)
 - **no** - Cancel
 - **all** - Stage all modified files (override default)
 
-### Step 3: Generate Commit Message
+**Stage explicitly:**
+```bash
+git add src/auth.ts src/auth.test.ts .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md .junior/features/feat-1-auth/user-stories/README.md
+```
+
+### Step 5: Generate Commit Message
 
 **Analyze changes to determine commit type:**
 
@@ -91,19 +131,37 @@ Stage these session files? [yes/no/all]
 
 **Message Generation Logic:**
 
-1. Analyze file changes to determine primary type
-2. Generate concise subject line (<80 characters)
-3. Add optional detailed body with bullet points
-4. Use imperative mood ("Add feature" not "Added")
+1. **Analyze for work context:**
+   - Determine if changes are part of specific work (features, experiments, bugfixes, etc.)
+   - Extract context identifier if found: `feat-1-story-2`, `exp-3`, etc.
+   - Add status: (WIP) if in progress, ✅ if completed, omit if not part of tracked work
 
-**Format:**
+2. Analyze file changes to determine primary type
+3. Generate concise subject line with context if found
+4. Add optional detailed body with bullet points
+5. Use imperative mood ("Add feature" not "Added")
+
+**Format (with context):**
+```
+[type]([context]): [status] [brief description]
+
+[Optional details]
+```
+
+**Format (without context):**
 ```
 [type]: [brief description]
 
 [Optional details]
 ```
 
-### Step 4: User Review & Commit Execution
+**Examples:**
+- `feat(feat-1-story-2): ✅ implement login endpoint`
+- `feat(feat-1-story-3): WIP add OAuth integration`
+- `fix(exp-2): resolve memory leak in data processor`
+- `docs: update API reference`
+
+### Step 6: User Review & Commit Execution
 
 **Present generated message:**
 
@@ -126,6 +184,14 @@ Proceed with this commit? [yes/no/edit]
 - **no** - Cancel commit
 - **edit** - Modify message before committing
 
+**If changes needed:**
+
+If user wants to make additional changes before committing:
+- **DON'T reset** - Keep files staged
+- User makes additional edits
+- Stage the new changes: `git add [new files]`
+- Re-review and commit when ready
+
 **Execute commit:**
 
 ```bash
@@ -138,7 +204,7 @@ git commit -m "[generated message]"
 ✅ Commit completed successfully!
 
 📝 Commit: a1b2c3d - feat: add JWT authentication system
-📁 Files: 3 staged
+📁 Files: 5 staged (3 code + 2 docs)
 📊 Changes: +45 -12 lines
 ```
 
@@ -161,12 +227,20 @@ git commit -m "[generated message]"
 **Primary tools:**
 - `todo_write` - Progress tracking
 - `run_terminal_cmd` - Git commands
+- `read_file` - Read story files and documentation
+- `search_replace` - Update documentation checkboxes and progress
+- `glob_file_search` - Find related story files
+- `grep` - Search for file references in documentation
 - `codebase_search` - Context analysis (if needed)
 
 **Git commands:**
 - `git status --porcelain` - Check status
 - `git add file1.ts file2.ts` - Stage files explicitly
 - `git commit -m "[message]"` - Commit changes
+
+**Documentation commands:**
+- `find .junior -name "feat-*-story-*.md"` - Find story files
+- `grep -r "filename" .junior/` - Find file references
 
 **CRITICAL:** NEVER use `git add .` - Always stage files explicitly by name, one by one.
 
@@ -195,16 +269,31 @@ git add file1.ts file2.ts   # Stage multiple files explicitly
 
 ## Examples
 
-**Feature:**
+**With work context:**
 ```
-feat: add user authentication
+feat(feat-1-story-2): ✅ implement login endpoint
 
-- Implement JWT token generation
-- Add login/logout endpoints
-- Include authentication middleware
+- Add JWT token generation
+- Implement password validation
+- Add comprehensive tests
 ```
 
-**Bug fix:**
+```
+feat(feat-1-story-3): WIP add OAuth integration
+
+- Google OAuth provider configured
+- Callback endpoint implemented
+- TODO: Add token refresh logic
+- TODO: Handle error cases
+```
+
+```
+fix(exp-2): resolve memory leak in data processor
+
+Handle cleanup in destructor properly.
+```
+
+**Without context:**
 ```
 fix: resolve Safari compatibility in auth flow
 
@@ -226,5 +315,3 @@ Improve testability and reusability.
 ---
 
 Clear commits. Clear intent. Simple.
-
-

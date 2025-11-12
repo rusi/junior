@@ -239,13 +239,15 @@ High-level strategy:
 |-------|-------|--------|-------|----------|
 | 1 | [Title] | Not Started | 5 | 0/5 |
 | 2 | [Title] | Not Started | 4 | 0/4 |
+| {N+1} | Future Enhancements & Follow-up Work | Not Started | - | Backlog |
 
-**Total:** 0/9 tasks (0%)
+**Total:** 0/9 tasks (0%) + Future work in backlog
 
 ## Story Dependencies
 
 - Story 2 depends on Story 1 completion
 - Story 3 can run parallel to Story 2
+- Story {N+1} (Future Work) depends on all previous stories
 
 ## Implementation Order
 
@@ -254,10 +256,13 @@ Follow stories sequentially. Each story must be:
 - User-testable with working output
 - Built using TDD (test first, implement, verify)
 
+Story {N+1} captures out-of-scope items and future enhancements for later consideration.
+
 ## Quick Links
 
 - [Story 1](./feat-{N}-story-1-{name}.md)
 - [Story 2](./feat-{N}-story-2-{name}.md)
+- [Story {N+1}: Future Work](./feat-{N}-story-{N+1}-future-enhancements.md)
 ```
 
 **user-stories/feat-{N}-story-{M}-{name}.md:**
@@ -331,12 +336,55 @@ See [specs/01-Technical.md](../specs/01-Technical.md) for detailed technical app
 - [ ] Deployed and verified
 ```
 
+**Generate final story: Future Enhancements & Follow-up Work**
+
+After generating all planned implementation stories, automatically create one final story to capture future work:
+
+```markdown
+# Story {N+1}: Future Enhancements & Follow-up Work
+
+> **Status:** Not Started
+> **Priority:** Low (Backlog)
+> **Dependencies:** All previous stories completed
+> **Deliverable:** Captured future work items for consideration in later iterations
+
+## Purpose
+
+This story captures features, enhancements, and technical considerations that were identified during feature planning but intentionally excluded from the initial scope. These items should be reviewed and potentially implemented in future iterations once the core feature is stable.
+
+## Out-of-Scope Features
+
+[Items from contract "❌ Excluded" section - convert to actionable tasks with context]
+
+## Technical Debt Considerations
+
+[Technical shortcuts or limitations that should be addressed later]
+- Document any simplified implementations
+- Note areas that need optimization
+- List scalability concerns to revisit
+
+## Enhancement Opportunities
+
+[Ideas for improving the feature after initial release]
+- User experience improvements
+- Performance optimizations
+- Additional capabilities that would add value
+
+## Follow-up Work
+
+[Tasks that naturally follow from the implemented feature]
+- Integration opportunities with other features
+- Analytics or monitoring additions
+- Documentation expansions
+```
+
 **Critical story rules:**
 - Max 5-7 tasks per story (split if more)
 - Each story is end-to-end integrated
 - **User sees working output after each story**
 - Vertical slices, not horizontal layers
 - TDD: test first, implement, verify
+- **Always generate final future work story (Story N+1)**
 
 **USER MUST SEE WORKING OUTPUT AFTER EACH STORY**
 
