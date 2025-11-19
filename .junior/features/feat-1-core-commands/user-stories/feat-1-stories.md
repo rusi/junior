@@ -11,6 +11,7 @@
 | 1 | Update /feature Command - Future Work Tracking | Completed | 6 | 6/6 |
 | 1b | Add User Review Phase to /feature Command | Completed | 8 | 8/8 |
 | 2 | Implement /implement Command | Completed | 8 | 8/8 |
+| 2b | Create Installation Script | Not Started | 13 | 0/13 |
 | 3 | Implement /status Command | Not Started | 6 | 0/6 |
 | 4 | Implement /research Command | Not Started | 5 | 0/5 |
 | 5 | Implement /experiment Command | Not Started | 6 | 0/6 |
@@ -20,9 +21,9 @@
 | 9 | Implement /idea Command | Not Started | 6 | 0/6 |
 | 10 | Implement /bugfix Command | Not Started | 7 | 0/7 |
 | 11 | Implement /enhancement Command | Not Started | 6 | 0/6 |
-| 12 | Create Installation Script | Not Started | 9 | 0/9 |
+| 12 | Implement /update-feature Command | Not Started | 2 | 0/2 |
 
-**Total:** 22/93 tasks (24%)
+**Total:** 22/98 tasks (22%)
 
 ## Story Dependencies
 
@@ -30,6 +31,7 @@
 - Story 1: Update /feature - Future work tracking (modifies existing command)
 - Story 1b: Update /feature - User review phase (depends on Story 1)
 - Story 2: /implement (depends on Story 1b for complete feature workflow)
+- Story 2b: Installation script (depends on Story 2 for testing complete workflow)
 - Story 3: /status (independent, can run parallel to Story 2)
 
 **Tier 2: Investigation** (can start after Story 2)
@@ -42,12 +44,10 @@
 - Story 8: /migrate (independent)
 - Story 9: /idea (independent, lightweight)
 
-**Tier 4: Maintenance** (can start anytime after Story 2)
+**Tier 4: Maintenance & Updates** (can start anytime after Story 2)
 - Story 10: /bugfix (follows /implement patterns)
 - Story 11: /enhancement (similar to /bugfix, lighter weight)
-
-**Tier 5: Infrastructure** (should be last)
-- Story 12: Installation script (requires all commands complete for testing)
+- Story 12: /update-feature (modifies existing features, follows /feature patterns)
 
 ## Implementation Order
 
@@ -56,11 +56,12 @@
 1. **Story 1** - Add future work tracking to /feature → All new features capture follow-up work
 2. **Story 1b** - Add review phase to /feature → Final review happens after user feedback
 3. **Story 2** - Build /implement → Close critical execution gap
-4. **Story 3** - Build /status → Enable workflow tracking and navigation
-5. **Story 4-6** - Investigation commands → Complete research workflow
-6. **Story 7-9** - Project management → Enable project setup and idea capture
-7. **Story 10-11** - Maintenance workflows → Cover all development scenarios
-8. **Story 12** - Installation → Make Junior easily deployable
+4. **Story 2b** - Installation script → Make Junior easily deployable (moved up for immediate use)
+5. **Story 3** - Build /status → Enable workflow tracking and navigation
+6. **Story 4-6** - Investigation commands → Complete research workflow
+7. **Story 7-9** - Project management → Enable project setup and idea capture
+8. **Story 10-11** - Maintenance workflows → Cover all development scenarios
+9. **Story 12** - Build /update-feature → Enable feature modifications
 
 Each story must be:
 - End-to-end integrated
@@ -72,6 +73,7 @@ Each story must be:
 - [Story 1: Update /feature Command - Future Work Tracking](./feat-1-story-1-update-feature-command.md)
 - [Story 1b: Add User Review Phase to /feature Command](./feat-1-story-1b-feature-user-review-phase.md)
 - [Story 2: Implement /implement Command](./feat-1-story-2-implement-command.md)
+- [Story 2b: Create Installation Script](./feat-1-story-2b-installation-script.md)
 - [Story 3: Implement /status Command](./feat-1-story-3-status-command.md)
 - [Story 4: Implement /research Command](./feat-1-story-4-research-command.md)
 - [Story 5: Implement /experiment Command](./feat-1-story-5-experiment-command.md)
@@ -81,5 +83,5 @@ Each story must be:
 - [Story 9: Implement /idea Command](./feat-1-story-9-idea-command.md)
 - [Story 10: Implement /bugfix Command](./feat-1-story-10-bugfix-command.md)
 - [Story 11: Implement /enhancement Command](./feat-1-story-11-enhancement-command.md)
-- [Story 12: Create Installation Script](./feat-1-story-12-installation-script.md)
+- [Story 12: Implement /update-feature Command](./feat-1-story-12-update-feature-command.md)
 

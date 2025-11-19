@@ -25,7 +25,7 @@
 - Core execution: `/implement`, `/status`
 - Investigation: `/research`, `/experiment`, `/prototype`
 - Project management: `/init`, `/migrate`, `/idea`
-- Maintenance: `/bugfix`, `/enhancement`
+- Maintenance: `/bugfix`, `/enhancement`, `/update-feature`
 - Installation script for easy deployment
 
 ❌ **Excluded:**
