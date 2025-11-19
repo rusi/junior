@@ -58,6 +58,7 @@ cp -r /path/to/junior/.cursor .
 
 **Core Commands:**
 - `/feature` - Plan and create feature specifications (contract-style)
+- `/implement` - Execute feature stories with TDD workflow
 - `/commit` - Intelligent git commits with session-based staging
 - `/new-command` - Create new Junior commands
 
@@ -138,6 +139,7 @@ Proceed with commit? [yes/no/edit]
     02-current-date.mdc # Current date determination
   commands/
     feature.md          # Feature planning (contract-style)
+    implement.md        # Execute stories with TDD workflow
     commit.md           # Git commits with session staging
     new-command.md      # Create new commands
 

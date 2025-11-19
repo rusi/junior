@@ -25,6 +25,7 @@ Create todos using `todo_write`:
   "todos": [
     {"id": "analyze-status", "content": "Analyze git status and identify changes", "status": "in_progress"},
     {"id": "update-docs", "content": "Update related documentation", "status": "pending"},
+    {"id": "validate-tests", "content": "Run test validation if code changes present", "status": "pending"},
     {"id": "stage-files", "content": "Stage session files with user confirmation", "status": "pending"},
     {"id": "generate-message", "content": "Generate commit message", "status": "pending"},
     {"id": "commit-changes", "content": "Execute commit", "status": "pending"}
@@ -79,7 +80,128 @@ Intelligently identify and update any documentation that relates to the code cha
 - Changes are only documentation
 - No related docs found
 
-### Step 4: Stage Files
+### Step 4: Test & Coverage Validation
+
+**CRITICAL: Validate quality before committing code changes**
+
+**Check if code changes exist:**
+
+If session files include code changes (not just documentation/config):
+- Detect code files: `.ts`, `.js`, `.py`, `.go`, `.rs`, `.c`, `.cpp`, `.h`, `.hpp`, `.swift`, etc.
+- Skip if only documentation, config, or non-code files changed
+
+**Prompt user for validation:**
+
+```
+🧪 Code changes detected
+
+You're about to commit code changes:
+  M  src/auth.ts
+  M  src/auth.test.ts
+
+Run test validation before committing? [yes/no/skip]
+
+Options:
+- yes: Run full test suite and coverage check (recommended)
+- no: Skip validation (not recommended for code changes)
+- skip: I've already run tests manually
+```
+
+**If user chooses "yes", run validation:**
+
+**1. Run test suite:**
+
+```bash
+# Use project's test command (language-agnostic)
+npm test              # Node.js/JavaScript
+pytest --cov          # Python
+go test -cover ./...  # Go
+cargo test            # Rust
+make test             # C/C++ (typical)
+swift test            # Swift
+# etc. (detect from project structure)
+```
+
+**2. Generate coverage report:**
+
+```bash
+# Generate coverage with detailed output
+npm test -- --coverage                    # Jest
+pytest --cov --cov-report=term-missing   # Python
+go test -coverprofile=coverage.out ./... # Go
+cargo tarpaulin                          # Rust
+gcov / lcov                              # C/C++
+swift test --enable-code-coverage        # Swift
+```
+
+**3. Display validation results:**
+
+```
+🔍 Test Validation Results
+
+Tests:
+✅ All tests passing: 45/45 (100%)
+✅ No failing tests
+
+Coverage:
+✅ Overall coverage: 98%
+⚠️ Changed files coverage: 95%
+  - src/auth.ts: 98%
+  - src/auth.test.ts: 100%
+
+✅ Safe to commit!
+```
+
+**4. If validation fails:**
+
+```
+❌ Test Validation Failed
+
+Tests:
+❌ 2 tests failing
+  - src/auth.test.ts:45 - Login with invalid password
+  - src/auth.test.ts:67 - Token expiration
+
+Coverage:
+❌ Overall coverage: 87% (target: 90%+)
+❌ Changed files:
+  - src/auth.ts: 75% (missing lines: 45-52, 89-95)
+
+⚠️ NOT RECOMMENDED TO COMMIT
+
+Options:
+1. Fix failing tests and improve coverage (recommended)
+2. Commit anyway (not recommended - may break builds)
+3. Cancel and fix issues first
+
+Proceed with commit anyway? [yes/no]
+```
+
+**Validation outcomes:**
+
+- **All tests pass + coverage good (90%+)**: Proceed to staging normally
+- **Tests fail or coverage low (<90%) AND user commits anyway**: Mark as WIP and add warning note
+- **User chose "no" or "skip"**: Proceed to staging with warning note
+
+**Commit marking based on validation:**
+
+**If user skipped validation (chose "no" or "skip"):**
+```
+⚠️ Note: Committed without test validation
+```
+
+**If validation FAILED but user committed anyway:**
+- Automatically prefix commit type with WIP
+- Add warning note about failures
+```
+WIP: [original commit message]
+
+⚠️ WARNING: Committed with failing tests/incomplete coverage
+- Tests failing: 2
+- Coverage: 87% (target: 90%+)
+```
+
+### Step 5: Stage Files
 
 **Session-Based Staging Logic:**
 
@@ -96,8 +218,8 @@ Code changes:
   M  src/auth.test.ts
 
 Documentation updates:
+  M  .junior/features/feat-1-auth/user-stories/feat-1-stories.md
   M  .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md
-  M  .junior/features/feat-1-auth/user-stories/README.md
 
 📋 Excluding (not part of this session):
   M  backend/other.py
@@ -113,10 +235,10 @@ Stage these session files? [yes/no/all]
 
 **Stage explicitly:**
 ```bash
-git add src/auth.ts src/auth.test.ts .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md .junior/features/feat-1-auth/user-stories/README.md
+git add src/auth.ts src/auth.test.ts .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md .junior/features/feat-1-auth/user-stories/feat-1-stories.md
 ```
 
-### Step 5: Generate Commit Message
+### Step 6: Generate Commit Message
 
 **Analyze changes to determine commit type:**
 
@@ -161,7 +283,7 @@ git add src/auth.ts src/auth.test.ts .junior/features/feat-1-auth/user-stories/f
 - `fix(exp-2): resolve memory leak in data processor`
 - `docs: update API reference`
 
-### Step 6: User Review & Commit Execution
+### Step 7: User Review & Commit Execution
 
 **Present generated message:**
 
@@ -237,6 +359,14 @@ git commit -m "[generated message]"
 - `git status --porcelain` - Check status
 - `git add file1.ts file2.ts` - Stage files explicitly
 - `git commit -m "[message]"` - Commit changes
+
+**Test validation commands (language-agnostic):**
+- `npm test` / `npm test -- --coverage` - Node.js/JavaScript
+- `pytest --cov --cov-report=term-missing` - Python
+- `go test -cover ./...` - Go
+- `cargo test` / `cargo tarpaulin` - Rust
+- `make test` / `gcov` / `lcov` - C/C++
+- `swift test --enable-code-coverage` - Swift
 
 **Documentation commands:**
 - `find .junior -name "feat-*-story-*.md"` - Find story files

@@ -194,7 +194,7 @@ Per `01-structure.mdc`:
 
 ## User Stories
 
-See [user-stories/README.md](./user-stories/README.md) for implementation breakdown.
+See [user-stories/feat-{N}-stories.md](./user-stories/feat-{N}-stories.md) for implementation breakdown.
 
 ## Technical Approach
 
@@ -225,7 +225,7 @@ High-level strategy:
 
 #### 6.3: Generate User Stories
 
-**user-stories/README.md:**
+**user-stories/feat-{N}-stories.md:**
 
 ```markdown
 # User Stories Overview

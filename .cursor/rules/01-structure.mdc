@@ -22,12 +22,14 @@ Junior maintains persistent memory in `.junior/`:
 .junior/features/feat-{N}-{name}/
 ├── feature.md                 # Main feature specification
 ├── user-stories/              # Implementation tasks
-│   ├── README.md              # Progress tracking
+│   ├── feat-{N}-stories.md    # Progress tracking
 │   └── feat-{N}-story-{M}-{name}.md
-└── specs/                     # Technical details (numbered, if needed)
-    ├── 01-Architecture.md
-    ├── 02-API.md
-    └── 03-Database.md
+├── specs/                     # Technical details (numbered, if needed)
+│   ├── 01-Architecture.md
+│   ├── 02-API.md
+│   └── 03-Database.md
+└── docs/                      # Analysis, comparisons, technical notes (optional)
+    └── analysis-*.md
 ```
 
 ### Experiment Structure

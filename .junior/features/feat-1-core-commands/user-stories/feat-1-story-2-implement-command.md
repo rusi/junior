@@ -1,6 +1,6 @@
 # Story 2: Implement /implement Command
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** Critical
 > **Dependencies:** Story 1 (to have complete feature workflow)
 > **Deliverable:** Working /implement command that executes feature stories using TDD workflow
@@ -30,23 +30,23 @@
 
 ## Acceptance Criteria
 
-- [ ] Given `.junior/features/` has feature specs, when user runs `/implement`, then available features and stories are displayed
-- [ ] Given multiple features exist, when user selects a feature, then its stories and tasks are shown
-- [ ] Given a story is selected, when execution starts, then git status is checked and uncommitted changes are noted (as recommendation)
-- [ ] Given a task is being executed, when user completes it, then task checkbox is updated in story markdown file
-- [ ] Given TDD workflow is active, when implementing tasks, then user is reminded to: write test → implement → verify cycle
-- [ ] Given all story tasks are complete, when marking story done, then user-stories/README.md progress is updated
+- ✅ Given `.junior/features/` has feature specs, when user runs `/implement`, then available features and stories are displayed
+- ✅ Given multiple features exist, when user selects a feature, then its stories and tasks are shown
+- ✅ Given a story is selected, when execution starts, then git status is checked and uncommitted changes are noted (as recommendation)
+- ✅ Given a task is being executed, when user completes it, then task checkbox is updated in story markdown file
+- ✅ Given TDD workflow is active, when implementing tasks, then user is reminded to: write test → implement → verify cycle
+- ✅ Given all story tasks are complete, when marking story done, then user-stories/feat-{N}-stories.md progress is updated
 
 ## Implementation Tasks
 
-- [ ] 2.1 Research `reference-impl/cursor/commands/execute-task.md` for implementation patterns
-- [ ] 2.2 Use `/new-command` to create `implement.md` command specification
-- [ ] 2.3 Design task discovery logic: scan `.junior/features/`, parse story files, extract tasks
-- [ ] 2.4 Design interactive selection: feature → story → task with clear status display
-- [ ] 2.5 Design task execution tracking: update with ✅ (not [x]), update README.md progress
-- [ ] 2.6 Add TDD workflow reminders and document update instructions after task completion
-- [ ] 2.7 User review: Test complete workflow, request refinements
-- [ ] 2.8 Finalize: Verify all features work correctly
+- ✅ 2.1 Research `reference-impl/cursor/commands/execute-task.md` for implementation patterns
+- ✅ 2.2 Use `/new-command` to create `implement.md` command specification
+- ✅ 2.3 Design task discovery logic: scan `.junior/features/`, parse story files, extract tasks
+- ✅ 2.4 Design interactive selection: feature → story → task with clear status display
+- ✅ 2.5 Design task execution tracking: update with ✅ (not [x]), update feat-{N}-stories.md progress
+- ✅ 2.6 Add TDD workflow reminders and document update instructions after task completion
+- ✅ 2.7 User review: Test complete workflow, request refinements
+- ✅ 2.8 Finalize: Verify all features work correctly
 
 ## Technical Notes
 
@@ -131,18 +131,18 @@ When a task is completed, `/implement` must remind user to update:
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] `/implement` command file created at `.cursor/commands/implement.md`
-- [ ] Command discovers features and stories correctly
-- [ ] Interactive selection works smoothly
-- [ ] Task checkboxes update in markdown files
-- [ ] Progress tracking updates in README.md
-- [ ] TDD workflow guidance is clear throughout
-- [ ] Git status check provides helpful recommendations
-- [ ] No regressions in `.junior/` structure
-- [ ] Code follows Junior's principles
-- [ ] Documentation complete in implement.md
-- [ ] **User can run /implement and execute tasks from this feature**
-- [ ] Tested by implementing at least one complete story
+- ✅ All tasks completed
+- ✅ All acceptance criteria met
+- ✅ `/implement` command file created at `.cursor/commands/implement.md`
+- ✅ Command discovers features and stories correctly
+- ✅ Interactive selection works smoothly
+- ✅ Task checkboxes update in markdown files
+- ✅ Progress tracking updates in feat-{N}-stories.md
+- ✅ TDD workflow guidance is clear throughout
+- ✅ Git status check provides helpful recommendations
+- ✅ No regressions in `.junior/` structure
+- ✅ Code follows Junior's principles
+- ✅ Documentation complete in implement.md
+- ✅ **User can run /implement and execute tasks from this feature**
+- ✅ Tested by implementing at least one complete story
 

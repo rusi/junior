@@ -204,26 +204,30 @@ Test the command to verify it works as expected.
 
 ## Examples
 
-**Create research command:**
+**Create deployment command:**
 ```
 User: /new-command
 Junior: What command would you like to create?
-User: research command for technical investigation
+User: deploy command for production deployment
 Junior: [Asks clarifying questions...]
+Junior: What deployment steps are needed?
+User: Build, run tests, push to registry, deploy to k8s
 Junior: [Presents contract...]
 User: yes
-Junior: ✅ Command created at .cursor/commands/research.md
+Junior: ✅ Command created at .cursor/commands/deploy.md
 ```
 
-**Create plan command:**
+**Create database migration command:**
 ```
 User: /new-command
 Junior: What command would you like to create?
-User: plan command for feature planning
+User: migrate command to handle database migrations
 Junior: [Clarification loop...]
+Junior: Should this handle both up and down migrations?
+User: Yes, and show migration status
 Junior: [Contract with recommendations...]
 User: yes
-Junior: ✅ Command created at .cursor/commands/plan.md
+Junior: ✅ Command created at .cursor/commands/migrate.md
 ```
 
 ---
