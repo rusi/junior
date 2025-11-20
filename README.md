@@ -45,12 +45,61 @@ Junior turns Cursor into an expert software collaborator that:
 
 ### Installation
 
-1. Copy Junior files to your project:
+**Easy installation in any project:**
+
+**macOS / Linux:**
 ```bash
-cp -r /path/to/junior/.cursor .
+# Clone Junior repository
+git clone https://github.com/rusi/junior.git
+
+# Run installation script
+./junior/scripts/install-junior.sh /path/to/your/project
 ```
 
-2. Start using Junior with `/` commands
+**Windows (PowerShell):**
+```powershell
+# Clone Junior repository
+git clone https://github.com/rusi/junior.git
+
+# Run installation script
+.\junior\scripts\install-junior.ps1 -TargetPath "C:\path\to\your\project"
+```
+
+The installation script will:
+- ✅ Create `.cursor/` and `.junior/` directory structure
+- ✅ Copy all commands and rules to your project
+- ✅ Generate version tracking metadata
+- ✅ Preserve any existing customizations during upgrades
+
+**Manual installation:**
+```bash
+# Copy Junior files to your project
+cp -r /path/to/junior/.cursor /path/to/your/project/
+cp /path/to/junior/README.md /path/to/your/project/JUNIOR.md
+
+# Create Junior working memory structure
+mkdir -p /path/to/your/project/.junior/{features,experiments,research,decisions,docs,ideas,bugs,enhancements}
+```
+
+### Upgrading
+
+To upgrade an existing Junior installation, simply run the installation script again:
+
+```bash
+# macOS / Linux
+./junior/scripts/install-junior.sh /path/to/your/project
+
+# Windows (PowerShell)
+.\junior\scripts\install-junior.ps1 -TargetPath "C:\path\to\your\project"
+```
+
+The script will:
+- Detect user-modified files and preserve them
+- Update only unmodified Junior files
+- Offer to copy your customizations back to Junior source
+- Update version tracking metadata
+
+**Open your project in Cursor and start using commands immediately** - try `/feature` to get started!
 
 ## 📖 Usage
 

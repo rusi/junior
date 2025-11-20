@@ -11,7 +11,7 @@
 | 1 | Update /feature Command - Future Work Tracking | Completed | 6 | 6/6 |
 | 1b | Add User Review Phase to /feature Command | Completed | 8 | 8/8 |
 | 2 | Implement /implement Command | Completed | 8 | 8/8 |
-| 2b | Create Installation Script | Not Started | 13 | 0/13 |
+| 2b | Create Installation Script | In Progress | 13 | 9/13 |
 | 3 | Implement /status Command | Not Started | 6 | 0/6 |
 | 4 | Implement /research Command | Not Started | 5 | 0/5 |
 | 5 | Implement /experiment Command | Not Started | 6 | 0/6 |
@@ -23,7 +23,7 @@
 | 11 | Implement /enhancement Command | Not Started | 6 | 0/6 |
 | 12 | Implement /update-feature Command | Not Started | 2 | 0/2 |
 
-**Total:** 22/98 tasks (22%)
+**Total:** 31/98 tasks (32%)
 
 ## Story Dependencies
 

@@ -14,7 +14,10 @@ Junior maintains persistent memory in `.junior/`:
 ├── experiments/    # Experiments (numbered: exp-1-name, exp-2-name, etc.)
 ├── research/       # Technical research documents
 ├── decisions/      # Architecture Decision Records (ADRs)
-└── docs/           # Reference documentation
+├── docs/           # Reference documentation
+├── ideas/          # Product ideas (idea-N-name.md, quick capture)
+├── bugs/           # Bug tracking (bug-N-name, with reproduction steps)
+└── enhancements/   # Small improvements (enh-N-name, lighter than features)
 ```
 
 ### Feature Structure

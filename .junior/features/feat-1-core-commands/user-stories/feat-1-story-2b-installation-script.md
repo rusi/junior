@@ -1,6 +1,6 @@
 # Story 2b: Create Installation Script
 
-> **Status:** Not Started
+> **Status:** In Progress
 > **Priority:** High
 > **Dependencies:** Story 2 (needs /implement command complete to test workflow)
 > **Deliverable:** Fully working installation script for easy Junior deployment to any project
@@ -45,18 +45,18 @@
 
 ## Implementation Tasks
 
-- [ ] 2b.1 Research `reference-impl/scripts/install-cursor.sh`, `install-cursor.ps1`, and `install-config.json`
-- [ ] 2b.2 Add git clean check at start (verify Junior source git is clean for version timestamp)
-- [ ] 2b.3 Update `install-config.json` for Junior (commands, rules, README→JUNIOR.md, .junior/ directories per 01-structure.mdc)
-- [ ] 2b.4 Implement metadata generation: version (commit timestamp from `git log -1 --format=%ct`), file SHA checksums
-- [ ] 2b.5 Adapt `install-cursor.sh` for Junior (rename Code Captain → Junior, add metadata, checksum logic)
-- [ ] 2b.6 Adapt `install-cursor.ps1` for Junior (Windows PowerShell with same features)
-- [ ] 2b.7 Implement smart upgrade: compare checksums, preserve user changes, offer to pull changes back to source
-- [ ] 2b.8 Update welcome message and available commands list for Junior
+- ✅ 2b.1 Research `reference-impl/scripts/install-cursor.sh`, `install-cursor.ps1`, and `install-config.json`
+- ✅ 2b.2 Add git clean check at start (verify Junior source git is clean for version timestamp)
+- ✅ 2b.3 Update `install-config.json` for Junior (commands, rules, README→JUNIOR.md, .junior/ directories per 01-structure.mdc)
+- ✅ 2b.4 Implement metadata generation: version (commit timestamp from `git log -1 --format=%ct`), file SHA checksums
+- ✅ 2b.5 Adapt `install-cursor.sh` for Junior (rename Code Captain → Junior, add metadata, checksum logic)
+- ✅ 2b.6 Adapt `install-cursor.ps1` for Junior (Windows PowerShell with same features)
+- ✅ 2b.7 Implement smart upgrade: compare checksums, preserve user changes, offer to pull changes back to source
+- ✅ 2b.8 Update welcome message and available commands list for Junior
 - [ ] 2b.9 User review: Test installation on clean directory (macOS/Linux with .sh, Windows with .ps1)
 - [ ] 2b.10 User review: Test upgrade with user-modified files (verify preservation)
 - [ ] 2b.11 Verify all directories and files created correctly with metadata (`.junior/.junior-install.json` created)
-- [ ] 2b.12 Update main README.md with installation and upgrade instructions
+- ✅ 2b.12 Update main README.md with installation and upgrade instructions
 - [ ] 2b.13 Finalize: Test re-installation (verify preserves customizations via checksum comparison)
 
 ## Technical Notes
@@ -194,6 +194,8 @@ fi
 ```
 
 See [../feature.md](../feature.md) for overall feature context.
+
+**Testing Guide:** See [../docs/installation-test-guide.md](../docs/installation-test-guide.md) for comprehensive testing procedures.
 
 ## Testing Strategy
 

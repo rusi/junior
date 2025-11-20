@@ -1,0 +1,52 @@
+{
+  "directories": [
+    ".cursor/rules",
+    ".cursor/commands",
+    ".junior/features",
+    ".junior/experiments",
+    ".junior/research",
+    ".junior/decisions",
+    ".junior/docs",
+    ".junior/ideas",
+    ".junior/bugs",
+    ".junior/enhancements"
+  ],
+  "files": [
+    {
+      "source": ".cursor/rules/00-junior.mdc",
+      "destination": ".cursor/rules/00-junior.mdc"
+    },
+    {
+      "source": ".cursor/rules/01-structure.mdc",
+      "destination": ".cursor/rules/01-structure.mdc"
+    },
+    {
+      "source": ".cursor/rules/02-current-date.mdc",
+      "destination": ".cursor/rules/02-current-date.mdc"
+    },
+    {
+      "source": ".cursor/rules/03-style-guide.mdc",
+      "destination": ".cursor/rules/03-style-guide.mdc"
+    },
+    {
+      "source": ".cursor/commands/",
+      "destination": ".cursor/commands/",
+      "isDirectory": true
+    },
+    {
+      "source": "README.md",
+      "destination": "JUNIOR.md"
+    }
+  ],
+  "messages": {
+    "welcome": "Installing Junior - Your expert AI developer...",
+    "success": "Junior installation complete!",
+    "nextSteps": [
+      "Open your project in Cursor",
+      "Try running: /feature for your first feature",
+      "Use /implement to execute feature stories",
+      "Use /commit for intelligent git commits"
+    ],
+    "availableCommands": "/feature, /implement, /commit, /new-command"
+  }
+}
