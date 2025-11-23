@@ -29,6 +29,9 @@ ls -la
 # 3. Run installation from Junior source
 /path/to/junior/scripts/install-junior.sh /tmp/test-junior-fresh
 
+# For testing with uncommitted changes in Junior source:
+# /path/to/junior/scripts/install-junior.sh --ignore-dirty /tmp/test-junior-fresh
+
 # 4. Verify success message appears
 # Expected: "Junior installation complete!" with green checkmarks
 ```
@@ -126,20 +129,19 @@ BEFORE_CMD=$(shasum -a 256 .cursor/commands/feature.md | awk '{print $1}')
 # 5. Run installation again
 /path/to/junior/scripts/install-junior.sh /tmp/test-junior-fresh
 
-# 6. Verify warning appears
-# Expected: "User-modified files detected (2 files)"
-# Expected: List shows modified files
-# Expected: Prompt to copy back to source
+# 6. Verify warnings appear during installation
+# Expected: "User-modified: .cursor/rules/00-junior.mdc (preserving)"
+# Expected: "User-modified: .cursor/commands/feature.md (preserving)"
+# Expected: Upgrade completes successfully
 ```
 
 **Verification Checklist:**
-- [ ] Script detects 2 modified files
-- [ ] Lists: `.cursor/rules/00-junior.mdc` and `.cursor/commands/feature.md`
-- [ ] Shows warning: "These files have been preserved"
-- [ ] Asks: "Would you like to copy your changes back to Junior source?"
+- [ ] Script detects 2 modified files during upgrade
+- [ ] Shows warning for each: "User-modified: <file> (preserving)"
 - [ ] Modified files NOT overwritten (verify content still has custom changes)
 - [ ] Unmodified files updated normally
 - [ ] Metadata marks modified files with `"modified": true`
+- [ ] No prompt during installation (modifications preserved automatically)
 
 **Verify modified files preserved:**
 ```bash
@@ -170,19 +172,25 @@ cat .junior/.junior-install.json | jq '.files[".cursor/commands/feature.md"].mod
 
 ---
 
-### Test 4: Copy Back to Source
+### Test 4: Sync Modified Files Back to Source
 
-**Objective:** Verify user changes can be copied back to Junior source
+**Objective:** Verify user changes can be synced back to Junior source with `--sync-back` flag
 
 **Steps:**
 ```bash
 # 1. Continue from Test 3 with modified files
 cd /tmp/test-junior-fresh
 
-# 2. Run installation and answer "yes" to copy back prompt
-/path/to/junior/scripts/install-junior.sh /tmp/test-junior-fresh
-# When prompted: "Would you like to copy your changes back to Junior source? [yes/no]"
-# Answer: yes
+# 2. Run sync-back command (explicit flag, no prompts)
+/path/to/junior/scripts/install-junior.sh --sync-back /tmp/test-junior-fresh
+
+# Expected output:
+# "Syncing modifications back to Junior source..."
+# "Modified files found (2):"
+# Lists: .cursor/commands/feature.md and .cursor/rules/00-junior.mdc
+# "Syncing files back to Junior source..."
+# "Synced: .cursor/commands/feature.md -> ..."
+# "Sync complete! 2 files copied to Junior source"
 
 # 3. Check Junior source for copied changes
 cd /path/to/junior
@@ -194,9 +202,12 @@ tail -1 .cursor/commands/feature.md
 ```
 
 **Verification Checklist:**
-- [ ] Script shows: "Copying modified files back to Junior source..."
-- [ ] Lists each file being copied back
-- [ ] Shows: "Changes copied back to Junior source"
+- [ ] `--sync-back` flag triggers sync mode (no prompt, automatic sync)
+- [ ] Script shows: "Modified files found (2)"
+- [ ] Lists each modified file
+- [ ] Shows: "Syncing files back to Junior source..."
+- [ ] Copies each file: "Synced: <file> -> <destination>"
+- [ ] Shows: "Sync complete! N files copied to Junior source"
 - [ ] Warns: "Don't forget to commit these changes in Junior repository!"
 - [ ] Files in Junior source now contain user customizations
 - [ ] JUNIOR.md changes copied to README.md (if modified)
@@ -205,7 +216,7 @@ tail -1 .cursor/commands/feature.md
 
 ### Test 5: Git Clean Check
 
-**Objective:** Verify script enforces clean git state in Junior source
+**Objective:** Verify script enforces clean git state in Junior source (can be bypassed for testing)
 
 **Steps:**
 ```bash
@@ -213,21 +224,26 @@ tail -1 .cursor/commands/feature.md
 cd /path/to/junior
 echo "# test change" >> README.md
 
-# 2. Try to run installation
+# 2. Try to run installation (should fail)
 ./scripts/install-junior.sh /tmp/test-junior-fresh
 
 # 3. Verify error message
 # Expected: "Junior source git not clean. Commit or stash changes first."
 # Expected: Exit code 1 (failure)
 # Expected: Shows list of uncommitted changes
+
+# 4. Bypass check with --ignore-dirty flag (for testing only)
+./scripts/install-junior.sh --ignore-dirty /tmp/test-junior-fresh
+# Expected: Installation proceeds despite uncommitted changes
 ```
 
 **Verification Checklist:**
-- [ ] Script refuses to run with uncommitted changes
+- [ ] Script refuses to run with uncommitted changes (without flag)
 - [ ] Shows error message in red
 - [ ] Explains why (version based on commit timestamp)
 - [ ] Shows `git status --short` output
 - [ ] Exits with error code 1
+- [ ] `--ignore-dirty` flag bypasses check for testing scenarios
 
 **Cleanup:**
 ```bash
@@ -304,6 +320,10 @@ Add-Content -Path "C:\temp\test-junior-fresh\.cursor\rules\00-junior.mdc" -Value
 # Verify preservation
 Get-Content "C:\temp\test-junior-fresh\.cursor\rules\00-junior.mdc" | Select-Object -Last 1
 # Expected: "# Windows custom modification"
+
+# Test sync-back
+.\scripts\install-junior.ps1 -SyncBack -TargetPath "C:\temp\test-junior-fresh"
+# Expected: Syncs modified files to Junior source automatically
 ```
 
 ---
@@ -353,7 +373,7 @@ After completing all tests, verify these acceptance criteria from the story:
 - [ ] Given fresh installation, when verified, then all commands accessible via `/` ✅ (Test 1)
 - [ ] Given Windows system, when PowerShell script runs, then installation succeeds ✅ (Test 7)
 - [ ] Given existing installation with user changes, when upgrading, then preserves user customizations ✅ (Test 3)
-- [ ] Given existing installation with user changes, when detected, then offers to pull changes back to source ✅ (Test 4)
+- [ ] Given modified files detected, when using `--sync-back` flag, then syncs changes back to Junior source ✅ (Test 4)
 
 ## Definition of Done Validation
 
@@ -382,6 +402,24 @@ cd /path/to/junior
 git restore .
 ```
 
+## Key Features & Flags
+
+**Installation Modes:**
+- **Fresh install:** Detects if `.junior/.junior-install.json` doesn't exist
+- **Upgrade:** Automatically detected when metadata exists, preserves user modifications
+- **Sync-back:** Use `--sync-back` flag to copy modified files back to Junior source
+
+**CLI Flags:**
+- `--ignore-dirty`: Skip git clean check (useful for testing)
+- `--sync-back`: Sync modified files back to Junior source (non-interactive)
+- `--force`: Override safety checks (use only for special cases like Code Captain coexistence)
+
+**Conflict Handling:**
+- **Existing Junior installation:** Auto-upgrade, preserves modifications
+- **Code Captain detected:** Aborts unless `--force` provided
+- **Uncontrolled files exist:** Aborts during fresh install unless `--force` provided
+- **User modifications:** Preserved automatically, marked with `modified: true` in metadata
+
 ## Troubleshooting
 
 **"jq not found" error:**
@@ -404,6 +442,10 @@ sudo yum install jq
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
+
+**"Git not clean" error during testing:**
+- Use `--ignore-dirty` flag to bypass check for testing scenarios
+- For production installs, commit or stash changes first
 
 **Checksum mismatch on re-run:**
 - This is expected if you're testing - files change between runs

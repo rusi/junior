@@ -94,10 +94,24 @@ To upgrade an existing Junior installation, simply run the installation script a
 ```
 
 The script will:
-- Detect user-modified files and preserve them
+- Detect user-modified files and preserve them automatically
 - Update only unmodified Junior files
-- Offer to copy your customizations back to Junior source
 - Update version tracking metadata
+- Maintain all your customizations
+
+**Sync your customizations back to Junior source:**
+```bash
+# macOS / Linux
+./junior/scripts/install-junior.sh --sync-back /path/to/your/project
+
+# Windows (PowerShell)
+.\junior\scripts\install-junior.ps1 -SyncBack -TargetPath "C:\path\to\your\project"
+```
+
+**Advanced options:**
+- `--ignore-dirty` / `-IgnoreDirty`: Skip git clean check (testing only)
+- `--force` / `-Force`: Override safety checks (special cases only)
+- `--sync-back` / `-SyncBack`: Copy modified files back to Junior source
 
 **Open your project in Cursor and start using commands immediately** - try `/feature` to get started!
 

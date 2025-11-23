@@ -1,12 +1,18 @@
 # Junior Installation Script (PowerShell)
-# Usage: .\scripts\install-junior.ps1 [-SyncBack] -TargetPath "C:\path\to\project"
+# Usage: .\scripts\install-junior.ps1 [-SyncBack] [-IgnoreDirty] [-Force] -TargetPath "C:\path\to\project"
 
 param(
     [Parameter(Mandatory=$true)]
     [string]$TargetPath,
     
     [Parameter(Mandatory=$false)]
-    [switch]$SyncBack
+    [switch]$SyncBack,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$IgnoreDirty,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$Force
 )
 
 # Set error action preference
@@ -91,6 +97,8 @@ function Install-SingleFile {
         [string]$Dest
     )
     
+    $fileExisted = Test-Path $Dest -PathType Leaf
+    
     # Check for file conflicts
     $conflictType = Test-FileConflict -DestFile $Dest
     
@@ -128,7 +136,11 @@ function Install-SingleFile {
             modified = $false
         }
         
-        Write-Success "Installed: $Source -> $Dest"
+        if ($fileExisted) {
+            Write-Success "Up-to-date: $Dest"
+        } else {
+            Write-Success "Installed: $Dest"
+        }
     } else {
         Write-Warning "Source file not found: $sourcePath"
     }
@@ -158,15 +170,32 @@ if ($SyncBack) {
     # Load metadata
     $ExistingMetadata = Get-Content $MetadataFile -Raw | ConvertFrom-Json
     
-    # Find modified files
+    # Find files marked as modified (or compare against source)
     $SyncFiles = @()
     foreach ($file in $ExistingMetadata.files.PSObject.Properties.Name) {
         if (Test-Path $file -PathType Leaf) {
-            $currentChecksum = Get-FileChecksum -FilePath $file
-            $originalChecksum = $ExistingMetadata.files.$file.sha256
+            # Check if file is marked as modified in metadata
+            $isModified = $ExistingMetadata.files.$file.modified
             
-            if ($currentChecksum -ne $originalChecksum) {
+            if ($isModified) {
                 $SyncFiles += $file
+            } else {
+                # Also check if file differs from source (for files modified after last install)
+                $sourceFile = $null
+                if ($file -like ".cursor\rules\*" -or $file -like ".cursor\commands\*") {
+                    $sourceFile = Join-Path $RepoRoot $file
+                } elseif ($file -eq "JUNIOR.md") {
+                    $sourceFile = Join-Path $RepoRoot "README.md"
+                }
+                
+                if ($sourceFile -and (Test-Path $sourceFile -PathType Leaf)) {
+                    $currentChecksum = Get-FileChecksum -FilePath $file
+                    $sourceChecksum = Get-FileChecksum -FilePath $sourceFile
+                    
+                    if ($currentChecksum -ne $sourceChecksum) {
+                        $SyncFiles += $file
+                    }
+                }
             }
         }
     }
@@ -182,14 +211,7 @@ if ($SyncBack) {
         Write-Host "  • $file"
     }
     Write-Host ""
-    
-    Write-Status "Sync these files back to Junior source? [yes/no]"
-    $Confirm = Read-Host
-    
-    if (($Confirm -ne "yes") -and ($Confirm -ne "y")) {
-        Write-Status "Sync cancelled"
-        exit 0
-    }
+    Write-Status "Syncing files back to Junior source..."
     
     # Sync files back
     Write-Status "Syncing files..."
@@ -246,19 +268,33 @@ if (-not (Test-Path $GitDir -PathType Container)) {
     # Check for uncommitted changes
     $gitStatus = git status --porcelain
     if ($gitStatus) {
-        Write-ErrorMsg "Junior source git not clean. Commit or stash changes first."
-        Write-ErrorMsg "Version is based on commit timestamp - need clean state."
-        Write-Host ""
-        Write-Status "Uncommitted changes:"
-        git status --short
-        exit 1
+        if ($IgnoreDirty) {
+            Write-Warning "Git has uncommitted changes (ignored via -IgnoreDirty)"
+            Write-Warning "Note: Version may not reflect actual state"
+        } else {
+            Write-ErrorMsg "Junior source git not clean. Commit or stash changes first."
+            Write-ErrorMsg "Version is based on commit timestamp - need clean state."
+            Write-Host ""
+            Write-Status "Uncommitted changes:"
+            git status --short
+            Write-Host ""
+            Write-Status "Options:"
+            Write-Host "  1. Commit or stash changes"
+            Write-Host "  2. Use -IgnoreDirty flag (for testing only)"
+            exit 1
+        }
     }
     
     # Get version info from git
     $CommitHash = git rev-parse HEAD
     $CommitTimestamp = git log -1 --format=%ct
     $ShortHash = $CommitHash.Substring(0, 7)
-    Write-Success "Junior source is clean (commit: $ShortHash)"
+    
+    if ($IgnoreDirty) {
+        Write-Warning "Using commit: $ShortHash (with local changes)"
+    } else {
+        Write-Success "Junior source is clean (commit: $ShortHash)"
+    }
 }
 
 # Verify target directory exists
@@ -284,58 +320,38 @@ try {
 Set-Location $TargetPath
 Write-Status "Working in: $(Get-Location)"
 
-# Check for existing Cursor installation (Code Captain or other)
-if (Test-Path ".cursor" -PathType Container) {
-    Write-Warning "Existing .cursor directory detected!"
+# Check for Code Captain (requires explicit -Force to proceed)
+$hasCodeCaptain = (Test-Path ".cursor\rules\cc.mdc") -or (Test-Path "CODE_CAPTAIN.md") -or (Test-Path ".code-captain")
+
+if ($hasCodeCaptain) {
+    Write-Host ""
+    Write-Warning "═══════════════════════════════════════════════════"
+    Write-Warning "Code Captain installation detected!"
+    Write-Warning "═══════════════════════════════════════════════════"
+    Write-Host ""
+    Write-Status "Found:"
+    if (Test-Path ".cursor\rules\cc.mdc") { Write-Host "  • .cursor\rules\cc.mdc" }
+    if (Test-Path "CODE_CAPTAIN.md") { Write-Host "  • CODE_CAPTAIN.md" }
+    if (Test-Path ".code-captain") { Write-Host "  • .code-captain\ directory" }
+    Write-Host ""
     
-    # Check for Code Captain
-    $hasCodeCaptain = (Test-Path ".cursor\rules\cc.mdc") -or (Test-Path "CODE_CAPTAIN.md") -or (Test-Path ".code-captain")
-    
-    if ($hasCodeCaptain) {
-        Write-Host ""
-        Write-Warning "═══════════════════════════════════════════════════"
-        Write-Warning "Code Captain installation detected!"
-        Write-Warning "═══════════════════════════════════════════════════"
-        Write-Host ""
-        Write-Status "Found:"
-        if (Test-Path ".cursor\rules\cc.mdc") { Write-Host "  • .cursor\rules\cc.mdc" }
-        if (Test-Path "CODE_CAPTAIN.md") { Write-Host "  • CODE_CAPTAIN.md" }
-        if (Test-Path ".code-captain") { Write-Host "  • .code-captain\ directory" }
-        Write-Host ""
-        Write-Status "Recommendations before installing Junior:"
+    if (-not $Force) {
+        Write-Status "Recommendations:"
         Write-Host "  1. Review .cursor\commands\ for custom commands you want to keep"
         Write-Host "  2. Review .cursor\rules\ for custom rules you want to keep"
         Write-Host "  3. Consider backing up .code-captain\ if it contains work"
         Write-Host "  4. Use /migrate command (coming soon) for proper migration"
         Write-Host ""
-        Write-Warning "Installing Junior will:"
-        Write-Host "  • Install Junior files to .cursor\rules\ and .cursor\commands\"
-        Write-Host "  • Code Captain files (cc.mdc, etc.) will remain untouched"
-        Write-Host "  • Files with same names will be checked for conflicts"
-        Write-Host "  • NOT touch .code-captain\ (you can delete manually later)"
-        Write-Host "  • Create new .junior\ structure"
-        Write-Host ""
-        Write-Status "Continue with installation? [yes/no]"
-        $Continue = Read-Host
-        
-        if (($Continue -ne "yes") -and ($Continue -ne "y")) {
-            Write-Status "Installation cancelled. Review and clean up before installing."
-            exit 0
-        }
+        Write-ErrorMsg "Installation aborted. Use -Force to install alongside Code Captain."
+        exit 1
     } else {
+        Write-Warning "Proceeding with installation (-Force enabled)"
         Write-Host ""
-        Write-Status "Existing Cursor commands/rules found (not Code Captain)"
-        Write-Status "Junior will install files to .cursor\rules\ and .cursor\commands\"
-        Write-Status "Conflicts will be detected. Continue? [yes/no]"
-        $Continue = Read-Host
-        
-        if (($Continue -ne "yes") -and ($Continue -ne "y")) {
-            Write-Status "Installation cancelled."
-            exit 0
-        }
     }
-    Write-Host ""
 }
+
+# Note: If Junior is already installed (has metadata), upgrade proceeds automatically
+# Conflict detection happens during file installation - only uncontrolled files abort
 
 # Check for existing installation
 $MetadataFile = ".junior\.junior-install.json"

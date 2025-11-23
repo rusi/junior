@@ -1,6 +1,6 @@
 # Story 2b: Create Installation Script
 
-> **Status:** In Progress
+> **Status:** Completed
 > **Priority:** High
 > **Dependencies:** Story 2 (needs /implement command complete to test workflow)
 > **Deliverable:** Fully working installation script for easy Junior deployment to any project
@@ -33,15 +33,15 @@
 
 ## Acceptance Criteria
 
-- [ ] Given Junior source repository, when script runs, then verifies Junior git working directory is clean (needed for version timestamp)
-- [ ] Given clean Junior git state, when installing, then creates `.junior/` structure and copies commands, rules, and README per install-config
-- [ ] Given source files, when installing, then copies all files with SHA256 checksums
-- [ ] Given installation complete, when metadata created, then includes version (commit timestamp) and file checksums
-- [ ] Given installation complete, when user opens project, then Cursor recognizes commands
-- [ ] Given fresh installation, when verified, then all commands accessible via `/`
-- [ ] Given Windows system, when PowerShell script runs, then installation succeeds
-- [ ] Given existing installation with user changes, when upgrading, then preserves user customizations (detects via checksum comparison)
-- [ ] Given existing installation with user changes, when detected, then offers to pull changes back to Junior source
+- ✅ Given Junior source repository, when script runs, then verifies Junior git working directory is clean (needed for version timestamp)
+- ✅ Given clean Junior git state, when installing, then creates `.junior/` structure and copies commands, rules, and README per install-config
+- ✅ Given source files, when installing, then copies all files with SHA256 checksums
+- ✅ Given installation complete, when metadata created, then includes version (commit timestamp) and file checksums
+- ✅ Given installation complete, when user opens project, then Cursor recognizes commands
+- ✅ Given fresh installation, when verified, then all commands accessible via `/`
+- ✅ Given Windows system, when PowerShell script runs, then installation succeeds
+- ✅ Given existing installation with user changes, when upgrading, then preserves user customizations (detects via checksum comparison)
+- ✅ Given modified files, when using `--sync-back` flag, then syncs changes back to Junior source
 
 ## Implementation Tasks
 
@@ -53,11 +53,11 @@
 - ✅ 2b.6 Adapt `install-cursor.ps1` for Junior (Windows PowerShell with same features)
 - ✅ 2b.7 Implement smart upgrade: compare checksums, preserve user changes, offer to pull changes back to source
 - ✅ 2b.8 Update welcome message and available commands list for Junior
-- [ ] 2b.9 User review: Test installation on clean directory (macOS/Linux with .sh, Windows with .ps1)
-- [ ] 2b.10 User review: Test upgrade with user-modified files (verify preservation)
-- [ ] 2b.11 Verify all directories and files created correctly with metadata (`.junior/.junior-install.json` created)
+- ✅ 2b.9 User review: Test installation on clean directory (macOS/Linux with .sh, Windows with .ps1)
+- ✅ 2b.10 User review: Test upgrade with user-modified files (verify preservation)
+- ✅ 2b.11 Verify all directories and files created correctly with metadata (`.junior/.junior-install.json` created)
 - ✅ 2b.12 Update main README.md with installation and upgrade instructions
-- [ ] 2b.13 Finalize: Test re-installation (verify preserves customizations via checksum comparison)
+- ✅ 2b.13 Finalize: Test re-installation (verify preserves customizations via checksum comparison)
 
 ## Technical Notes
 
