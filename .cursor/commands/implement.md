@@ -259,12 +259,13 @@ Use `codebase_search` to understand:
 - For non-coding projects: Skip TDD-specific requirements
 - Validate implementation strategy
 
-**Update TODOs to reflect story tasks:**
+**🔴 CRITICAL: Update TODOs to reflect story tasks**
 
-After reviewing tasks, update `todo_write` to track specific story tasks:
+**IMMEDIATELY after reviewing tasks**, replace generic TODOs with specific story tasks using `todo_write`:
 
 ```json
 {
+  "merge": false,
   "todos": [
     {"id": "story-2-task-1", "content": "1.1 Write tests for dashboard API (Story 2)", "status": "in_progress"},
     {"id": "story-2-task-2", "content": "1.2 Implement data fetching service (Story 2)", "status": "pending"},
@@ -274,6 +275,14 @@ After reviewing tasks, update `todo_write` to track specific story tasks:
   ]
 }
 ```
+
+**Why this matters:**
+- Provides precise progress tracking aligned with story structure
+- Makes it clear which specific task is being worked on
+- Enables accurate completion reporting
+- Prevents generic "execute tasks" ambiguity
+
+**This is mandatory, not optional.** Do not proceed to Step 5 without updating TODOs to match story tasks.
 
 ### Step 5: Story Task Execution (TDD Workflow)
 
@@ -328,13 +337,37 @@ Mark complete when implementation makes tests pass.
 - Maintain compatibility - no regressions
 - Refactor when green - improve code quality while tests pass
 
-**After each task completion:**
+**🔴 MANDATORY: After each task completion:**
 
-- Update story file: `- [ ]` → `- ✅`
-- Update feat-N-stories.md progress
-- Update corresponding TODO to completed
-- Show completion confirmation
-- Present next task
+1. **Update story file** - Mark task: `- [ ]` → `- ✅`
+2. **Update feat-N-stories.md** - Recalculate progress (X/Y tasks, percentage)
+3. **Update TODO** - Mark corresponding todo as completed using `todo_write`
+4. **Show progress display** - Present current story progress to user:
+
+```
+📊 Story Progress
+
+Story: Story 2: User Dashboard
+Tasks: 5 total
+
+✅ 1.1 Write tests for dashboard API
+✅ 1.2 Implement data fetching service
+🔵 1.3 Create dashboard UI components (current)
+⚪ 1.4 Add real-time updates
+⚪ 1.5 Verify tests and coverage
+
+Progress: 2/5 tasks (40%)
+```
+
+**Symbols:**
+- ✅ = Completed
+- 🔵 = In Progress (next task)
+- ⚪ = Not Started
+- ⚠️ = Blocked
+
+5. **Present next task** - Show next task details and start working on it
+
+**This progress display must be shown after EVERY task completion.** It keeps the user informed and maintains transparency about story progress.
 
 #### Final Task: Test & Acceptance Verification (Coding Projects)
 
@@ -587,28 +620,20 @@ find .junior/features/feat-N-name/user-stories -name "feat-*-story-*.md"
 
 ## Progress Tracking
 
-**Task status display:**
+**Progress tracking happens at specific points in the workflow:**
 
-```
-📊 Story Progress
+1. **After Step 4 (Context Gathering):** Replace generic TODOs with story-specific tasks
+2. **After each task completion (Step 5):** Show progress display, update files, mark TODO complete
+3. **After final verification (Step 6):** Confirm all tasks complete, all tests pass
+4. **At story completion (Step 7):** Update story status, update feature progress
 
-Story: Story 2: User Dashboard
-Tasks: 5 total
+**See Step 5 for the mandatory progress display format shown after each task.**
 
-✅ 1.1 Write tests for dashboard API
-✅ 1.2 Implement data fetching service
-🔵 1.3 Create dashboard UI components (current)
-⚪ 1.4 Add real-time updates
-⚪ 1.5 Verify tests and coverage
-
-Progress: 2/5 tasks (40%)
-```
-
-**Symbols:**
-- ✅ = Completed
-- 🔵 = In Progress
-- ⚪ = Not Started
-- ⚠️ = Blocked
+**Progress tracking ensures:**
+- User always knows current position in story
+- Files stay synchronized (story file, feat-N-stories.md, TODOs)
+- Transparent communication of progress
+- Clear indication of what's next
 
 ## Quality Standards
 
