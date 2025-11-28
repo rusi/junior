@@ -109,6 +109,194 @@ add_file_metadata() {
     fi
 }
 
+# Function to cleanup Code Captain files
+cleanup_code_captain() {
+    echo ""
+    print_status "═══════════════════════════════════════════════════"
+    print_status "Code Captain Cleanup"
+    print_status "═══════════════════════════════════════════════════"
+    echo ""
+    
+    # Known Code Captain files (95% confidence)
+    KNOWN_CC_FILES=()
+    KNOWN_CC_COMMANDS=()
+    KNOWN_CC_RULES=()
+    
+    # Check for known Code Captain files
+    [ -f "CODE_CAPTAIN.md" ] && KNOWN_CC_FILES+=("CODE_CAPTAIN.md")
+    [ -f ".cursor/rules/cc.mdc" ] && KNOWN_CC_RULES+=(".cursor/rules/cc.mdc")
+    
+    # Known Code Captain commands
+    CC_COMMAND_PATTERNS=(
+        "create-spec.md"
+        "edit-spec.md"
+        "update-story.md"
+        "execute-task.md"
+        "create-experiment.md"
+        "fix-bug.md"
+        "create-idea.md"
+        "enhancement.md"
+        "create-adr.md"
+        "explain-code.md"
+        "initialize.md"
+        "initialize-python.md"
+        "initialize-cursor-vscode.md"
+        "swab.md"
+        "plan-product.md"
+    )
+    
+    for cmd in "${CC_COMMAND_PATTERNS[@]}"; do
+        if [ -f ".cursor/commands/$cmd" ]; then
+            KNOWN_CC_COMMANDS+=(".cursor/commands/$cmd")
+        fi
+    done
+    
+    # Scan for other commands/rules (uncertain)
+    UNCERTAIN_COMMANDS=()
+    UNCERTAIN_RULES=()
+    
+    if [ -d ".cursor/commands" ]; then
+        while IFS= read -r cmd; do
+            if [ -f "$cmd" ]; then
+                # Check if it's not in known CC commands list
+                is_known=false
+                for known in "${KNOWN_CC_COMMANDS[@]}"; do
+                    if [ "$cmd" = "$known" ]; then
+                        is_known=true
+                        break
+                    fi
+                done
+                
+                # Also skip Junior commands
+                basename_cmd=$(basename "$cmd")
+                if [ "$basename_cmd" = "feature.md" ] || [ "$basename_cmd" = "commit.md" ] || \
+                   [ "$basename_cmd" = "new-command.md" ] || [ "$basename_cmd" = "implement.md" ] || \
+                   [ "$basename_cmd" = "status.md" ] || [ "$basename_cmd" = "migrate.md" ]; then
+                    is_known=true
+                fi
+                
+                if [ "$is_known" = false ]; then
+                    UNCERTAIN_COMMANDS+=("$cmd")
+                fi
+            fi
+        done < <(find .cursor/commands -name "*.md" -type f 2>/dev/null || true)
+    fi
+    
+    if [ -d ".cursor/rules" ]; then
+        while IFS= read -r rule; do
+            if [ -f "$rule" ]; then
+                # Check if it's not in known CC rules list
+                is_known=false
+                for known in "${KNOWN_CC_RULES[@]}"; do
+                    if [ "$rule" = "$known" ]; then
+                        is_known=true
+                        break
+                    fi
+                done
+                
+                # Also skip Junior rules
+                basename_rule=$(basename "$rule")
+                if [ "$basename_rule" = "00-junior.mdc" ] || [ "$basename_rule" = "01-structure.mdc" ] || \
+                   [ "$basename_rule" = "02-current-date.mdc" ] || [ "$basename_rule" = "03-style-guide.mdc" ]; then
+                    is_known=true
+                fi
+                
+                if [ "$is_known" = false ]; then
+                    UNCERTAIN_RULES+=("$rule")
+                fi
+            fi
+        done < <(find .cursor/rules -name "*.mdc" -type f 2>/dev/null || true)
+    fi
+    
+    # Present files to user
+    echo ""
+    print_status "Files to remove (95% confidence from Code Captain):"
+    echo ""
+    
+    if [ ${#KNOWN_CC_FILES[@]} -gt 0 ]; then
+        echo "  Documentation:"
+        for file in "${KNOWN_CC_FILES[@]}"; do
+            echo "    • $file"
+        done
+        echo ""
+    fi
+    
+    if [ ${#KNOWN_CC_RULES[@]} -gt 0 ]; then
+        echo "  Rules:"
+        for file in "${KNOWN_CC_RULES[@]}"; do
+            echo "    • $file"
+        done
+        echo ""
+    fi
+    
+    if [ ${#KNOWN_CC_COMMANDS[@]} -gt 0 ]; then
+        echo "  Commands (${#KNOWN_CC_COMMANDS[@]} files):"
+        for file in "${KNOWN_CC_COMMANDS[@]}"; do
+            echo "    • $file"
+        done
+        echo ""
+    fi
+    
+    if [ ${#UNCERTAIN_COMMANDS[@]} -gt 0 ] || [ ${#UNCERTAIN_RULES[@]} -gt 0 ]; then
+        echo ""
+        print_warning "Files with uncertain origin (might be from Code Captain or custom):"
+        echo ""
+        
+        if [ ${#UNCERTAIN_COMMANDS[@]} -gt 0 ]; then
+            echo "  Commands:"
+            for file in "${UNCERTAIN_COMMANDS[@]}"; do
+                echo "    • $file"
+            done
+            echo ""
+        fi
+        
+        if [ ${#UNCERTAIN_RULES[@]} -gt 0 ]; then
+            echo "  Rules:"
+            for file in "${UNCERTAIN_RULES[@]}"; do
+                echo "    • $file"
+            done
+            echo ""
+        fi
+    fi
+    
+    echo ""
+    print_warning "Note: .code-captain/ directory is NOT removed by this cleanup."
+    print_warning "Use /migrate command to migrate Code Captain work to Junior."
+    echo ""
+    
+    # Confirm cleanup
+    if [ "$FORCE" != true ]; then
+        echo -n "Remove these files? [yes/no]: "
+        read -r response
+        
+        if [ "$response" != "yes" ] && [ "$response" != "y" ]; then
+            print_status "Cleanup cancelled. Installation aborted."
+            exit 1
+        fi
+    else
+        print_warning "Auto-confirming cleanup (--force enabled)"
+    fi
+    
+    # Perform cleanup
+    print_status "Removing Code Captain files..."
+    
+    for file in "${KNOWN_CC_FILES[@]}" "${KNOWN_CC_RULES[@]}" "${KNOWN_CC_COMMANDS[@]}" "${UNCERTAIN_COMMANDS[@]}" "${UNCERTAIN_RULES[@]}"; do
+        if [ -f "$file" ]; then
+            rm "$file"
+            print_success "Removed: $file"
+        fi
+    done
+    
+    # Clean up empty directories
+    rmdir .cursor/commands 2>/dev/null || true
+    rmdir .cursor/rules 2>/dev/null || true
+    rmdir .cursor 2>/dev/null || true
+    
+    echo ""
+    print_success "Code Captain cleanup complete!"
+    echo ""
+}
+
 # Function to install a single file with checksum tracking
 install_file() {
     local source="$1"
@@ -385,7 +573,7 @@ fi
 cd "$TARGET_DIR"
 print_status "Working in: $(pwd)"
 
-# Check for Code Captain (requires explicit --force to proceed)
+# Check for Code Captain (offer cleanup or force installation)
 if [ -f ".cursor/rules/cc.mdc" ] || [ -f "CODE_CAPTAIN.md" ] || [ -d ".code-captain" ]; then
     echo ""
     print_warning "═══════════════════════════════════════════════════"
@@ -399,16 +587,32 @@ if [ -f ".cursor/rules/cc.mdc" ] || [ -f "CODE_CAPTAIN.md" ] || [ -d ".code-capt
     echo ""
     
     if [ "$FORCE" != true ]; then
-        print_status "Recommendations:"
-        echo "  1. Review .cursor/commands/ for custom commands you want to keep"
-        echo "  2. Review .cursor/rules/ for custom rules you want to keep"
-        echo "  3. Consider backing up .code-captain/ if it contains work"
-        echo "  4. Use /migrate command (coming soon) for proper migration"
+        print_status "Options:"
+        echo "  1. Cleanup Code Captain files before installing Junior"
+        echo "  2. Use /migrate command to migrate .code-captain/ work first"
+        echo "  3. Cancel installation"
         echo ""
-        print_error "Installation aborted. Use --force to install alongside Code Captain."
-        exit 1
+        echo -n "Choose option [1/2/3]: "
+        read -r CC_OPTION
+        
+        case "$CC_OPTION" in
+            1)
+                cleanup_code_captain
+                # Continue with installation after cleanup
+                ;;
+            2)
+                print_status "Please run /migrate command to migrate Code Captain work to Junior,"
+                print_status "then run this installation script again."
+                exit 0
+                ;;
+            *)
+                print_status "Installation cancelled."
+                exit 0
+                ;;
+        esac
     else
         print_warning "Proceeding with installation (--force enabled)"
+        print_warning "Code Captain files will not be removed automatically."
         echo ""
     fi
 fi

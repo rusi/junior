@@ -1,6 +1,6 @@
 # Story 8: Implement /migrate Command
 
-> **Status:** Not Started
+> **Status:** In Progress
 > **Priority:** High
 > **Dependencies:** None
 > **Deliverable:** Fully working migration command that converts Code Captain projects to Junior
@@ -16,17 +16,21 @@
 **In Scope:**
 - Create migrate.md command file with complete migration workflow
 - Detect Code Captain installation (`.code-captain/` directory)
-- Rename `.code-captain/` → `.junior/` preserving all content
+- Handle both Code Captain versions (spec-N-name AND date-prefixed patterns)
+- Rename `.code-captain/` → `.junior/` OR merge into existing `.junior/`
 - Rename `spec-N-name` → `feat-N-name` for features
 - Keep `exp-N-name` unchanged for experiments
 - Update all internal references and cross-links
 - Preserve git history and all completed work
 - Generate migration report showing what changed
+- Continue migration on validation failures with post-migration fix list
+- Update installation script to cleanup Code Captain files (rules, commands, docs)
 
 **Out of Scope:**
 - Migrating from other systems (only Code Captain)
 - Content transformation (only renaming and restructuring)
-- Backup/rollback mechanisms (git provides this)
+- Backup mechanisms (git provides version control)
+- Automatic conflict resolution for merge scenarios (user reviews)
 
 ## Acceptance Criteria
 
@@ -39,13 +43,15 @@
 
 ## Implementation Tasks
 
-- [ ] 8.1 Research `reference-impl/cursor/docs/migration-guide.md` for migration patterns and scripts
-- [ ] 8.2 Run `/new-command` with prompt: "Create migrate command that converts Code Captain projects to Junior structure. Detects `.code-captain/` directory, renames to `.junior/`, renames `spec-N-name` to `feat-N-name` (keeps `exp-N-name` unchanged), updates all internal cross-references in markdown files, preserves git history using `git mv`, generates migration report. Uses git commands for safe renaming. Implements feat-1-story-8."
-- [ ] 8.3 User review: Test on sample Code Captain project (or create test fixture)
-- [ ] 8.4 Verify all cross-references updated correctly
-- [ ] 8.5 Verify git history preserved
-- [ ] 8.6 Refine migration report format
-- [ ] 8.7 Finalize: Test on real Code Captain project if available
+- ✅ 8.1 Research `reference-impl/cursor/docs/migration-guide.md` for migration patterns and scripts
+- ✅ 8.2 Create migrate.md command file (initial version)
+- ✅ 8.3 Update migrate.md to handle both Code Captain versions (spec-N-name and date-prefixed)
+- ✅ 8.4 Update migrate.md to handle merge scenario (both .junior and .code-captain exist)
+- ✅ 8.5 Update migrate.md to continue on validation failures with post-migration fix list
+- ✅ 8.6 Remove all backup references (git provides version control)
+- ✅ 8.7 Update installation script to cleanup Code Captain files (rules, commands, docs)
+- [ ] 8.8 Test migration command with different scenarios
+- [ ] 8.9 Finalize: Verify all features work end-to-end
 
 ## Technical Notes
 
