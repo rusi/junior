@@ -126,23 +126,27 @@ cleanup_code_captain() {
     [ -f "CODE_CAPTAIN.md" ] && KNOWN_CC_FILES+=("CODE_CAPTAIN.md")
     [ -f ".cursor/rules/cc.mdc" ] && KNOWN_CC_RULES+=(".cursor/rules/cc.mdc")
     
-    # Known Code Captain commands
+    # Known Code Captain commands (including overlaps with Junior)
     CC_COMMAND_PATTERNS=(
+        "commit.md"                        # CC and Junior both have this
+        "create-adr.md"
+        "create-experiment.md"
+        "create-idea.md"
         "create-spec.md"
         "edit-spec.md"
-        "update-story.md"
-        "execute-task.md"
-        "create-experiment.md"
-        "fix-bug.md"
-        "create-idea.md"
         "enhancement.md"
-        "create-adr.md"
+        "execute-task.md"
         "explain-code.md"
+        "fix-bug.md"
         "initialize.md"
         "initialize-python.md"
         "initialize-cursor-vscode.md"
-        "swab.md"
+        "new-command.md"                   # CC and Junior both have this
         "plan-product.md"
+        "research.md"
+        "status.md"                        # CC and Junior both have this
+        "swab.md"
+        "update-story.md"
     )
     
     for cmd in "${CC_COMMAND_PATTERNS[@]}"; do
@@ -239,7 +243,7 @@ cleanup_code_captain() {
     
     if [ ${#UNCERTAIN_COMMANDS[@]} -gt 0 ] || [ ${#UNCERTAIN_RULES[@]} -gt 0 ]; then
         echo ""
-        print_warning "Files with uncertain origin (might be from Code Captain or custom):"
+        print_status "Files with uncertain origin (will be KEPT):"
         echo ""
         
         if [ ${#UNCERTAIN_COMMANDS[@]} -gt 0 ]; then
@@ -257,30 +261,34 @@ cleanup_code_captain() {
             done
             echo ""
         fi
+        
+        print_status "These files might be custom. They will NOT be removed."
+        print_status "Review them manually after installation if needed."
+        echo ""
     fi
     
     echo ""
     print_warning "Note: .code-captain/ directory is NOT removed by this cleanup."
-    print_warning "Use /migrate command to migrate Code Captain work to Junior."
+    print_warning "Use /migrate command after installation to migrate your work."
     echo ""
     
     # Confirm cleanup
     if [ "$FORCE" != true ]; then
-        echo -n "Remove these files? [yes/no]: "
+        echo -n "Remove Code Captain files and continue with installation? [yes/cancel]: "
         read -r response
         
         if [ "$response" != "yes" ] && [ "$response" != "y" ]; then
-            print_status "Cleanup cancelled. Installation aborted."
-            exit 1
+            print_status "Installation cancelled. No changes made."
+            exit 0
         fi
     else
         print_warning "Auto-confirming cleanup (--force enabled)"
     fi
     
-    # Perform cleanup
+    # Perform cleanup (ONLY known CC files)
     print_status "Removing Code Captain files..."
     
-    for file in "${KNOWN_CC_FILES[@]}" "${KNOWN_CC_RULES[@]}" "${KNOWN_CC_COMMANDS[@]}" "${UNCERTAIN_COMMANDS[@]}" "${UNCERTAIN_RULES[@]}"; do
+    for file in "${KNOWN_CC_FILES[@]}" "${KNOWN_CC_RULES[@]}" "${KNOWN_CC_COMMANDS[@]}"; do
         if [ -f "$file" ]; then
             rm "$file"
             print_success "Removed: $file"
@@ -573,6 +581,9 @@ fi
 cd "$TARGET_DIR"
 print_status "Working in: $(pwd)"
 
+# Track if Code Captain cleanup was performed
+CC_CLEANED_UP=false
+
 # Check for Code Captain (offer cleanup or force installation)
 if [ -f ".cursor/rules/cc.mdc" ] || [ -f "CODE_CAPTAIN.md" ] || [ -d ".code-captain" ]; then
     echo ""
@@ -587,26 +598,29 @@ if [ -f ".cursor/rules/cc.mdc" ] || [ -f "CODE_CAPTAIN.md" ] || [ -d ".code-capt
     echo ""
     
     if [ "$FORCE" != true ]; then
-        print_status "Options:"
-        echo "  1. Cleanup Code Captain files before installing Junior"
-        echo "  2. Use /migrate command to migrate .code-captain/ work first"
-        echo "  3. Cancel installation"
+        print_status "Recommended workflow:"
+        echo "  1. Cleanup Code Captain interface (rules, commands, docs)"
+        echo "  2. Install Junior"
+        echo "  3. After installation, run /migrate to convert .code-captain/ work to Junior"
         echo ""
-        echo -n "Choose option [1/2/3]: "
+        print_warning "Note: Your .code-captain/ work directory will NOT be deleted."
+        print_warning "Only the Code Captain rules, commands, and docs will be removed."
+        echo ""
+        echo -n "Proceed with cleanup and installation? [yes/cancel]: "
         read -r CC_OPTION
         
         case "$CC_OPTION" in
-            1)
+            yes|y)
                 cleanup_code_captain
+                CC_CLEANED_UP=true
                 # Continue with installation after cleanup
-                ;;
-            2)
-                print_status "Please run /migrate command to migrate Code Captain work to Junior,"
-                print_status "then run this installation script again."
-                exit 0
                 ;;
             *)
                 print_status "Installation cancelled."
+                print_status ""
+                print_status "To install Junior, you can:"
+                print_status "  1. Manually remove Code Captain files and re-run this script"
+                print_status "  2. Use --force flag to install alongside (may cause conflicts)"
                 exit 0
                 ;;
         esac
@@ -779,13 +793,23 @@ echo "  ✓ Working memory: .junior/ (structure created)"
 echo "  ✓ Version: $COMMIT_TIMESTAMP (commit: ${COMMIT_HASH:0:7})"
 echo ""
 
-if [ -n "$NEXT_STEPS" ]; then
-    print_status "Next steps:"
+print_status "Next steps:"
+if [ "$CC_CLEANED_UP" = true ] && [ -d ".code-captain" ]; then
+    echo "  1. Run /migrate to convert your .code-captain/ work to Junior"
+    echo "  2. Try /status to see all your features"
+    echo "  3. Use /implement to continue working on features"
+    echo ""
+elif [ -n "$NEXT_STEPS" ]; then
     echo "$NEXT_STEPS" | while IFS= read -r step; do
         if [ -n "$step" ]; then
             echo "  $step"
         fi
     done
+    echo ""
+else
+    echo "  1. Try /feature to create your first feature"
+    echo "  2. Use /implement to execute feature stories"
+    echo "  3. Use /commit for intelligent git commits"
     echo ""
 fi
 

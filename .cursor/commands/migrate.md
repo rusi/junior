@@ -50,20 +50,20 @@ fi
 
 **Detect Code Captain version:**
 
-Use `list_dir` and `glob_file_search` to identify which version:
+Use `run_terminal_cmd` to detect structure (`.code-captain` is hidden, so use shell commands):
 
 ```bash
 # Check for spec-N-name pattern (v2)
-if ls .code-captain/specs/spec-[0-9]* 2>/dev/null; then
+if [ -d ".code-captain/specs" ] && ls .code-captain/specs/spec-[0-9]* 2>/dev/null | head -1; then
   echo "Code Captain v2 detected (spec-N-name pattern)"
   CC_VERSION="v2"
 # Check for date-prefixed pattern (v1)
-elif ls .code-captain/specs/20[0-9][0-9]-* 2>/dev/null; then
+elif [ -d ".code-captain/specs" ] && ls .code-captain/specs/20[0-9][0-9]-* 2>/dev/null | head -1; then
   echo "Code Captain v1 detected (date-prefixed pattern)"
   CC_VERSION="v1"
 else
-  echo "Unknown Code Captain version"
-  CC_VERSION="unknown"
+  echo "Code Captain detected but no specs directory (legacy or custom structure)"
+  CC_VERSION="custom"
 fi
 ```
 
@@ -82,12 +82,28 @@ fi
 
 **Detect structure:**
 
-Use `list_dir` to scan `.code-captain/` and identify:
+**CRITICAL:** `.code-captain` and `.junior` are hidden directories. Use `run_terminal_cmd` with shell commands, NOT `list_dir`.
+
+```bash
+# Scan Code Captain structure
+find .code-captain -type d -maxdepth 2 | sort
+
+# List specs if exists
+ls -1 .code-captain/specs/ 2>/dev/null || echo "No specs directory"
+
+# List experiments if exists  
+ls -1 .code-captain/experiments/ 2>/dev/null || echo "No experiments directory"
+
+# Count files
+find .code-captain -name "*.md" | wc -l
+```
+
+Identify:
 - Features in `.code-captain/specs/` (both `spec-N-name` and `YYYY-MM-DD-name` patterns)
 - Experiments in `.code-captain/experiments/` (looking for `exp-N-name` pattern)
 - Research documents in `.code-captain/research/`
-- Decision records in `.code-captain/decisions/`
-- Other directories and content
+- Decision records in `.code-captain/decisions/` or `.code-captain/decision-records/`
+- Other directories and content (legacy-*, docs/, etc.)
 
 **Present detection results:**
 
@@ -813,12 +829,13 @@ Options:
 
 **Primary tools:**
 
-- `list_dir` - Scan `.code-captain/` and `.junior/` directories
+- `run_terminal_cmd` - **REQUIRED** for detecting hidden directories (`.code-captain/`, `.junior/`), execute git mv commands, git status
 - `read_file` - Read feature/story files for validation
-- `run_terminal_cmd` - Execute git mv commands, git status
 - `grep` - Find all spec-N references in markdown files
 - `search_replace` - Update references in markdown files
 - `write` - Generate migration report
+
+**CRITICAL:** Never use `list_dir` for `.code-captain/` or `.junior/` - they are hidden directories and won't appear. Always use shell commands via `run_terminal_cmd`.
 
 **Git commands:**
 

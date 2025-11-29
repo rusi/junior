@@ -58,27 +58,46 @@ git status --porcelain
 
 ### Step 3: Update Related Documentation
 
-**CRITICAL: Update docs BEFORE staging so they're included in commit**
+**🔴 CRITICAL: Update docs BEFORE staging - This step is MANDATORY, not optional**
 
-Intelligently identify and update any documentation that relates to the code changes:
+**You MUST check for and update documentation EVERY TIME before staging files.**
 
-**What to look for:**
-- READMEs that describe changed functionality
-- Story files that track the changed code
-- Technical specs that document changed components
-- API docs for changed endpoints
-- Any documentation referencing the changed files
+**Process:**
+1. **Check for story files** related to the changes:
+   ```bash
+   # Find story files in .junior/features/
+   find .junior/features -name "*story*.md" | xargs grep -l "filename_you_changed"
+   ```
 
-**What to update:**
-- Mark completed tasks: `- [ ]` → `- ✅`
-- Update progress tracking
-- Update status fields
-- Add notes about implementation changes
-- Keep documentation in sync with reality
+2. **Read the story files** to see if tasks need updating
 
-**Skip if:**
-- Changes are only documentation
-- No related docs found
+3. **Update story progress:**
+   - Mark completed tasks: `- [ ]` → `- ✅`
+   - Update story status if all tasks complete: `Status: In Progress` → `Status: Completed`
+   - Update progress tracking in `feat-N-stories.md`
+   - Update task counts and percentages
+
+4. **Update other documentation:**
+   - READMEs that describe changed functionality
+   - Technical specs that document changed components
+   - API docs for changed endpoints
+   - Any documentation referencing the changed files
+
+**Example:**
+```bash
+# Changed: .cursor/commands/migrate.md
+# Must check: .junior/features/feat-1-core-commands/user-stories/feat-1-story-8-migrate-command.md
+# Must update: Task checkboxes, status, progress counts
+```
+
+**This step is NOT optional:**
+- Even if changes seem trivial
+- Even if you "think" docs are already up to date
+- Even if you're in a hurry
+
+**Skip ONLY if:**
+- Changes are pure documentation updates (no code changed)
+- Absolutely no related docs exist (rare)
 
 ### Step 4: Test & Coverage Validation
 
