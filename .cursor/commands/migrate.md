@@ -34,7 +34,8 @@ Create todos using `todo_write`:
     {"id": "validate-structure", "content": "Validate project structure", "status": "pending"},
     {"id": "migration-plan", "content": "Create migration plan and get user approval", "status": "pending"},
     {"id": "rename-directories", "content": "Rename directories with git mv", "status": "pending"},
-    {"id": "rename-feature-files", "content": "Rename spec.md/spec-lite.md/sub-specs/README.md", "status": "pending"},
+    {"id": "rename-story-files", "content": "Rename all story files to feat-N/exp-N prefixes", "status": "pending"},
+    {"id": "rename-feature-files", "content": "Rename spec.md/spec-lite.md/sub-specs to Junior names", "status": "pending"},
     {"id": "commit-renames", "content": "Commit all renames before content changes", "status": "pending"},
     {"id": "update-references", "content": "Update cross-references in markdown files", "status": "pending"},
     {"id": "commit-content", "content": "Commit content/reference updates", "status": "pending"},
@@ -210,16 +211,35 @@ Show progress as directories are renamed.
 
 ### Step 6: Rename Story Files
 
-**For each feature in `.junior/features/`:**
-1. In `user-stories/` directory, rename story files:
-   - `spec-N-story-M-name.md` → `feat-N-story-M-name.md`
-   - `spec-N-stories.md` → `feat-N-stories.md` (tracking file)
+**CRITICAL: Story files must follow Junior naming conventions with proper prefixes**
+
+**For each feature in `.junior/features/feat-N-name/`:**
+
+In `user-stories/` directory, rename ALL story files to match `feat-N-` prefix:
+
+1. **Story tracking file:**
    - `README.md` → `feat-N-stories.md` (if exists)
-2. Use `git mv` for all renames
+   - `spec-N-stories.md` → `feat-N-stories.md` (if exists)
+   - `YYYY-MM-DD-stories.md` → `feat-N-stories.md` (if exists)
 
-**For each experiment:** Check for any `spec-N-story` files and rename to `exp-N-story` (most should already use correct pattern).
+2. **Individual story files:**
+   - `spec-N-story-M-name.md` → `feat-N-story-M-name.md`
+   - `YYYY-MM-DD-story-M-name.md` → `feat-N-story-M-name.md`
+   - Any other `*.md` files that are stories → rename to `feat-N-story-M-name.md` pattern
 
-Show progress as story files are renamed.
+**For each experiment in `.junior/experiments/exp-N-name/`:**
+
+In `user-stories/` directory, rename ALL story files to match `exp-N-` prefix:
+
+1. **Story tracking file:**
+   - `README.md` → `exp-N-stories.md` (if exists)
+   - `YYYY-MM-DD-stories.md` → `exp-N-stories.md` (if exists)
+
+2. **Individual story files:**
+   - `YYYY-MM-DD-story-M-name.md` → `exp-N-story-M-name.md`
+   - Any story files with wrong prefix → `exp-N-story-M-name.md`
+
+**Use `git mv` for all renames.** Show progress as story files are renamed.
 
 ### Step 7: Rename Feature Files
 
@@ -244,8 +264,10 @@ This preserves git history better - git tracks file moves separately from conten
    Migrate Code Captain to Junior: rename all files
    
    - Rename N features to feat-N-name
+   - Rename N experiments to exp-N-name
    - Rename spec.md → feature.md, spec-lite.md → feature-lite.md
-   - Rename sub-specs/ → specs/, story files
+   - Rename sub-specs/ → specs/
+   - Rename all story files: README.md → feat-N-stories.md, stories to feat-N-story-M-name.md
    - Move product/docs/research to Junior structure
    
    All renames via git mv to preserve history.
@@ -264,6 +286,8 @@ This preserves git history better - git tracks file moves separately from conten
    - `spec.md` → `feature.md`
    - `spec-lite.md` → `feature-lite.md`
    - `sub-specs/` → `specs/`
+   - Story file references: `spec-N-story` → `feat-N-story`, date-story → `feat-N-story`
+   - Story tracking references: `README.md` → `feat-N-stories.md`, etc.
 
 Show progress: "Updated N references in M files"
 
@@ -274,8 +298,10 @@ Stage and commit content changes:
 Migrate Code Captain to Junior: update cross-references
 
 - Update all spec-N → feat-N references
+- Update all date-prefix → feat-N-name references
 - Update file references (spec.md → feature.md, etc.)
 - Update directory references (.code-captain/ → .junior/)
+- Update story file references (spec-N-story → feat-N-story, etc.)
 
 All internal links now point to new Junior structure.
 ```

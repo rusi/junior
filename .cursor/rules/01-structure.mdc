@@ -23,29 +23,42 @@ Junior maintains persistent memory in `.junior/`:
 ### Feature Structure
 ```
 .junior/features/feat-{N}-{name}/
-├── feature.md                 # Main feature specification
-├── user-stories/              # Implementation tasks
-│   ├── feat-{N}-stories.md    # Progress tracking
+├── feature.md                       # Main feature specification
+├── user-stories/                    # Implementation tasks
+│   ├── feat-{N}-stories.md          # Progress tracking (NOT README.md)
+│   ├── feat-{N}-story-1-{name}.md   # Individual stories
+│   ├── feat-{N}-story-2-{name}.md
 │   └── feat-{N}-story-{M}-{name}.md
-├── specs/                     # Technical details (numbered, if needed)
+├── specs/                           # Technical details (numbered, if needed)
 │   ├── 01-Architecture.md
 │   ├── 02-API.md
 │   └── 03-Database.md
-└── docs/                      # Analysis, comparisons, technical notes (optional)
+└── docs/                            # Analysis, comparisons, technical notes (optional)
     └── analysis-*.md
 ```
 
 ### Experiment Structure
 ```
 .junior/experiments/exp-{N}-{name}/
-├── experiment.md              # Main experiment doc
-├── user-stories/              # Implementation tasks
-├── findings/                  # Learning capture
-└── research-links.md          # Related work
+├── experiment.md                    # Main experiment doc
+├── user-stories/                    # Implementation tasks
+│   ├── exp-{N}-stories.md           # Progress tracking (NOT README.md)
+│   ├── exp-{N}-story-1-{name}.md    # Individual stories
+│   └── exp-{N}-story-{M}-{name}.md
+├── findings/                        # Learning capture
+└── research-links.md                # Related work
 ```
 
 ### Numbering Convention
 - Features: `feat-1-name`, `feat-2-name` (simple sequential)
 - Experiments: `exp-1-name`, `exp-2-name` (simple sequential)
 - Stories: `feat-1-story-1-name`, `feat-1-story-2-name` (simple sequential)
+- Story tracking: `feat-1-stories.md`, `exp-1-stories.md` (NOT README.md)
+
+**CRITICAL:** All story files MUST use the parent feature/experiment prefix:
+  - ✅ `feat-5-story-3-api-integration.md`
+  - ✅ `exp-2-story-1-setup.md`
+  - ❌ `2025-10-01-story-1-setup.md` (date-prefix, wrong!)
+  - ❌ `story-1-setup.md` (no prefix, wrong!)
+  - ❌ `README.md` in user-stories/ (use `feat-N-stories.md` instead)
 
