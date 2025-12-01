@@ -104,7 +104,7 @@ find .junior/features -name "feat-*" -type d -maxdepth 1
 find .junior/features -name "feat-*" -type d -maxdepth 1 | sort
 
 # For each feature:
-# - Read feature.md for status
+# - Read feat-N-overview.md for status
 # - Read user-stories/feat-N-stories.md for task counts
 # - Calculate completion percentage
 # - Group by status: In Progress → Planning → Completed
@@ -150,8 +150,8 @@ find .junior/experiments -name "exp-*" -type d
 
 **For experiments, check status:**
 ```bash
-# Check experiment.md for Status field
-grep "^> Status:" experiment.md
+# Check exp-N-overview.md for Status field
+grep "^> Status:" exp-N-overview.md
 
 # Or check for findings directory
 [ -d "findings" ] && echo "Completed" || echo "In Progress"

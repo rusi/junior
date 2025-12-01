@@ -23,7 +23,7 @@ Junior maintains persistent memory in `.junior/`:
 ### Feature Structure
 ```
 .junior/features/feat-{N}-{name}/
-├── feature.md                       # Main feature specification
+├── feat-{N}-overview.md             # Main feature specification (NOT feature.md or README.md)
 ├── user-stories/                    # Implementation tasks
 │   ├── feat-{N}-stories.md          # Progress tracking (NOT README.md)
 │   ├── feat-{N}-story-1-{name}.md   # Individual stories
@@ -40,12 +40,13 @@ Junior maintains persistent memory in `.junior/`:
 ### Experiment Structure
 ```
 .junior/experiments/exp-{N}-{name}/
-├── experiment.md                    # Main experiment doc
+├── exp-{N}-overview.md              # Main experiment doc (NOT experiment.md or README.md)
 ├── user-stories/                    # Implementation tasks
 │   ├── exp-{N}-stories.md           # Progress tracking (NOT README.md)
 │   ├── exp-{N}-story-1-{name}.md    # Individual stories
 │   └── exp-{N}-story-{M}-{name}.md
 ├── findings/                        # Learning capture
+│   └── exp-{N}-findings.md          # Main findings doc (NOT README.md)
 └── research-links.md                # Related work
 ```
 
@@ -55,10 +56,14 @@ Junior maintains persistent memory in `.junior/`:
 - Stories: `feat-1-story-1-name`, `feat-1-story-2-name` (simple sequential)
 - Story tracking: `feat-1-stories.md`, `exp-1-stories.md` (NOT README.md)
 
-**CRITICAL:** All story files MUST use the parent feature/experiment prefix:
-  - ✅ `feat-5-story-3-api-integration.md`
-  - ✅ `exp-2-story-1-setup.md`
+**CRITICAL:** All files MUST use consistent naming with feature/experiment prefix:
+  - ✅ `feat-5-overview.md` (main spec)
+  - ✅ `feat-5-stories.md` (story tracking)
+  - ✅ `feat-5-story-3-api-integration.md` (individual story)
+  - ✅ `exp-2-overview.md` (experiment spec)
+  - ✅ `exp-2-findings.md` (findings doc)
+  - ❌ `feature.md` or `experiment.md` (generic, wrong!)
+  - ❌ `README.md` anywhere in features/experiments (use descriptive names!)
   - ❌ `2025-10-01-story-1-setup.md` (date-prefix, wrong!)
   - ❌ `story-1-setup.md` (no prefix, wrong!)
-  - ❌ `README.md` in user-stories/ (use `feat-N-stories.md` instead)
 

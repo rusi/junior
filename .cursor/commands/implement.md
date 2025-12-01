@@ -177,7 +177,7 @@ Proceed anyway? [yes/no]
 
 - Main story file: `.junior/features/feat-N-{name}/user-stories/feat-N-story-M-{name}.md`
 - Progress tracking: `.junior/features/feat-N-{name}/user-stories/feat-N-stories.md`
-- Feature spec: `.junior/features/feat-N-{name}/feature.md`
+- Feature spec: `.junior/features/feat-N-{name}/feat-N-overview.md`
 - Related specs: `.junior/features/feat-N-{name}/specs/*.md` (if exist)
 - Dependencies: Check other features referenced in story
 
@@ -531,7 +531,7 @@ Story CANNOT be marked complete until all checks pass.
 | 2 | User Dashboard | Completed ✅ | 5 | 5/5 ✅ |
 ```
 
-4. **Update feature.md status if needed:**
+4. **Update feat-N-overview.md status if needed:**
 
 Check if all stories in feature are complete:
 - If yes: Update feature status to "Completed"
@@ -570,7 +570,7 @@ What would you like to do next?
 
 - **Story file:** Mark task with ✅
 - **feat-N-stories.md:** Update task count and percentage
-- **feature.md:** Update status if needed (Planning → In Progress → Completed)
+- **feat-N-overview.md:** Update status if needed (Planning → In Progress → Completed)
 - **Related stories:** Note if dependencies affect other stories
 
 **Automatic updates:**
@@ -591,7 +591,7 @@ What would you like to do next?
 - `codebase_search` - **CRITICAL** - Understand architecture, patterns, existing functionality, test frameworks
 - `glob_file_search` - Find feature and story files
 - `list_dir` - Scan features directory
-- `read_file` - Load story files, feat-N-stories.md, feature.md, specs, project config
+- `read_file` - Load story files, feat-N-stories.md, feat-N-overview.md, specs, project config
 - `search_replace` - Update task checkboxes and progress
 - `run_terminal_cmd` - Git status check, run tests
 - `grep` - Parse story files for tasks

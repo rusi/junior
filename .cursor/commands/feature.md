@@ -155,7 +155,7 @@ Wait for user approval.
 Per `01-structure.mdc`:
 ```
 .junior/features/feat-{N}-{name}/
-├── feature.md
+├── feat-N-overview.md
 ├── user-stories/
 │   ├── feat-{N}-stories.md
 │   └── feat-{N}-story-{M}-{name}.md
@@ -166,7 +166,7 @@ Per `01-structure.mdc`:
     └── 04-UI-Wireframes.md
 ```
 
-#### 6.2: Generate feature.md
+#### 6.2: Generate feat-N-overview.md
 
 ```markdown
 # [Feature Name]
@@ -500,7 +500,7 @@ Create numbered specs only when contract requires detailed technical documentati
 
 ## Cross-References
 
-- Implements requirements from [feature.md](../feature.md)
+- Implements requirements from [feat-N-overview.md](../feat-N-overview.md)
 - Related to Story 1: [link]
 - Related to Story 2: [link]
 ```
@@ -551,7 +551,7 @@ Present package for user review:
 ✅ Feature specification created!
 
 📁 .junior/features/feat-{N}-{name}/
-├── 📋 feature.md
+├── 📋 feat-N-overview.md
 ├── 👥 user-stories/
 │   ├── 📊 feat-{N}-stories.md
 │   └── 📝 feat-{N}-story-{M}-{name}.md
@@ -607,20 +607,20 @@ If user confirms or provides minor feedback, proceed to automated consistency ch
 
 **Automated consistency checklist:**
 
-1. **Contract consistency:** feature.md contract matches stories and specs
+1. **Contract consistency:** feat-N-overview.md contract matches stories and specs
 2. **Story dependencies:** Stories reference each other correctly
-3. **Cross-references:** All links work (feature.md ↔ stories ↔ specs)
+3. **Cross-references:** All links work (feat-N-overview.md ↔ stories ↔ specs)
 4. **TDD approach:** All stories include test-first tasks
 5. **Working output:** All stories emphasize user-testable output
 6. **Vertical slices:** No horizontal layering detected
-7. **Technical alignment:** specs/01-Technical.md aligns with feature.md
+7. **Technical alignment:** specs/01-Technical.md aligns with feat-N-overview.md
 8. **API consistency:** If API spec exists, matches feature requirements
 9. **Database consistency:** If DB spec exists, matches data requirements
 10. **UI/UX consistency:** If wireframes exist, match functional requirements
 
 **Review all documents for consistency:**
 
-- Read feature.md contract
+- Read feat-N-overview.md contract
 - Read all user stories
 - Read all specs (if exist)
 - Verify cross-references work

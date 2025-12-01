@@ -116,13 +116,13 @@ Status: Ready for migration
 
 1. For each feature in `.code-captain/specs/`:
    - Verify naming pattern (v1 date-prefix or v2 spec-N-name)
-   - Check for `spec.md` or `feature.md`
+   - Check for `spec.md` or `feat-N-overview.md`
    - Check for `user-stories/` directory
    - Count story files
 
 2. For each experiment in `.code-captain/experiments/`:
    - Verify `exp-N-name` pattern
-   - Check for `experiment.md`
+   - Check for `exp-N-overview.md`
 
 3. Check git status:
    - Working directory should be clean
@@ -168,7 +168,7 @@ PRODUCT & DOCUMENTATION:
 REFERENCE UPDATES:
 • Update markdown links (spec-N → feat-N, date-prefixes → feat-N)
 • Update .code-captain/ → .junior/ references
-• Update file references (spec.md → feature.md, etc.)
+• Update file references (spec.md → feat-N-overview.md, etc.)
 
 GIT OPERATIONS:
 • Use git mv for all renames (preserves history)
@@ -258,21 +258,29 @@ In `user-stories/` directory, rename ALL story files to match `exp-N-` prefix:
 
 ### Step 7: Rename Feature Files
 
-**CRITICAL: Code Captain uses `spec.md` / `spec-lite.md` / `sub-specs/` - Junior uses `feature.md` / `feature-lite.md` / `specs/`**
+**CRITICAL: Code Captain uses `spec.md` / `spec-lite.md` / `sub-specs/` - Junior uses `feat-N-overview.md` / `feat-N-overview-lite.md` / `specs/`**
 
 **For each feature:**
-1. `spec.md` → `feature.md`
-2. `spec-lite.md` → `feature-lite.md`
+1. `spec.md` → `feat-N-overview.md`
+2. `spec-lite.md` → `feat-N-overview-lite.md` (if exists)
 3. `sub-specs/` → `specs/` (directory)
+4. Any `feat-N-overview.md` → `feat-N-overview.md` (if already using Junior naming)
+5. Any `README.md` in feature root → `feat-N-overview.md` or descriptive name
+
+**For each experiment:**
+1. `exp-N-overview.md` → `exp-N-overview.md`
+2. `experiment-lite.md` → `exp-N-overview-lite.md` (if exists)
+3. Any `README.md` in experiment root → `exp-N-overview.md` or descriptive name
+4. Any `README.md` in findings/ → `exp-N-findings.md`
 
 **CRITICAL IMPLEMENTATION:**
-- Process EACH feature individually (loop through N=1 to total count)
-- For each one, find the actual directory (handle `feat-N-*` pattern)
+- Process EACH feature/experiment individually (loop through N=1 to total count)
+- For each one, find the actual directory (handle `feat-N-*` or `exp-N-*` pattern)
 - Check if each file/directory exists before attempting rename
 - Use `git mv` for all renames
-- Handle cases where files might not exist (spec-lite.md or sub-specs/ are optional)
+- Handle cases where files might not exist (lite versions are optional)
 
-**Show progress.** Report: "✅ Renamed feature files for N features"
+**Show progress.** Report: "✅ Renamed feature files for N features and M experiments"
 
 ### Step 8: Verify All Renames Are Complete
 
@@ -282,6 +290,7 @@ In `user-stories/` directory, rename ALL story files to match `exp-N-` prefix:
 
 1. **Verify feature/experiment main files:**
    - Search for any remaining `spec.md`, `spec-lite.md`, or `sub-specs/` in `.junior/`
+   - Search for generic `feat-N-overview.md` or `exp-N-overview.md` (should be `feat-N-overview.md` / `exp-N-overview.md`)
    - Should find NOTHING - if any files found, renames are incomplete!
 
 2. **Verify story tracking files (README.md → feat-N-stories.md):**
@@ -294,7 +303,12 @@ In `user-stories/` directory, rename ALL story files to match `exp-N-` prefix:
    - Look in all `user-stories/` directories (but exclude archived/ subdirectories)
    - Should find NOTHING - if any found, renames are incomplete!
 
-4. **Count verification:**
+4. **Verify README.md files outside user-stories/:**
+   - Search for `README.md` files in features/experiments root or subdirectories (excluding user-stories/, backups/)
+   - These should be renamed to descriptive names like `feat-N-overview.md`, `exp-N-findings.md`, etc.
+   - Count: 0 remaining (excluding backups/)
+
+5. **Count verification:**
    - Show count of renamed files vs expected
    - Compare: total features × (feature files + story files) = expected total
    - Display summary: "✅ X/X renames complete" or "⚠️ Missing N renames"
@@ -312,8 +326,9 @@ Example success:
 🔍 Verification Results:
 
 ✅ Feature/experiment main files: All renamed (0 spec.md, 0 spec-lite.md, 0 sub-specs/)
-✅ Story tracking files: All README.md renamed (0 remaining)
+✅ Story tracking files: All README.md renamed (0 remaining in user-stories/)
 ✅ Individual story files: All have feat-/exp- prefix (0 unprefixed)
+✅ Other README.md files: All renamed (0 remaining outside user-stories/)
 ✅ Ready to commit!
 
 Total renames: 243 files
@@ -353,7 +368,7 @@ This preserves git history better - git tracks file moves separately from conten
    
    - Rename N features to feat-N-name
    - Rename N experiments to exp-N-name
-   - Rename spec.md → feature.md, spec-lite.md → feature-lite.md
+   - Rename spec.md → feat-N-overview.md, spec-lite.md → feature-lite.md
    - Rename sub-specs/ → specs/
    - Rename all story files: README.md → feat-N-stories.md, stories to feat-N-story-M-name.md
    - Move product/docs/research to Junior structure
@@ -366,16 +381,34 @@ This preserves git history better - git tracks file moves separately from conten
 
 **Update all markdown references** using find/grep/sed:
 
+**CRITICAL: Only update references to FEATURE/EXPERIMENT files in .junior/, NOT command files in .cursor/commands/!**
+- ✅ Update: `.junior/features/feat-N-name/feature.md` → `feat-N-overview.md`
+- ❌ Don't touch: `.cursor/commands/feature.md` (this is the command file!)
+
 1. Find all `.md` files in `.junior/` and project README
 2. Update references:
    - `spec-N` → `feat-N` (in links, mentions, etc.)
    - `YYYY-MM-DD-name` → `feat-N-name` (if any date references remain)
    - `.code-captain/` → `.junior/`
-   - `spec.md` → `feature.md`
-   - `spec-lite.md` → `feature-lite.md`
+   - `spec.md` → `feat-N-overview.md` (in .junior/ paths only!)
+   - `/feature.md` → `/feat-N-overview.md` (use path separator to avoid command file!)
+   - `/experiment.md` → `/exp-N-overview.md` (use path separator!)
+   - `spec-lite.md` → `feat-N-overview-lite.md`
    - `sub-specs/` → `specs/`
    - Story file references: `spec-N-story` → `feat-N-story`, date-story → `feat-N-story`
    - Story tracking references: `README.md` → `feat-N-stories.md`, etc.
+
+3. **CRITICAL: Update story links in feat-N-stories.md and exp-N-stories.md files:**
+   - For EACH feature N, update `feat-N-stories.md`: `](./story-` → `](./feat-N-story-`
+   - For EACH experiment N, update `exp-N-stories.md`: `](./story-` → `](./exp-N-story-`
+   - Use sed with loop: `for n in {1..16}; do sed -i '' -E "s|\(\.\/story-|(.\/feat-$n-story-|g" .junior/features/feat-$n-*/user-stories/feat-$n-stories.md; done`
+   - These are the story quicklinks that users click - MUST be updated!
+
+4. **CRITICAL: Update feature/experiment file references with context:**
+   - Process EACH feature individually: In `.junior/features/feat-N-*/`, replace `feature.md` with `feat-N-overview.md`
+   - Process EACH experiment individually: In `.junior/experiments/exp-N-*/`, replace `experiment.md` with `exp-N-overview.md`
+   - Use loops with actual numbers to avoid hitting command files
+   - NEVER do blanket sed on entire project - it will corrupt command file references!
 
 Show progress: "Updated N references in M files"
 
@@ -397,7 +430,7 @@ Show progress: "Updated N references in M files"
 
 3. **Check for spec.md / spec-lite.md / sub-specs/ references:**
    - Search `.junior/` for `spec.md`, `spec-lite.md`, `sub-specs/` in markdown links/mentions
-   - Should be `feature.md`, `feature-lite.md`, `specs/`
+   - Should be `feat-N-overview.md`, `feature-lite.md`, `specs/`
    - Count: 0 remaining
 
 4. **Check for unprefixed story file references:**
@@ -405,7 +438,13 @@ Show progress: "Updated N references in M files"
    - Search for `README.md` in user-stories context (should be `feat-N-stories.md`)
    - Count: 0 remaining
 
-5. **Spot-check samples:**
+5. **CRITICAL: Check story links in feat-N-stories.md files:**
+   - Search for `](./story-` pattern in all `*-stories.md` files
+   - These are the quicklinks users click - MUST be `](./feat-N-story-` or `](./exp-N-story-`
+   - Count: 0 remaining
+   - Command: `grep -r "](./story-" .junior --include="*stories.md" | wc -l` should return 0
+
+6. **Spot-check samples:**
    - Pick 2-3 random feature files and verify their internal links are correct
    - Check the main roadmap/decisions files for correct references
 
@@ -425,6 +464,7 @@ Example success:
 ✅ .code-captain/ references: 0 remaining  
 ✅ spec.md/spec-lite.md/sub-specs/ references: 0 remaining
 ✅ Unprefixed story references: 0 remaining
+✅ Story links in feat-N-stories.md: All updated (0 ](./story- patterns)
 ✅ Ready to commit!
 
 Updated references in N files
@@ -436,12 +476,12 @@ Example failure:
 
 ⚠️  Date-prefixed references: 12 remaining
    - .junior/docs/roadmap.md:45: "See 2025-10-13-responsive-grid-system"
-   - .junior/features/feat-2-familyhub-os/feature.md:23: "depends on 2025-10-01-familyhub-os"
+   - .junior/features/feat-2-familyhub-os/feat-N-overview.md:23: "depends on 2025-10-01-familyhub-os"
    [... list all with file:line:content ...]
 
 ⚠️  .code-captain/ references: 3 remaining
    - .junior/docs/mission.md:15: "in .code-captain/specs/"
-   - .junior/features/feat-5-layered-bundle-caching/feature.md:78: "See .code-captain/docs/"
+   - .junior/features/feat-5-layered-bundle-caching/feat-N-overview.md:78: "See .code-captain/docs/"
 
 ⚠️  spec.md references: 2 remaining
    - .junior/features/feat-1-school-menu-scrolling/feat-1-stories.md:10: "See spec.md"
@@ -457,7 +497,7 @@ Migrate Code Captain to Junior: update cross-references
 
 - Update all spec-N → feat-N references
 - Update all date-prefix → feat-N-name references
-- Update file references (spec.md → feature.md, etc.)
+- Update file references (spec.md → feat-N-overview.md, etc.)
 - Update directory references (.code-captain/ → .junior/)
 - Update story file references (spec-N-story → feat-N-story, etc.)
 
