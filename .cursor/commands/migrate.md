@@ -19,6 +19,11 @@ Direct execution - Immediate action with user confirmation before migration
 
 **CRITICAL: Execute Steps 1-4 continuously without stopping. Only stop at Step 4 to get user approval before proceeding with the migration.**
 
+**VERIFICATION CRITICAL:**
+- After renaming files (Steps 5-7), ALWAYS verify completeness (Step 8) BEFORE committing (Step 9). Never skip!
+- After updating references (Step 10), ALWAYS verify completeness (Step 11) BEFORE committing (Step 12). Never skip!
+- If ANY verification fails, fix the issues and re-verify before proceeding.
+
 These rules are instructions FOR YOU (the LLM). Figure out the specific commands based on the principles. Don't stop between detection, validation, and presenting the plan.
 
 ## Process
@@ -36,8 +41,10 @@ Create todos using `todo_write`:
     {"id": "rename-directories", "content": "Rename directories with git mv", "status": "pending"},
     {"id": "rename-story-files", "content": "Rename all story files to feat-N/exp-N prefixes", "status": "pending"},
     {"id": "rename-feature-files", "content": "Rename spec.md/spec-lite.md/sub-specs to Junior names", "status": "pending"},
+    {"id": "verify-renames", "content": "Verify all renames are complete before commit", "status": "pending"},
     {"id": "commit-renames", "content": "Commit all renames before content changes", "status": "pending"},
     {"id": "update-references", "content": "Update cross-references in markdown files", "status": "pending"},
+    {"id": "verify-references", "content": "Verify all references are updated before commit", "status": "pending"},
     {"id": "commit-content", "content": "Commit content/reference updates", "status": "pending"},
     {"id": "cleanup-docs", "content": "Remove outdated migration-guide.md if exists", "status": "pending"}
   ]
@@ -239,7 +246,15 @@ In `user-stories/` directory, rename ALL story files to match `exp-N-` prefix:
    - `YYYY-MM-DD-story-M-name.md` → `exp-N-story-M-name.md`
    - Any story files with wrong prefix → `exp-N-story-M-name.md`
 
-**Use `git mv` for all renames.** Show progress as story files are renamed.
+**CRITICAL IMPLEMENTATION:**
+- Process EACH feature/experiment individually (loop through N=1 to total count)
+- For each one, find the actual directory (handle `feat-N-*` pattern with wildcard expansion)
+- Rename README.md first if it exists
+- Then find ALL `story-*.md` files in that user-stories/ directory (use find, not wildcards)
+- Rename each story file individually with `git mv`
+- Handle edge cases: missing directories, no README, no stories, etc.
+
+**Use `git mv` for all renames.** Show progress as story files are renamed. Report: "✅ Renamed N story tracking files and M individual story files"
 
 ### Step 7: Rename Feature Files
 
@@ -250,9 +265,82 @@ In `user-stories/` directory, rename ALL story files to match `exp-N-` prefix:
 2. `spec-lite.md` → `feature-lite.md`
 3. `sub-specs/` → `specs/` (directory)
 
-Use `git mv` for all renames. Show progress.
+**CRITICAL IMPLEMENTATION:**
+- Process EACH feature individually (loop through N=1 to total count)
+- For each one, find the actual directory (handle `feat-N-*` pattern)
+- Check if each file/directory exists before attempting rename
+- Use `git mv` for all renames
+- Handle cases where files might not exist (spec-lite.md or sub-specs/ are optional)
 
-### Step 8: Commit Renames (Before Content Changes!)
+**Show progress.** Report: "✅ Renamed feature files for N features"
+
+### Step 8: Verify All Renames Are Complete
+
+**CRITICAL: Verify every rename is done BEFORE committing. Nothing should be skipped!**
+
+**Verification checklist - run these checks:**
+
+1. **Verify feature/experiment main files:**
+   - Search for any remaining `spec.md`, `spec-lite.md`, or `sub-specs/` in `.junior/`
+   - Should find NOTHING - if any files found, renames are incomplete!
+
+2. **Verify story tracking files (README.md → feat-N-stories.md):**
+   - Search for any remaining `README.md` in `user-stories/` directories
+   - Check both `.junior/features/` and `.junior/experiments/`
+   - Should find NOTHING - if any found, renames are incomplete!
+
+3. **Verify individual story files (story-M → feat-N-story-M):**
+   - Search for story files that match `story-*.md` pattern but DON'T have `feat-` or `exp-` prefix
+   - Look in all `user-stories/` directories (but exclude archived/ subdirectories)
+   - Should find NOTHING - if any found, renames are incomplete!
+
+4. **Count verification:**
+   - Show count of renamed files vs expected
+   - Compare: total features × (feature files + story files) = expected total
+   - Display summary: "✅ X/X renames complete" or "⚠️ Missing N renames"
+
+**If ANY verification fails:**
+- Show which files still need renaming (list them explicitly)
+- Fix the renames using individual `git mv` commands for each missed file
+- Re-run verification
+- DO NOT proceed to commit until ALL verifications pass
+
+**Show verification results:**
+
+Example success:
+```
+🔍 Verification Results:
+
+✅ Feature/experiment main files: All renamed (0 spec.md, 0 spec-lite.md, 0 sub-specs/)
+✅ Story tracking files: All README.md renamed (0 remaining)
+✅ Individual story files: All have feat-/exp- prefix (0 unprefixed)
+✅ Ready to commit!
+
+Total renames: 243 files
+```
+
+Example failure:
+```
+🔍 Verification Results:
+
+⚠️  Feature/experiment main files: 2 files still need renaming:
+   - .junior/features/feat-5-name/spec.md
+   - .junior/features/feat-8-name/sub-specs/
+
+⚠️  Story tracking files: 3 README.md files remaining:
+   - .junior/features/feat-3-name/user-stories/README.md
+   - .junior/features/feat-7-name/user-stories/README.md
+   - .junior/experiments/exp-1-name/user-stories/README.md
+
+⚠️  Individual story files: 15 unprefixed story files:
+   - .junior/features/feat-1-name/user-stories/story-1-name.md
+   - .junior/features/feat-1-name/user-stories/story-2-name.md
+   [... list all ...]
+
+❌ Cannot commit - fix these renames first!
+```
+
+### Step 9: Commit Renames (Before Content Changes!)
 
 **CRITICAL: Commit all file renames BEFORE editing content/references**
 
@@ -274,7 +362,7 @@ This preserves git history better - git tracks file moves separately from conten
    Next: Update cross-references in content.
    ```
 
-### Step 9: Update Cross-References
+### Step 10: Update Cross-References
 
 **Update all markdown references** using find/grep/sed:
 
@@ -291,7 +379,77 @@ This preserves git history better - git tracks file moves separately from conten
 
 Show progress: "Updated N references in M files"
 
-### Step 10: Commit Reference Updates
+### Step 11: Verify All References Are Updated
+
+**CRITICAL: Verify every reference is updated BEFORE committing. Don't assume grep/sed caught everything!**
+
+**Verification checklist - search for OLD references:**
+
+1. **Check for date-prefixed references:**
+   - Search `.junior/` for patterns like `2025-09-28`, `2025-10-13`, etc.
+   - These should now be `feat-N` or `exp-N` references
+   - Exclude: actual dates in content (commit dates, timestamps), focus on feature/experiment names
+
+2. **Check for .code-captain/ references:**
+   - Search `.junior/` for `.code-captain/` string
+   - Should be replaced with `.junior/`
+   - Count: 0 remaining
+
+3. **Check for spec.md / spec-lite.md / sub-specs/ references:**
+   - Search `.junior/` for `spec.md`, `spec-lite.md`, `sub-specs/` in markdown links/mentions
+   - Should be `feature.md`, `feature-lite.md`, `specs/`
+   - Count: 0 remaining
+
+4. **Check for unprefixed story file references:**
+   - Search for patterns like `story-1-`, `story-2-` in links (should be `feat-N-story-` or `exp-N-story-`)
+   - Search for `README.md` in user-stories context (should be `feat-N-stories.md`)
+   - Count: 0 remaining
+
+5. **Spot-check samples:**
+   - Pick 2-3 random feature files and verify their internal links are correct
+   - Check the main roadmap/decisions files for correct references
+
+**If ANY verification fails:**
+- Show which files still have old references (list file + line number + the old reference)
+- Update those specific references using search_replace tool
+- Re-run verification
+- DO NOT proceed to commit until ALL verifications pass
+
+**Show verification results:**
+
+Example success:
+```
+🔍 Reference Verification:
+
+✅ Date-prefixed references: 0 remaining
+✅ .code-captain/ references: 0 remaining  
+✅ spec.md/spec-lite.md/sub-specs/ references: 0 remaining
+✅ Unprefixed story references: 0 remaining
+✅ Ready to commit!
+
+Updated references in N files
+```
+
+Example failure:
+```
+🔍 Reference Verification:
+
+⚠️  Date-prefixed references: 12 remaining
+   - .junior/docs/roadmap.md:45: "See 2025-10-13-responsive-grid-system"
+   - .junior/features/feat-2-familyhub-os/feature.md:23: "depends on 2025-10-01-familyhub-os"
+   [... list all with file:line:content ...]
+
+⚠️  .code-captain/ references: 3 remaining
+   - .junior/docs/mission.md:15: "in .code-captain/specs/"
+   - .junior/features/feat-5-layered-bundle-caching/feature.md:78: "See .code-captain/docs/"
+
+⚠️  spec.md references: 2 remaining
+   - .junior/features/feat-1-school-menu-scrolling/feat-1-stories.md:10: "See spec.md"
+
+❌ Cannot commit - fix these references first!
+```
+
+### Step 12: Commit Reference Updates
 
 Stage and commit content changes:
 ```
@@ -306,7 +464,7 @@ Migrate Code Captain to Junior: update cross-references
 All internal links now point to new Junior structure.
 ```
 
-### Step 11: Clean Up Outdated Docs
+### Step 13: Clean Up Outdated Docs
 
 **CRITICAL: Do NOT create migration-guide.md or any new documentation!**
 
@@ -316,7 +474,7 @@ If `.junior/docs/migration-guide.md` exists (Code Captain's spec→feat migratio
 
 **Do NOT delete:** Research, product decisions, architecture, mission/roadmap files.
 
-### Step 12: Show Summary
+### Step 14: Show Summary
 
 **CRITICAL: DO NOT generate migration-guide.md, migration reports, or ANY documentation files!**
 
@@ -333,7 +491,7 @@ Show concise terminal summary:
 Done!
 ```
 
-### Step 13: Verification
+### Step 15: Verification
 
 Suggest verification steps:
 ```
@@ -354,7 +512,9 @@ All done!
 
 **CRITICAL:** 
 - Never use `list_dir` for `.code-captain/` or `.junior/` - they're hidden. Use `run_terminal_cmd`.
-- Commit renames FIRST (Step 8), then content (Step 9-10).
+- ALWAYS verify renames (Step 8) before committing (Step 9)
+- ALWAYS verify references (Step 11) before committing (Step 12)
+- Commit renames FIRST (Step 9), then content (Step 12)
 - NEVER use `write` for migration reports or documentation.
 
 ## Error Handling
@@ -375,8 +535,10 @@ All done!
 
 **During:** 
 - Use `git mv` for all renames (preserves history)
-- Commit renames first, then content changes (separate commits)
-- Show progress
+- Verify renames are complete before committing (Step 8)
+- Commit renames first (Step 9), then content changes (Step 12) - separate commits
+- Verify references are updated before committing (Step 11)
+- Show progress at each step
 - Merge product/docs intelligently: `product/decisions.md` → `decisions/product-decisions.md`, others → `docs/`
 
 **After:** Verify with `/status`, review commits, test commands.
@@ -390,13 +552,21 @@ All done!
 2. Detect & validate (Steps 1-3, no stopping)
 3. Show plan, get approval (Step 4, STOP HERE)
 4. User: `yes`
-5. Execute migration (Steps 5-13)
+5. Execute migration (Steps 5-15)
+   - Steps 5-7: Rename files
+   - Step 8: Verify renames ✓
+   - Step 9: Commit renames
+   - Step 10: Update references
+   - Step 11: Verify references ✓
+   - Step 12: Commit references
+   - Step 13-15: Cleanup & summary
 6. Show summary
 
 **Error cases:**
 - No `.code-captain/` → Suggest `/init`
 - Dirty git → Warn, offer to proceed
 - Validation issues → Show issues, proceed if non-blocking
+- Verification failures (Steps 8 or 11) → List missing items, fix them, re-verify, then proceed
 
 ---
 
