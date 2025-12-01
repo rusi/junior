@@ -157,7 +157,7 @@ Per `01-structure.mdc`:
 .junior/features/feat-{N}-{name}/
 ├── feature.md
 ├── user-stories/
-│   ├── README.md
+│   ├── feat-{N}-stories.md
 │   └── feat-{N}-story-{M}-{name}.md
 └── specs/ (only if needed)
     ├── 01-Technical.md
@@ -188,6 +188,10 @@ Per `01-structure.mdc`:
 
 ### Non-Functional Requirements
 - **Performance:** [Response time, throughput expectations]
+  - All performance requirements MUST have benchmark tests
+  - Document targets clearly in test documentation
+  - Use statistical benchmark frameworks (not manual timing)
+  - Compare against baseline to detect regressions
 - **Security:** [Authentication, authorization, data protection]
 - **Scalability:** [Expected load, growth considerations]
 - **Accessibility:** [WCAG compliance, keyboard navigation, screen readers]
@@ -549,7 +553,7 @@ Present package for user review:
 📁 .junior/features/feat-{N}-{name}/
 ├── 📋 feature.md
 ├── 👥 user-stories/
-│   ├── 📊 README.md
+│   ├── 📊 feat-{N}-stories.md
 │   └── 📝 feat-{N}-story-{M}-{name}.md
 └── 📂 specs/
     └── 📄 01-Technical.md

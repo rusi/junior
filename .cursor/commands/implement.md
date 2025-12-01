@@ -291,6 +291,9 @@ Write tests that define the expected behavior:
 - Integration tests for component interaction
 - Edge cases and error conditions
 - Acceptance tests for user story validation
+- Performance tests (if feature has performance requirements)
+  → Use proper benchmark frameworks with statistical analysis
+  → Document performance targets in test documentation
 
 Tests should fail initially (no implementation yet).
 
@@ -303,6 +306,7 @@ Mark complete when tests are written and failing correctly.
 - **Integration tests**: Component interaction (e.g., `test_api_to_ui_data_flow()`)
 - **Edge cases**: Boundary conditions (e.g., `test_empty_dataset()`, `test_max_connections()`)
 - **Acceptance tests**: User story validation (e.g., `test_user_views_realtime_dashboard()`)
+- **Performance tests**: Benchmark critical paths with statistical analysis (e.g., `test_parse_performance()`)
 
 #### Tasks 2-N: Implementation (Green Phase)
 
@@ -340,12 +344,13 @@ Mark complete when implementation makes tests pass.
 Verify all tests pass, coverage is 100%, and acceptance criteria are met:
 - Run full test suite: 100% pass rate required
 - Run coverage report: 100% coverage required
+- Run performance benchmarks: All targets met (if applicable)
 - Validate acceptance criteria
 - Refactor if needed while keeping tests green
 
-⚠️ Story cannot be marked complete with failing tests or incomplete coverage.
+⚠️ Story cannot be marked complete with failing tests, incomplete coverage, or unmet performance targets.
 
-Mark complete when all tests pass, coverage is 100%, and criteria are met.
+Mark complete when all tests pass, coverage is 100%, criteria are met, and performance targets achieved.
 ```
 
 **CRITICAL: 100% Test Pass Rate & Coverage Required**
