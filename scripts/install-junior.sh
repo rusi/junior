@@ -433,33 +433,26 @@ if [ "$SYNC_BACK" = true ]; then
     # Load metadata
     EXISTING_METADATA=$(cat "$METADATA_FILE")
     
-    # Find files marked as modified (or compare against source)
+    # Find files that differ from what was installed
+    # Skip files with same SHA as installed - source might have newer changes
     SYNC_FILES=()
     while IFS= read -r file; do
         if [ -f "$file" ]; then
-            # Check if file is marked as modified in metadata
-            IS_MODIFIED=$(echo "$EXISTING_METADATA" | jq -r ".files[\"$file\"].modified // false")
+            # Get the SHA that was recorded during installation
+            INSTALLED_SHA=$(echo "$EXISTING_METADATA" | jq -r ".files[\"$file\"].sha256 // \"\"")
             
-            if [ "$IS_MODIFIED" = "true" ]; then
+            if [ -z "$INSTALLED_SHA" ]; then
+                # File not in metadata - skip
+                continue
+            fi
+            
+            # Check current SHA
+            CURRENT_SHA=$(calculate_checksum "$file")
+            
+            # Only sync if file differs from what was installed
+            # If same as installed, skip - source might have newer changes
+            if [ "$CURRENT_SHA" != "$INSTALLED_SHA" ]; then
                 SYNC_FILES+=("$file")
-            else
-                # Also check if file differs from source (for files modified after last install)
-                # Determine source file path
-                source_file=""
-                if [[ "$file" == .cursor/rules/* ]] || [[ "$file" == .cursor/commands/* ]]; then
-                    source_file="$REPO_ROOT/$file"
-                elif [ "$file" = "JUNIOR.md" ]; then
-                    source_file="$REPO_ROOT/README.md"
-                fi
-                
-                if [ -n "$source_file" ] && [ -f "$source_file" ]; then
-                    CURRENT_CHECKSUM=$(calculate_checksum "$file")
-                    SOURCE_CHECKSUM=$(calculate_checksum "$source_file")
-                    
-                    if [ "$CURRENT_CHECKSUM" != "$SOURCE_CHECKSUM" ]; then
-                        SYNC_FILES+=("$file")
-                    fi
-                fi
             fi
         fi
     done < <(echo "$EXISTING_METADATA" | jq -r '.files | keys[]')
@@ -786,7 +779,7 @@ echo ""
 
 # Show installation summary
 print_status "Installation summary:"
-echo "  ✓ Cursor rules: .cursor/rules/ (4 files)"
+echo "  ✓ Cursor rules: .cursor/rules/ (5 files)"
 echo "  ✓ Commands: .cursor/commands/ (4 files)"
 echo "  ✓ Junior guide: JUNIOR.md"
 echo "  ✓ Working memory: .junior/ (structure created)"

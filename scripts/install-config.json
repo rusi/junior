@@ -29,6 +29,10 @@
       "destination": ".cursor/rules/03-style-guide.mdc"
     },
     {
+      "source": ".cursor/rules/11-python-conventions.mdc",
+      "destination": ".cursor/rules/11-python-conventions.mdc"
+    },
+    {
       "source": ".cursor/commands/",
       "destination": ".cursor/commands/",
       "isDirectory": true
