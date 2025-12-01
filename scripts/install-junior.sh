@@ -117,6 +117,17 @@ cleanup_code_captain() {
     print_status "═══════════════════════════════════════════════════"
     echo ""
     
+    # Extract Junior files from config (to exclude from uncertain files)
+    JUNIOR_RULES=()
+    JUNIOR_COMMANDS=()
+    while IFS= read -r dest; do
+        if [[ "$dest" == .cursor/rules/* ]]; then
+            JUNIOR_RULES+=("$(basename "$dest")")
+        elif [[ "$dest" == .cursor/commands/* ]]; then
+            JUNIOR_COMMANDS+=("$(basename "$dest")")
+        fi
+    done < <(echo "$CONFIG_CONTENT" | jq -r '.files[].destination')
+    
     # Known Code Captain files (95% confidence)
     KNOWN_CC_FILES=()
     KNOWN_CC_COMMANDS=()
@@ -171,13 +182,14 @@ cleanup_code_captain() {
                     fi
                 done
                 
-                # Also skip Junior commands
+                # Also skip Junior commands (extracted from config)
                 basename_cmd=$(basename "$cmd")
-                if [ "$basename_cmd" = "feature.md" ] || [ "$basename_cmd" = "commit.md" ] || \
-                   [ "$basename_cmd" = "new-command.md" ] || [ "$basename_cmd" = "implement.md" ] || \
-                   [ "$basename_cmd" = "status.md" ] || [ "$basename_cmd" = "migrate.md" ]; then
-                    is_known=true
-                fi
+                for junior_cmd in "${JUNIOR_COMMANDS[@]}"; do
+                    if [ "$basename_cmd" = "$junior_cmd" ]; then
+                        is_known=true
+                        break
+                    fi
+                done
                 
                 if [ "$is_known" = false ]; then
                     UNCERTAIN_COMMANDS+=("$cmd")
@@ -198,12 +210,14 @@ cleanup_code_captain() {
                     fi
                 done
                 
-                # Also skip Junior rules
+                # Also skip Junior rules (extracted from config)
                 basename_rule=$(basename "$rule")
-                if [ "$basename_rule" = "00-junior.mdc" ] || [ "$basename_rule" = "01-structure.mdc" ] || \
-                   [ "$basename_rule" = "02-current-date.mdc" ] || [ "$basename_rule" = "03-style-guide.mdc" ]; then
-                    is_known=true
-                fi
+                for junior_rule in "${JUNIOR_RULES[@]}"; do
+                    if [ "$basename_rule" = "$junior_rule" ]; then
+                        is_known=true
+                        break
+                    fi
+                done
                 
                 if [ "$is_known" = false ]; then
                     UNCERTAIN_RULES+=("$rule")
@@ -268,8 +282,10 @@ cleanup_code_captain() {
     fi
     
     echo ""
-    print_warning "Note: .code-captain/ directory is NOT removed by this cleanup."
-    print_warning "Use /migrate command after installation to migrate your work."
+    if [ -d ".code-captain" ]; then
+        print_warning "Note: .code-captain/ directory is NOT removed by this cleanup."
+        print_warning "Use /migrate command after installation to migrate your work."
+    fi
     echo ""
     
     # Confirm cleanup
@@ -570,6 +586,9 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
+# Load configuration (needed for cleanup_code_captain function)
+CONFIG_CONTENT=$(cat "$CONFIG_FILE")
+
 # Change to target directory
 cd "$TARGET_DIR"
 print_status "Working in: $(pwd)"
@@ -578,7 +597,8 @@ print_status "Working in: $(pwd)"
 CC_CLEANED_UP=false
 
 # Check for Code Captain (offer cleanup or force installation)
-if [ -f ".cursor/rules/cc.mdc" ] || [ -f "CODE_CAPTAIN.md" ] || [ -d ".code-captain" ]; then
+# Skip if Junior is already installed (upgrade scenario)
+if [ ! -f ".junior/.junior-install.json" ] && { [ -f ".cursor/rules/cc.mdc" ] || [ -f "CODE_CAPTAIN.md" ]; }; then
     echo ""
     print_warning "═══════════════════════════════════════════════════"
     print_warning "Code Captain installation detected!"
@@ -587,7 +607,6 @@ if [ -f ".cursor/rules/cc.mdc" ] || [ -f "CODE_CAPTAIN.md" ] || [ -d ".code-capt
     print_status "Found:"
     [ -f ".cursor/rules/cc.mdc" ] && echo "  • .cursor/rules/cc.mdc"
     [ -f "CODE_CAPTAIN.md" ] && echo "  • CODE_CAPTAIN.md"
-    [ -d ".code-captain" ] && echo "  • .code-captain/ directory"
     echo ""
     
     if [ "$FORCE" != true ]; then
@@ -596,8 +615,12 @@ if [ -f ".cursor/rules/cc.mdc" ] || [ -f "CODE_CAPTAIN.md" ] || [ -d ".code-capt
         echo "  2. Install Junior"
         echo "  3. After installation, run /migrate to convert .code-captain/ work to Junior"
         echo ""
-        print_warning "Note: Your .code-captain/ work directory will NOT be deleted."
-        print_warning "Only the Code Captain rules, commands, and docs will be removed."
+        if [ -d ".code-captain" ]; then
+            print_warning "Note: Your .code-captain/ work directory will be preserved."
+            print_warning "Only the Code Captain rules, commands, and docs will be removed."
+        else
+            print_status "Code Captain rules, commands, and docs will be removed."
+        fi
         echo ""
         echo -n "Proceed with cleanup and installation? [yes/cancel]: "
         read -r CC_OPTION
@@ -626,9 +649,6 @@ fi
 
 # Note: If Junior is already installed (has metadata), upgrade proceeds automatically
 # Conflict detection happens during file installation - only uncontrolled files abort
-
-# Load configuration
-CONFIG_CONTENT=$(cat "$CONFIG_FILE")
 
 # Check for existing installation
 METADATA_FILE=".junior/.junior-install.json"
