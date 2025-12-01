@@ -35,6 +35,41 @@ def process(items: List[str]) -> Dict[str, int]:
 - Use `X | Y` not `Union[X, Y]`
 - **Always add `from __future__ import annotations` at the top**
 
+## Running Python Commands
+
+**ALWAYS use `uv run` to run Python commands:**
+
+```bash
+# Run tests
+uv run pytest
+uv run pytest tests/test_advent_model.py -v
+
+# Run Python scripts
+uv run python -m app.main
+uv run python scripts/migrate.py
+
+# Run linting/formatting
+uv run ruff check .
+uv run ruff format .
+
+# Run any Python tool
+uv run mypy app/
+uv run coverage run -m pytest
+```
+
+**Why `uv run`?**
+- Automatically uses the correct virtual environment
+- Ensures dependencies are installed and up-to-date
+- No need to manually activate venv
+- Consistent across all developers and CI/CD
+- Works for ANY Python command, not just pytest
+
+❌ **NEVER use:**
+- `python script.py` (requires manual venv activation)
+- `pytest` directly (may use wrong Python/environment)
+- `.venv/bin/python` (verbose and error-prone)
+- Manual venv activation (`source .venv/bin/activate`)
+
 ## Pytest Conventions
 
 ### Test Organization
@@ -44,14 +79,14 @@ def process(items: List[str]) -> Dict[str, int]:
 ```python
 class TestUserAuthentication:
     """Tests for user authentication flow."""
-    
+
     @pytest.fixture
     def user(self):
         return User(username="test")
-    
+
     def test_login_success(self, user):
         assert user.login("password")
-    
+
     def test_login_failure(self, user):
         assert not user.login("wrong")
 ```
@@ -202,10 +237,10 @@ def test_function_performance(benchmark):
     THEN completes within target time
     """
     result = benchmark(my_function, arg1, arg2)
-    
+
     # Verify correctness
     assert result == expected_value
-    
+
     # Verify performance (benchmark.stats.mean is in seconds)
     mean_time_ms = benchmark.stats.mean * 1000
     assert mean_time_ms < 100, f"Too slow: {mean_time_ms:.2f}ms > 100ms"

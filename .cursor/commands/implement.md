@@ -339,7 +339,7 @@ Mark complete when implementation makes tests pass.
 
 **🔴 MANDATORY: After each task completion:**
 
-1. **Update story file** - Mark task: `- [ ]` → `- ✅`
+1. **Update story file** - Mark task: `- [ ]` → `- [x]` and add ✅ at end: `- [x] Task description ✅`
 2. **Update feat-N-stories.md** - Recalculate progress (X/Y tasks, percentage)
 3. **Update TODO** - Mark corresponding todo as completed using `todo_write`
 4. **Show progress display** - Present current story progress to user:
