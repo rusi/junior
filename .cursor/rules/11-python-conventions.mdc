@@ -4,6 +4,26 @@ alwaysApply: true
 
 # Python Modern Conventions
 
+## ⚠️ CRITICAL: Always Use `uv run` in This Project
+
+**This project uses `uv` for dependency management. EVERY Python command must use `uv run`.**
+
+```bash
+# ✅ CORRECT
+uv run pytest
+uv run pytest tests/test_advent_model.py -v
+uv run pytest --cov
+uv run python -m app.main
+uv run ruff check .
+
+# ❌ WRONG - Never run directly
+python -m pytest          # ❌ Wrong environment
+pytest                    # ❌ Wrong environment
+python script.py          # ❌ Wrong environment
+```
+
+**Why:** `uv run` ensures correct virtual environment, dependencies, and Python version. Without it, commands may fail or use wrong packages.
+
 ## Type Hints (Python 3.10+)
 
 **ALWAYS use modern type hint syntax:**
@@ -35,40 +55,25 @@ def process(items: List[str]) -> Dict[str, int]:
 - Use `X | Y` not `Union[X, Y]`
 - **Always add `from __future__ import annotations` at the top**
 
-## Running Python Commands
-
-**ALWAYS use `uv run` to run Python commands:**
+## Additional `uv run` Examples
 
 ```bash
-# Run tests
-uv run pytest
-uv run pytest tests/test_advent_model.py -v
+# Testing with coverage
+uv run pytest --cov --cov-report=html
 
-# Run Python scripts
-uv run python -m app.main
-uv run python scripts/migrate.py
-
-# Run linting/formatting
+# Linting and formatting
 uv run ruff check .
 uv run ruff format .
 
-# Run any Python tool
+# Type checking
 uv run mypy app/
-uv run coverage run -m pytest
+
+# Running the application
+uv run python -m app.main
+
+# Running scripts
+uv run python scripts/migrate.py
 ```
-
-**Why `uv run`?**
-- Automatically uses the correct virtual environment
-- Ensures dependencies are installed and up-to-date
-- No need to manually activate venv
-- Consistent across all developers and CI/CD
-- Works for ANY Python command, not just pytest
-
-❌ **NEVER use:**
-- `python script.py` (requires manual venv activation)
-- `pytest` directly (may use wrong Python/environment)
-- `.venv/bin/python` (verbose and error-prone)
-- Manual venv activation (`source .venv/bin/activate`)
 
 ## Pytest Conventions
 

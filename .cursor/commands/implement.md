@@ -232,10 +232,17 @@ Use `codebase_search` to understand:
 
 **Load project configuration:**
 
-- Build configuration (package.json, Cargo.toml, go.mod, etc.)
+- Build configuration (package.json, Cargo.toml, go.mod, pyproject.toml, etc.)
 - Test configuration (jest.config.js, pytest.ini, etc.)
 - Linting and formatting rules
 - CI/CD pipelines (if relevant to testing)
+
+**🔴 CRITICAL: Read language-specific conventions:**
+
+- **Python projects:** Read `.cursor/rules/11-python-conventions.mdc` for `uv run` requirements
+- **JavaScript/TypeScript projects:** Read relevant language convention rules
+- **Other languages:** Check for language-specific rules in `.cursor/rules/`
+- **ALWAYS follow project-specific tool runners** (e.g., `uv run pytest` not `pytest`)
 
 **Identify reusable code:**
 
@@ -420,24 +427,26 @@ After all tasks are executed, run final comprehensive verification:
 **1. Run complete test suite:**
 
 ```bash
-# Language-agnostic - use project's test command
-npm test              # Node.js/JavaScript
-pytest --cov          # Python
-go test -cover ./...  # Go
-cargo test            # Rust
-make test             # C/C++
-swift test            # Swift
+# ⚠️ CRITICAL: Use project-specific test runner
+# Check language-specific rules in .cursor/rules/ for correct command
+
+npm test                    # Node.js/JavaScript
+uv run pytest --cov         # Python (this project uses uv)
+go test -cover ./...        # Go
+cargo test                  # Rust
+make test                   # C/C++
+swift test                  # Swift
 ```
 
 **2. Generate and verify coverage report:**
 
 ```bash
-npm test -- --coverage                    # Jest
-pytest --cov --cov-report=html           # Python
-go test -coverprofile=coverage.out ./... # Go
-cargo tarpaulin --out Html               # Rust
-gcov / lcov                              # C/C++
-swift test --enable-code-coverage        # Swift
+npm test -- --coverage                       # Jest
+uv run pytest --cov --cov-report=html       # Python (this project uses uv)
+go test -coverprofile=coverage.out ./...    # Go
+cargo tarpaulin --out Html                  # Rust
+gcov / lcov                                 # C/C++
+swift test --enable-code-coverage           # Swift
 ```
 
 **3. Validate results:**
