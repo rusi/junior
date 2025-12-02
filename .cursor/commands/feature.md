@@ -111,6 +111,27 @@ When confidence is high:
 - Present contract without declaring it "final"
 - Leave room for more questions if needed
 
+**🔴 CRITICAL: Validate Vertical Slice Approach BEFORE Contract**
+
+Before presenting contract, mentally validate story breakdown:
+- **Each story MUST be end-to-end integrated (all layers working)**
+- **Each story MUST produce user-visible, testable output**
+- **NEVER horizontal layers (all DB, then all API, then all UI)**
+
+**RED FLAGS indicating horizontal layering:**
+- "Story 1: Database schema" → ❌ No user output
+- "Story 2: API endpoints" → ❌ Still nothing visible
+- "Story 3: Frontend implementation" → ❌ Only works at Story 3
+- "Story 4: Integration" → ❌ Integration should be in EVERY story
+- "Story 5: Testing" → ❌ Testing should be in EVERY story
+
+**CORRECT vertical slice pattern:**
+- Story 1: Minimal feature (DB + API + UI) working end-to-end with basic data
+- Story 2: Enhanced feature (extend DB + API + UI) for more capability
+- Story 3: Additional feature (extend DB + API + UI) for new functionality
+
+**If you catch yourself planning horizontal stories, STOP and redesign as vertical slices.**
+
 ### Step 5: Present Contract
 
 ```
@@ -137,10 +158,13 @@ When confidence is high:
 - [Suggestions for simpler/better approach based on codebase analysis]
 - [Ways to reduce risk or complexity]
 
-**Stories Preview:**
-- Story 1: [Core end-to-end slice with working output]
-- Story 2: [Next vertical slice with working output]
-- Story 3: [Additional capability with working output]
+**Stories Preview (MUST be vertical slices):**
+- Story 1: [Minimal end-to-end feature → USER SEES WORKING OUTPUT → Example: "Button generates ONE screenshot in English"]
+- Story 2: [Enhance existing feature → USER SEES MORE → Example: "Progress bar + ALL scenarios in English"]
+- Story 3: [Expand scope → USER SEES COMPLETE → Example: "All 25 languages with organized output"]
+
+**Each story = Full stack working (DB + Backend + Frontend + Tests + Docs)**
+**NEVER: Story 1 = DB, Story 2 = API, Story 3 = UI ← This is WRONG**
 
 ---
 Options: yes | edit: [changes] | risks | simpler
@@ -228,6 +252,30 @@ High-level strategy:
 ```
 
 #### 6.3: Generate User Stories
+
+**🔴 CRITICAL: Every Story MUST Be a Vertical Slice**
+
+**Before writing ANY story, verify it meets ALL these criteria:**
+
+✅ **User sees working output** - Story delivers something user can see/test/validate
+✅ **End-to-end integrated** - All layers working together (not just one layer)
+✅ **Reduced scope, complete implementation** - Narrow feature, but fully working
+✅ **Builds on previous story** - Enhances or adds to working foundation
+
+❌ **FORBIDDEN story types:**
+- "Build database schema" (no user output)
+- "Implement API layer" (no user visibility)
+- "Create frontend" (layers not integrated)
+- "Integration story" (integration should be in EVERY story)
+- "Testing story" (tests should be in EVERY story)
+
+**Story breakdown pattern:**
+1. **Story 1:** Smallest possible working feature (full stack, minimal scope)
+   - Example: "Button → renders ONE test screen → saves PNG file"
+2. **Story 2:** Enhance with more capability (full stack, more features)
+   - Example: "Progress bar → renders ALL scenarios → English only"
+3. **Story 3:** Expand to full scope (full stack, complete feature)
+   - Example: "All languages → organized output → 375 screenshots"
 
 **user-stories/feat-{N}-stories.md:**
 
@@ -383,13 +431,27 @@ This story captures features, enhancements, and technical considerations that we
 - Documentation expansions
 ```
 
-**Critical story rules:**
-- Max 5-7 tasks per story (split if more)
-- Each story is end-to-end integrated
-- **User sees working output after each story**
-- Vertical slices, not horizontal layers
-- TDD: test first, implement, verify
-- **Always generate final future work story (Story N+1)**
+**🔴 CRITICAL STORY RULES (NON-NEGOTIABLE):**
+
+1. **VERTICAL SLICES ONLY** - Every story goes through full stack (DB + Backend + Frontend)
+   - ✅ Story 1: Minimal feature working end-to-end
+   - ✅ Story 2: Enhanced feature working end-to-end
+   - ❌ NEVER: Story 1 = DB, Story 2 = Backend, Story 3 = Frontend
+
+2. **USER SEES WORKING OUTPUT** - Each story delivers something user can see/test/validate
+   - Must be able to demo after each story
+   - No invisible infrastructure stories
+   - No "it works but you can't see it yet" stories
+
+3. **COMPLETE IMPLEMENTATION** - Reduce scope, don't skip layers
+   - Narrow the feature, not the stack
+   - All layers working together, just simpler functionality
+
+4. **TDD THROUGHOUT** - Test first, implement, verify (in EVERY story)
+
+5. **MAX 5-7 TASKS** - Split if more (keeps stories focused)
+
+6. **FINAL FUTURE WORK STORY** - Always generate Story N+1 for backlog items
 
 **USER MUST SEE WORKING OUTPUT AFTER EACH STORY**
 
@@ -612,7 +674,11 @@ If user confirms or provides minor feedback, proceed to automated consistency ch
 3. **Cross-references:** All links work (feat-N-overview.md ↔ stories ↔ specs)
 4. **TDD approach:** All stories include test-first tasks
 5. **Working output:** All stories emphasize user-testable output
-6. **Vertical slices:** No horizontal layering detected
+6. **🔴 CRITICAL - Vertical slices:** EVERY story is end-to-end (no horizontal layering)
+   - Check: Each story has UI + Backend + DB (if applicable) working together
+   - Check: Each story deliverable includes "user can see/test working X"
+   - Check: No "database story", "API story", "frontend story", "integration story", "testing story"
+   - Check: Story 1 must have working output (not just infrastructure)
 7. **Technical alignment:** specs/01-Technical.md aligns with feat-N-overview.md
 8. **API consistency:** If API spec exists, matches feature requirements
 9. **Database consistency:** If DB spec exists, matches data requirements

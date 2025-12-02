@@ -4,6 +4,25 @@
 
 Intelligent git commit that stages files from current session, analyzes changes, and generates standardized commit messages.
 
+## 🔴 CRITICAL: Session-Only Commits
+
+**This command commits ONLY files created/modified in THIS conversation thread.**
+
+What gets committed:
+- ✅ Files you created in this session
+- ✅ Files you edited in this session
+- ✅ Documentation updated in this session
+
+What does NOT get committed:
+- ❌ Files from previous sessions/conversations
+- ❌ Unrelated changes showing in git status
+- ❌ Files you didn't touch in THIS thread
+- ❌ Random modified files from other work
+
+**The agent tracks what was done in THIS conversation and only stages those specific files.**
+
+If you see files in git status that aren't from this session, they will be EXCLUDED from staging.
+
 ## Type
 
 Direct execution - Immediate action with user confirmation at key points
@@ -41,20 +60,34 @@ Create todos using `todo_write`:
 git status --porcelain
 ```
 
-**Analyze changes:**
+**🔴 CRITICAL: Analyze changes to identify ONLY session files**
 
-1. **Identify session files:**
-   - Files edited/created in current agent session
-   - Exclude files from previous sessions
+1. **Identify session files (THIS conversation thread only):**
+   - Review conversation history to track files created/edited
+   - Files you explicitly worked on in THIS session
+   - **Exclude ALL files from previous sessions/threads**
+   - **Exclude ALL unrelated changes in git status**
 
-2. **If no changes:**
-   - Display clean status and exit
+2. **If no session changes:**
+   - Display "No files from this session to commit" and exit
 
-3. **Categorize changes:**
+3. **Categorize session changes:**
    - Code files (implementation)
    - Test files (validation)
    - Configuration files
    - Documentation files
+
+**Example:**
+```
+Session files (THIS thread):
+  ✅ feat-2-overview.md (created in this session)
+  ✅ feat-2-story-1.md (created in this session)
+
+Non-session files (EXCLUDE):
+  ❌ other.py (from different work)
+  ❌ widget.tsx (from previous session)
+  ❌ submodules (not touched in this session)
+```
 
 ### Step 3: Update Related Documentation
 
@@ -222,27 +255,33 @@ WIP: [original commit message]
 
 ### Step 5: Stage Files
 
-**Session-Based Staging Logic:**
+**🔴 CRITICAL: Session-Based Staging Logic**
 
-**CRITICAL: Stage only files from current agent session**
+**Stage ONLY files from THIS conversation thread - nothing else!**
 
-**CRITICAL: NEVER use `git add .` - Always stage files explicitly file-by-file**
+**NEVER use `git add .` - Always stage files explicitly file-by-file**
 
-**Present staging plan:**
+**How to identify session files:**
+1. Review conversation history - what files did the agent create/edit?
+2. Cross-reference with git status
+3. **When in doubt, ASK the user which files are from this session**
+
+**Present staging plan with clear separation:**
 ```
-📁 Files to stage (from this session):
+📁 Files to stage (from THIS session):
 
 Code changes:
-  M  src/auth.ts
-  M  src/auth.test.ts
+  M  src/auth.ts              ← Created in this thread
+  M  src/auth.test.ts         ← Modified in this thread
 
 Documentation updates:
-  M  .junior/features/feat-1-auth/user-stories/feat-1-stories.md
-  M  .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md
+  M  .junior/features/feat-1-auth/user-stories/feat-1-stories.md     ← Updated in this thread
+  M  .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md ← Created in this thread
 
-📋 Excluding (not part of this session):
-  M  backend/other.py
-  M  frontend/widget.tsx
+📋 Excluding (NOT part of this session):
+  M  backend/other.py         ← From different work
+  M  frontend/widget.tsx      ← From previous session
+  M  submodule/              ← Not touched in this thread
 
 Stage these session files? [yes/no/all]
 ```
