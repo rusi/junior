@@ -43,7 +43,8 @@ Create todos using `todo_write`:
 {
   "todos": [
     {"id": "analyze-status", "content": "Analyze git status and identify changes", "status": "in_progress"},
-    {"id": "update-docs", "content": "Update related documentation", "status": "pending"},
+    {"id": "update-docs", "content": "Update ALL documentation sections", "status": "pending"},
+    {"id": "verify-docs", "content": "Verify documentation completeness with grep", "status": "pending"},
     {"id": "validate-tests", "content": "Run test validation if code changes present", "status": "pending"},
     {"id": "stage-files", "content": "Stage session files with user confirmation", "status": "pending"},
     {"id": "generate-message", "content": "Generate commit message", "status": "pending"},
@@ -93,44 +94,166 @@ Non-session files (EXCLUDE):
 
 **🔴 CRITICAL: Update docs BEFORE staging - This step is MANDATORY, not optional**
 
+**🔴 CRITICAL: PARTIAL UPDATES ARE NOT ACCEPTABLE - Update ALL sections or nothing**
+
 **You MUST check for and update documentation EVERY TIME before staging files.**
 
 **Process:**
-1. **Check for story files** related to the changes:
-   ```bash
-   # Find story files in .junior/features/
-   find .junior/features -name "*story*.md" | xargs grep -l "filename_you_changed"
-   ```
 
-2. **Read the story files** to see if tasks need updating
+**1. Find ALL related documentation:**
+```bash
+# Find story files related to your changes
+find .junior/features -name "*story*.md" | xargs grep -l "filename_you_changed"
 
-3. **Update story progress:**
-   - Mark completed tasks: `- [ ]` → `- ✅`
-   - Update story status if all tasks complete: `Status: In Progress` → `Status: Completed`
-   - Update progress tracking in `feat-N-stories.md`
-   - Update task counts and percentages
+# OR if you know the feature number
+ls .junior/features/feat-N/user-stories/
+```
 
-4. **Update other documentation:**
-   - READMEs that describe changed functionality
-   - Technical specs that document changed components
-   - API docs for changed endpoints
-   - Any documentation referencing the changed files
+**2. For EACH story file, READ THE ENTIRE FILE (not just one section):**
+```bash
+# Use read_file tool to read the COMPLETE file from line 1 to end
+# DO NOT scan or skim - READ EVERY SECTION
+```
+
+**3. Count ALL checkboxes BEFORE making changes:**
+```bash
+# Count unchecked boxes (should become 0 for completed stories)
+grep -c "\[ \]" .junior/features/feat-N/user-stories/feat-N-story-X.md
+
+# Count checked boxes (should increase)
+grep -c "✅" .junior/features/feat-N/user-stories/feat-N-story-X.md
+```
+
+**4. Identify ALL sections with checkboxes in the story file:**
+
+Common sections to check:
+- ✅ Status field (at top: `> Status: In Progress` → `> Status: Completed ✅`)
+- ✅ Acceptance Criteria section
+- ✅ Implementation Tasks section
+- ✅ Definition of Done section
+- ✅ Any other sections with `- [ ]` checkboxes
+
+**Use grep to find ALL checkbox sections:**
+```bash
+# Show line numbers of ALL checkboxes in file
+grep -n "\[ \]" feat-N-story-X.md
+
+# This tells you which sections need updating - UPDATE THEM ALL
+```
+
+**5. Update ALL sections systematically:**
+
+For completed work, mark EVERY checkbox:
+- Change `- [ ]` → `- ✅` for ALL completed items
+- Change `Status: In Progress` → `Status: Completed ✅`
+- Update progress tracking in `feat-N-stories.md`
+- Update task counts (X/Y completed)
+- Update percentages
+
+**6. VERIFY completeness with grep AFTER updates:**
+```bash
+# Count remaining unchecked boxes (should be 0 for completed stories)
+grep -c "\[ \]" feat-N-story-X.md
+
+# If > 0, you missed checkboxes - GO BACK AND FIX
+```
+
+**7. Update other documentation:**
+- READMEs that describe changed functionality
+- Technical specs that document changed components
+- API docs for changed endpoints
+
+**🔴 MANDATORY CHECKLIST - Answer YES to ALL before proceeding:**
+
+```
+Documentation Update Checklist:
+
+[ ] Did I read the ENTIRE story file (not just one section)?
+[ ] Did I use grep to find ALL checkbox sections?
+[ ] Did I update the Status field at the top?
+[ ] Did I update ALL Acceptance Criteria checkboxes?
+[ ] Did I update ALL Implementation Tasks checkboxes?
+[ ] Did I update ALL Definition of Done checkboxes?
+[ ] Did I update progress tracking in feat-N-stories.md?
+[ ] Did I verify with grep that unchecked count is 0 (for completed stories)?
+[ ] Did I update any related READMEs or technical docs?
+
+If ANY answer is NO, STOP and complete that step before staging.
+```
 
 **Example:**
 ```bash
-# Changed: .cursor/commands/migrate.md
-# Must check: .junior/features/feat-1-core-commands/user-stories/feat-1-story-8-migrate-command.md
-# Must update: Task checkboxes, status, progress counts
+# Changed: app/auth.py from feat-1-story-2
+# Must check: .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md
+
+# Read entire file
+cat .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md
+
+# Count before
+grep -c "\[ \]" feat-1-story-2-login.md  # Shows: 19
+
+# Update ALL sections (Status, Acceptance Criteria, Tasks, Definition of Done)
+
+# Count after
+grep -c "\[ \]" feat-1-story-2-login.md  # Shows: 0 ✅
+grep -c "✅" feat-1-story-2-login.md      # Shows: 19 ✅
 ```
 
 **This step is NOT optional:**
 - Even if changes seem trivial
 - Even if you "think" docs are already up to date
 - Even if you're in a hurry
+- **Even if you already updated ONE section** ← Must update ALL sections
 
-**Skip ONLY if:**
+**⚠️ Common Mistakes to Avoid:**
+- ❌ Updating only Implementation Tasks but not Acceptance Criteria
+- ❌ Updating only one section and assuming others are done
+- ❌ Not reading the entire file before updating
+- ❌ Not verifying with grep after updates
+- ❌ Trusting memory instead of checking the actual file
+
+**Skip documentation updates ONLY if:**
 - Changes are pure documentation updates (no code changed)
-- Absolutely no related docs exist (rare)
+- Absolutely no related docs exist (extremely rare)
+
+### Step 3.5: Verify Documentation Completeness
+
+**🔴 MANDATORY: Run these verification commands before proceeding**
+
+**This step MUST be completed - mark the verify-docs todo as complete only after running ALL checks**
+
+**Verification Commands:**
+
+```bash
+# 1. Check for remaining unchecked boxes in ALL story files you touched
+find .junior/features/feat-N -name "*story*.md" -exec echo "=== {} ===" \; -exec grep -c "\[ \]" {} \;
+
+# 2. If any file shows count > 0, display those unchecked boxes
+grep -n "\[ \]" .junior/features/feat-N/user-stories/feat-N-story-X.md
+
+# 3. Verify checked boxes increased
+grep -c "✅" .junior/features/feat-N/user-stories/feat-N-story-X.md
+```
+
+**Expected Results:**
+
+For completed stories:
+- ✅ Unchecked count (`\[ \]`): **0**
+- ✅ Checked count (`✅`): **> 0** (should equal total tasks)
+
+For in-progress stories:
+- ⚠️ Unchecked count: Some remaining (document which tasks are pending)
+- ✅ Checked count: Increased from before
+
+**If verification fails:**
+- ❌ Any completed story still has unchecked boxes → GO BACK to Step 3
+- ❌ Checked count didn't increase → GO BACK to Step 3
+- ❌ You can't explain which sections you updated → GO BACK to Step 3
+
+**Only proceed to Step 4 after:**
+- ✅ All verification commands run
+- ✅ Results match expectations
+- ✅ verify-docs todo marked as completed
 
 ### Step 4: Test & Coverage Validation
 
