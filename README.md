@@ -214,7 +214,38 @@ Proceed with commit? [yes/no/edit]
   docs/                 # Reference documentation
 ```
 
-## 🤝 Acknowledgment
+## 🤝 Contributing
+
+Contributions welcome! By submitting a PR, you agree to license your contribution under the same dual MIT/CC BY 4.0 license.
+
+**Ways to contribute:**
+- Improve prompts and rules
+- Add new commands
+- Fix bugs or improve documentation
+- Share your customizations
+
+## 📜 License
+
+This project is dual-licensed under your choice of:
+
+- **[MIT License](https://github.com/rusi/junior/blob/main/LICENSE-MIT)**
+- **[Creative Commons Attribution 4.0 (CC BY 4.0)](https://github.com/rusi/junior/blob/main/LICENSE-CC-BY)**
+
+See [LICENSE](https://github.com/rusi/junior/blob/main/LICENSE) for details.
+
+**Attribution:**
+
+If using Junior in your project:
+```
+Powered by Junior (https://github.com/rusi/junior) by Ruslan Hristov
+```
+
+If extending or forking:
+```
+Based on Junior (https://github.com/rusi/junior) by Ruslan Hristov
+```
+
+## 🙏 Acknowledgment
 
 Junior was inspired by the original *Code Captain* concept by [@devobsessed](https://github.com/devobsessed).  
 It shares the same vision of helping AI agents become effective software collaborators.
