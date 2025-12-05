@@ -130,66 +130,170 @@ The script will:
 - `/refactor` - Code improvement
 - `/review` - Code review
 
-### Example Sessions
+### 🔄 Development Workflow
 
-**Planning a feature:**
+Junior follows a **plan → implement → commit** cycle. Each feature is broken into small, testable stories that deliver value incrementally.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     JUNIOR WORKFLOW                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. PLAN          /feature add user auth                        │
+│     ↓             → Junior asks questions, creates spec         │
+│                   → Creates feat-1-auth/ with 3 stories         │
+│                                                                 │
+│  2. COMMIT        /commit                                       │
+│     ↓             → Commits feature specification               │
+│                                                                 │
+│  3. IMPLEMENT     /implement feat-1-story-1                     │
+│     ↓             → TDD: tests first, then implementation       │
+│                   → End-to-end working slice                    │
+│                                                                 │
+│  4. COMMIT        /commit                                       │
+│     ↓             → Commits story implementation                │
+│                                                                 │
+│  5. REPEAT        /implement feat-1-story-2                     │
+│     ↓             → Next story...                               │
+│     ↓             /commit                                       │
+│     ↓             → Continue until feature complete             │
+│                                                                 │
+│  6. NEXT FEATURE  /feature add payment processing               │
+│                   → Start cycle again                           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key principles:**
+- **Plan before code** — Never jump into implementation without a spec
+- **Small commits** — Commit after each story, not at the end
+- **Vertical slices** — Each story is end-to-end testable by users
+- **TDD workflow** — Tests first, then implementation
+
+### Example Session
+
+**Step 1: Plan a feature**
 
 ```text
 User: /feature add user authentication
+
 Junior: 🚀 Junior online. Let's think, then code.
-
-[Scans codebase and existing features]
-
-What authentication methods do you want to support?
+        [Scans codebase and existing features]
+        What authentication methods do you want to support?
 
 User: Email/password and Google OAuth
 
-Junior: [Asks focused questions about requirements...]
-
-## Feature Contract
-
-**Feature:** User authentication with email/password and Google OAuth
-**User Value:** Secure account creation and login
-**Success Criteria:** Users can register, login, and access protected routes
-
-[Shows complete contract with concerns and recommendations]
-
-Options: [yes/edit/risks/simpler]
+Junior: [Asks focused questions until 95% clear...]
+        
+        ## Feature Contract
+        
+        **Feature:** User authentication with email/password and Google OAuth
+        **User Value:** Secure account creation and login
+        **Success Criteria:** Users can register, login, and access protected routes
+        
+        [Shows complete contract with concerns and recommendations]
+        
+        Options: [yes/edit/risks/simpler]
 
 User: yes
 
 Junior: ✅ Feature specification created!
-📁 .junior/features/feat-1-auth/
-
-[3 user stories, each end-to-end integrated and user-testable]
+        📁 .junior/features/feat-1-auth/
+           ├── feat-1-overview.md
+           └── user-stories/
+               ├── feat-1-stories.md
+               ├── feat-1-story-1-registration.md
+               ├── feat-1-story-2-login.md
+               └── feat-1-story-3-oauth.md
 ```
 
-**Committing changes:**
+**Step 2: Commit the spec**
 
 ```text
 User: /commit
-Junior: 🎯 Junior here. Let's build something great.
 
-[Analyzes changes, identifies session files]
-
-📁 Files to stage (from this session):
-  M  src/auth.ts
-  M  src/auth.test.ts
-
-Stage these session files? [yes/no/all]
+Junior: 📁 Files to stage (from this session):
+          A  .junior/features/feat-1-auth/feat-1-overview.md
+          A  .junior/features/feat-1-auth/user-stories/feat-1-stories.md
+          A  .junior/features/feat-1-auth/user-stories/feat-1-story-1-registration.md
+          A  .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md
+          A  .junior/features/feat-1-auth/user-stories/feat-1-story-3-oauth.md
+        
+        💬 Commit Message:
+        ┌─────────────────────────────────
+        │ docs(feat-1): add user auth specification
+        │ 
+        │ - Feature overview with acceptance criteria
+        │ - 3 user stories for incremental delivery
+        └─────────────────────────────────
 
 User: yes
+```
 
-💬 Generated Commit Message:
-┌─────────────────────────────────
-│ feat: add JWT authentication
-│ 
-│ - Implement token generation
-│ - Add login endpoint
-│ - Include tests
-└─────────────────────────────────
+**Step 3: Implement first story**
 
-Proceed with commit? [yes/no/edit]
+```text
+User: /implement feat-1-story-1
+
+Junior: 🎯 Implementing: feat-1-story-1-registration
+        
+        [Reads story spec, plans implementation]
+        [Writes tests first (TDD)]
+        [Implements until tests pass]
+        [Updates story progress]
+        
+        ✅ Story complete!
+        
+        Files created/modified:
+          A  src/auth/register.ts
+          A  src/auth/register.test.ts
+          A  src/db/users.ts
+          M  .junior/features/feat-1-auth/user-stories/feat-1-story-1-registration.md
+```
+
+**Step 4: Commit the implementation**
+
+```text
+User: /commit
+
+Junior: 📁 Files to stage:
+          A  src/auth/register.ts
+          A  src/auth/register.test.ts
+          A  src/db/users.ts
+          M  .junior/features/feat-1-auth/user-stories/feat-1-story-1-registration.md
+        
+        💬 Commit Message:
+        ┌─────────────────────────────────
+        │ feat(feat-1-story-1): ✅ user registration
+        │ 
+        │ - Email/password registration endpoint
+        │ - Password hashing with bcrypt
+        │ - User storage in database
+        │ - Comprehensive test coverage
+        └─────────────────────────────────
+
+User: yes
+```
+
+**Step 5: Continue with remaining stories**
+
+```text
+User: /implement feat-1-story-2
+      ... [implement login] ...
+User: /commit
+
+User: /implement feat-1-story-3
+      ... [implement OAuth] ...
+User: /commit
+
+✅ Feature complete! Ready for next feature.
+```
+
+**Step 6: Start next feature**
+
+```text
+User: /feature add payment processing
+      ... [cycle repeats] ...
 ```
 
 ## ⚙️ Structure
