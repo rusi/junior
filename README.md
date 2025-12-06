@@ -121,11 +121,13 @@ The script will:
 
 **Core Commands:**
 - `/feature` - Plan and create feature specifications (contract-style)
+- `/debug` - Systematic debugging with evidence-based investigation (contract-style)
 - `/implement` - Execute feature stories with TDD workflow
 - `/commit` - Intelligent git commits with session-based staging
 - `/new-command` - Create new Junior commands
 
 **Coming Soon:**
+- `/bugfix` - Create implementation stories from debug resolutions
 - `/research` - Technical investigation
 - `/refactor` - Code improvement
 - `/review` - Code review
@@ -306,12 +308,14 @@ User: /feature add payment processing
     02-current-date.mdc # Current date determination
   commands/
     feature.md          # Feature planning (contract-style)
+    debug.md            # Evidence-based debugging (contract-style)
     implement.md        # Execute stories with TDD workflow
     commit.md           # Git commits with session staging
     new-command.md      # Create new commands
 
 .junior/                # Junior's working memory (created as needed)
   features/             # Feature specifications
+  debugging/            # Debug investigations
   experiments/          # Experiments and prototypes
   research/             # Technical research
   decisions/            # Architecture Decision Records

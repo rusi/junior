@@ -11,6 +11,7 @@ Junior maintains persistent memory in `.junior/`:
 ```
 .junior/
 ├── features/       # Feature specifications (numbered: feat-1-name, feat-2-name, etc.)
+├── debugging/      # Debug investigations (numbered: dbg-1-name, dbg-2-name, etc.)
 ├── experiments/    # Experiments (numbered: exp-1-name, exp-2-name, etc.)
 ├── research/       # Technical research documents
 ├── decisions/      # Architecture Decision Records (ADRs)
@@ -37,6 +38,17 @@ Junior maintains persistent memory in `.junior/`:
     └── analysis-*.md
 ```
 
+### Debugging Structure
+```
+.junior/debugging/dbg-{N}-{name}/
+├── dbg-{N}-overview.md              # Problem, symptoms, context (NOT debug.md or README.md)
+├── investigation/                   # Investigation tasks
+│   ├── dbg-{N}-steps.md             # Hypotheses + plan + progress (NOT README.md)
+│   ├── dbg-{N}-step-1-{name}.md     # Individual steps: hypothesis + test + findings
+│   └── dbg-{N}-step-{M}-{name}.md
+└── dbg-{N}-resolution.md            # Root cause + fix approach (created after investigation)
+```
+
 ### Experiment Structure
 ```
 .junior/experiments/exp-{N}-{name}/
@@ -52,18 +64,25 @@ Junior maintains persistent memory in `.junior/`:
 
 ### Numbering Convention
 - Features: `feat-1-name`, `feat-2-name` (simple sequential)
+- Debugging: `dbg-1-name`, `dbg-2-name` (simple sequential)
 - Experiments: `exp-1-name`, `exp-2-name` (simple sequential)
 - Stories: `feat-1-story-1-name`, `feat-1-story-2-name` (simple sequential)
+- Debug steps: `dbg-1-step-1-name`, `dbg-1-step-2-name` (simple sequential)
 - Story tracking: `feat-1-stories.md`, `exp-1-stories.md` (NOT README.md)
+- Debug step tracking: `dbg-1-steps.md` (NOT README.md)
 
-**CRITICAL:** All files MUST use consistent naming with feature/experiment prefix:
+**CRITICAL:** All files MUST use consistent naming with feature/experiment/debug prefix:
   - ✅ `feat-5-overview.md` (main spec)
   - ✅ `feat-5-stories.md` (story tracking)
   - ✅ `feat-5-story-3-api-integration.md` (individual story)
   - ✅ `exp-2-overview.md` (experiment spec)
   - ✅ `exp-2-findings.md` (findings doc)
-  - ❌ `feature.md` or `experiment.md` (generic, wrong!)
-  - ❌ `README.md` anywhere in features/experiments (use descriptive names!)
+  - ✅ `dbg-1-overview.md` (debug problem description)
+  - ✅ `dbg-1-steps.md` (hypotheses + investigation plan)
+  - ✅ `dbg-1-step-2-check-cert.md` (individual investigation step)
+  - ✅ `dbg-1-resolution.md` (root cause + fix approach)
+  - ❌ `feature.md` or `experiment.md` or `debug.md` (generic, wrong!)
+  - ❌ `README.md` anywhere in features/experiments/debugging (use descriptive names!)
   - ❌ `2025-10-01-story-1-setup.md` (date-prefix, wrong!)
-  - ❌ `story-1-setup.md` (no prefix, wrong!)
+  - ❌ `story-1-setup.md` or `step-1-name.md` (no prefix, wrong!)
 

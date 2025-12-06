@@ -9,7 +9,8 @@
     ".junior/docs",
     ".junior/ideas",
     ".junior/bugs",
-    ".junior/enhancements"
+    ".junior/enhancements",
+    ".junior/debugging"
   ],
   "files": [
     {
@@ -51,6 +52,6 @@
       "Use /implement to execute feature stories",
       "Use /commit for intelligent git commits"
     ],
-    "availableCommands": "/feature, /implement, /commit, /new-command"
+    "availableCommands": "/feature, /implement, /commit, /debug, /new-command"
   }
 }
