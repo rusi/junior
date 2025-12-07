@@ -55,6 +55,26 @@ Create todos using `todo_write`:
 
 **CRITICAL:** `.code-captain` and `.junior` are hidden directories. Use `run_terminal_cmd` with shell commands, NOT `list_dir`.
 
+**Use these detection commands:**
+
+```bash
+# Check if .code-captain exists (REQUIRED FIRST STEP)
+test -d .code-captain && echo "EXISTS" || echo "NOT_FOUND"
+
+# Check if .junior exists (to determine mode)
+test -d .junior && echo "EXISTS" || echo "NOT_FOUND"
+
+# Find features in Code Captain
+find .code-captain/specs -maxdepth 1 -type d ! -name specs 2>/dev/null
+
+# Find experiments
+find .code-captain/experiments -maxdepth 1 -type d ! -name experiments 2>/dev/null
+
+# Count docs and research files
+find .code-captain/docs -type f -name "*.md" 2>/dev/null | wc -l
+find .code-captain/research -type f -name "*.md" 2>/dev/null | wc -l
+```
+
 **Detection tasks:**
 
 1. Check if `.code-captain/` exists - if not, show error and exit
