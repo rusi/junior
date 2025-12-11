@@ -1,6 +1,6 @@
 # Story 1: Bash Version Check & Update Detection
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** High
 > **Dependencies:** None
 > **Deliverable:** Working `.junior/update.sh` script that checks versions and reports update availability
@@ -28,21 +28,21 @@
 
 ## Acceptance Criteria
 
-- [ ] Given Junior is installed, when user runs `.junior/update.sh`, then script reads current version from `.junior/.junior-install.json`
-- [ ] Given GitHub is reachable, when script queries API, then displays latest commit hash and timestamp
-- [ ] Given current version equals latest version, when compared, then reports "Junior is up-to-date"
-- [ ] Given current version differs from latest, when compared, then reports "Update available" with version details
-- [ ] Given `.junior/.junior-install.json` missing, when script runs, then reports error and suggests installation
-- [ ] Given network failure, when GitHub API call fails, then displays clear error message
+- [x] Given Junior is installed, when user runs `.junior/update.sh`, then script reads current version from `.junior/.junior-install.json` ✅
+- [x] Given GitHub is reachable, when script queries API, then displays latest commit hash and timestamp ✅
+- [x] Given current version equals latest version, when compared, then reports "Junior is up-to-date" ✅
+- [x] Given current version differs from latest, when compared, then reports "Update available" with version details ✅
+- [x] Given `.junior/.junior-install.json` missing, when script runs, then reports error and suggests installation ✅
+- [x] Given network failure, when GitHub API call fails, then displays clear error message ✅
 
 ## Implementation Tasks
 
-- [ ] 1.1 Write tests for metadata file reading (TDD: test first)
-- [ ] 1.2 Implement metadata reading (current version, commit hash)
-- [ ] 1.3 Write tests for GitHub API integration (TDD: mock responses)
-- [ ] 1.4 Implement GitHub API call (get latest commit from main branch)
-- [ ] 1.5 Write tests for version comparison logic
-- [ ] 1.6 Implement version comparison and reporting with color output
+- [x] 1.1 Write tests for metadata file reading (TDD: test first) ✅
+- [x] 1.2 Implement metadata reading (current version, commit hash) ✅
+- [x] 1.3 Write tests for GitHub API integration (TDD: mock responses) ✅
+- [x] 1.4 Implement GitHub API call (get latest commit from main branch) ✅
+- [x] 1.5 Write tests for version comparison logic ✅
+- [x] 1.6 Implement version comparison and reporting with color output ✅
 
 ## Technical Notes
 
@@ -108,12 +108,12 @@ See [specs/01-Technical.md](../specs/01-Technical.md) for detailed technical app
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] Script works end-to-end (reads metadata, queries GitHub, reports status)
-- [ ] All tests passing (unit + integration)
-- [ ] Error handling tested (missing metadata, network failures)
-- [ ] Code follows bash best practices (set -e, quote variables, check commands exist)
-- [ ] **User can run `.junior/update.sh` and see version comparison**
-- [ ] Ready for Story 2 (download and install functionality)
+- [x] All tasks completed ✅
+- [x] All acceptance criteria met ✅
+- [x] Script works end-to-end (reads metadata, queries GitHub, reports status) ✅
+- [x] All tests passing (unit + integration) ✅
+- [x] Error handling tested (missing metadata, network failures) ✅
+- [x] Code follows bash best practices (set -e, quote variables, check commands exist) ✅
+- [x] **User can run `.junior/update.sh` and see version comparison** ✅
+- [x] Ready for Story 2 (download and install functionality) ✅
 

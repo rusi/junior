@@ -41,6 +41,10 @@
     {
       "source": "README.md",
       "destination": "JUNIOR.md"
+    },
+    {
+      "source": ".junior/update.sh",
+      "destination": ".junior/update.sh"
     }
   ],
   "messages": {
