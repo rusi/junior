@@ -10,11 +10,11 @@
 |-------|-------|--------|-------|----------|
 | 1 | Bash Version Check & Update Detection | Completed ✅ | 6 | 6/6 ✅ |
 | 2 | Bash Full Update Flow (Download, Install, Cleanup) | Completed ✅ | 6 | 6/6 ✅ |
-| 3 | PowerShell Update Script with Platform Parity | Not Started | 6 | 0/6 |
+| 3 | PowerShell Update Script with Platform Parity | Completed ✅ | 8 | 8/8 ✅ |
 | 4 | Install Integration & Documentation | Not Started | 5 | 0/5 |
 | 5 | Future Enhancements & Follow-up Work | Not Started | - | Backlog |
 
-**Total:** 12/23 tasks (52%) + Future work in backlog
+**Total:** 20/25 tasks (80%) + Future work in backlog
 
 ## Story Dependencies
 

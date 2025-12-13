@@ -4,15 +4,18 @@
 param(
     [Parameter(Mandatory=$true)]
     [string]$TargetPath,
-    
+
     [Parameter(Mandatory=$false)]
     [switch]$SyncBack,
-    
+
     [Parameter(Mandatory=$false)]
     [switch]$IgnoreDirty,
-    
+
     [Parameter(Mandatory=$false)]
-    [switch]$Force
+    [switch]$Force,
+
+    [Parameter(Mandatory=$false)]
+    [switch]$Verbose
 )
 
 # Set error action preference
@@ -21,7 +24,7 @@ $ErrorActionPreference = "Stop"
 # Colors for output
 $Colors = @{
     Green = "Green"
-    Red = "Red" 
+    Red = "Red"
     Yellow = "Yellow"
     Blue = "Blue"
     White = "White"
@@ -48,6 +51,246 @@ function Write-ErrorMsg {
     Write-Host "[ERROR] $Message" -ForegroundColor $Colors.Red
 }
 
+function Write-Debug {
+    param([string]$Message)
+    if ($Verbose) {
+        Write-Host "[DEBUG] $Message" -ForegroundColor $Colors.Blue
+    }
+}
+
+# Function to cleanup Code Captain files
+function Invoke-CodeCaptainCleanup {
+    param(
+        [Parameter(Mandatory=$true)]
+        $Config
+    )
+
+    Write-Host ""
+    Write-Status "═══════════════════════════════════════════════════"
+    Write-Status "Code Captain Cleanup"
+    Write-Status "═══════════════════════════════════════════════════"
+    Write-Host ""
+
+    # Extract Junior files from config (to exclude from uncertain files)
+    $JuniorRules = @()
+    $JuniorCommands = @()
+
+    foreach ($file in $Config.files) {
+        $dest = $file.destination
+        if ($dest -like ".cursor\rules\*") {
+            $JuniorRules += (Split-Path -Leaf $dest)
+        } elseif ($dest -like ".cursor\commands\*") {
+            $JuniorCommands += (Split-Path -Leaf $dest)
+        }
+    }
+
+    # Known Code Captain files (95% confidence)
+    $KnownCCFiles = @()
+    $KnownCCCommands = @()
+    $KnownCCRules = @()
+
+    # Check for known Code Captain files
+    if (Test-Path "CODE_CAPTAIN.md" -PathType Leaf) {
+        $KnownCCFiles += "CODE_CAPTAIN.md"
+    }
+    if (Test-Path ".cursor\rules\cc.mdc" -PathType Leaf) {
+        $KnownCCRules += ".cursor\rules\cc.mdc"
+    }
+
+    # Known Code Captain commands (including overlaps with Junior)
+    $CCCommandPatterns = @(
+        "commit.md",                        # CC and Junior both have this
+        "create-adr.md",
+        "create-experiment.md",
+        "create-idea.md",
+        "create-spec.md",
+        "edit-spec.md",
+        "enhancement.md",
+        "execute-task.md",
+        "explain-code.md",
+        "fix-bug.md",
+        "initialize.md",
+        "initialize-python.md",
+        "initialize-cursor-vscode.md",
+        "new-command.md",                   # CC and Junior both have this
+        "plan-product.md",
+        "research.md",
+        "status.md",                        # CC and Junior both have this
+        "swab.md",
+        "update-story.md"
+    )
+
+    foreach ($cmd in $CCCommandPatterns) {
+        $cmdPath = ".cursor\commands\$cmd"
+        if (Test-Path $cmdPath -PathType Leaf) {
+            $KnownCCCommands += $cmdPath
+        }
+    }
+
+    # Scan for other commands/rules (uncertain)
+    $UncertainCommands = @()
+    $UncertainRules = @()
+
+    if (Test-Path ".cursor\commands" -PathType Container) {
+        $commands = Get-ChildItem -Path ".cursor\commands" -Filter "*.md" -File -ErrorAction SilentlyContinue
+
+        foreach ($cmd in $commands) {
+            $cmdPath = $cmd.FullName.Replace((Get-Location).Path + "\", "")
+
+            # Check if it's not in known CC commands list
+            $isKnown = $false
+            foreach ($known in $KnownCCCommands) {
+                if ($cmdPath -eq $known) {
+                    $isKnown = $true
+                    break
+                }
+            }
+
+            # Also skip Junior commands (extracted from config)
+            $baseName = $cmd.Name
+            foreach ($juniorCmd in $JuniorCommands) {
+                if ($baseName -eq $juniorCmd) {
+                    $isKnown = $true
+                    break
+                }
+            }
+
+            if (-not $isKnown) {
+                $UncertainCommands += $cmdPath
+            }
+        }
+    }
+
+    if (Test-Path ".cursor\rules" -PathType Container) {
+        $rules = Get-ChildItem -Path ".cursor\rules" -Filter "*.mdc" -File -ErrorAction SilentlyContinue
+
+        foreach ($rule in $rules) {
+            $rulePath = $rule.FullName.Replace((Get-Location).Path + "\", "")
+
+            # Check if it's not in known CC rules list
+            $isKnown = $false
+            foreach ($known in $KnownCCRules) {
+                if ($rulePath -eq $known) {
+                    $isKnown = $true
+                    break
+                }
+            }
+
+            # Also skip Junior rules (extracted from config)
+            $baseName = $rule.Name
+            foreach ($juniorRule in $JuniorRules) {
+                if ($baseName -eq $juniorRule) {
+                    $isKnown = $true
+                    break
+                }
+            }
+
+            if (-not $isKnown) {
+                $UncertainRules += $rulePath
+            }
+        }
+    }
+
+    # Present files to user
+    Write-Host ""
+    Write-Status "Files to remove (95% confidence from Code Captain):"
+    Write-Host ""
+
+    if ($KnownCCFiles.Count -gt 0) {
+        Write-Host "  Documentation:"
+        foreach ($file in $KnownCCFiles) {
+            Write-Host "    • $file"
+        }
+        Write-Host ""
+    }
+
+    if ($KnownCCRules.Count -gt 0) {
+        Write-Host "  Rules:"
+        foreach ($file in $KnownCCRules) {
+            Write-Host "    • $file"
+        }
+        Write-Host ""
+    }
+
+    if ($KnownCCCommands.Count -gt 0) {
+        Write-Host "  Commands ($($KnownCCCommands.Count) files):"
+        foreach ($file in $KnownCCCommands) {
+            Write-Host "    • $file"
+        }
+        Write-Host ""
+    }
+
+    if (($UncertainCommands.Count -gt 0) -or ($UncertainRules.Count -gt 0)) {
+        Write-Host ""
+        Write-Status "Files with uncertain origin (will be KEPT):"
+        Write-Host ""
+
+        if ($UncertainCommands.Count -gt 0) {
+            Write-Host "  Commands:"
+            foreach ($file in $UncertainCommands) {
+                Write-Host "    • $file"
+            }
+            Write-Host ""
+        }
+
+        if ($UncertainRules.Count -gt 0) {
+            Write-Host "  Rules:"
+            foreach ($file in $UncertainRules) {
+                Write-Host "    • $file"
+            }
+            Write-Host ""
+        }
+
+        Write-Status "These files might be custom. They will NOT be removed."
+        Write-Status "Review them manually after installation if needed."
+        Write-Host ""
+    }
+
+    Write-Host ""
+    if (Test-Path ".code-captain" -PathType Container) {
+        Write-Warning "Note: .code-captain\ directory is NOT removed by this cleanup."
+        Write-Warning "Use /migrate command after installation to migrate your work."
+    }
+    Write-Host ""
+
+    # Confirm cleanup
+    if (-not $Force) {
+        $response = Read-Host "Remove Code Captain files and continue with installation? [yes/cancel]"
+
+        if (($response -ne "yes") -and ($response -ne "y")) {
+            Write-Status "Installation cancelled. No changes made."
+            exit 0
+        }
+    } else {
+        Write-Warning "Auto-confirming cleanup (--force enabled)"
+    }
+
+    # Perform cleanup (ONLY known CC files)
+    Write-Status "Removing Code Captain files..."
+
+    foreach ($file in ($KnownCCFiles + $KnownCCRules + $KnownCCCommands)) {
+        if (Test-Path $file -PathType Leaf) {
+            Remove-Item -Path $file -Force
+            Write-Success "Removed: $file"
+        }
+    }
+
+    # Clean up empty directories
+    if ((Test-Path ".cursor\commands" -PathType Container) -and ((Get-ChildItem ".cursor\commands" -Force | Measure-Object).Count -eq 0)) {
+        Remove-Item -Path ".cursor\commands" -Force -ErrorAction SilentlyContinue
+    }
+    if ((Test-Path ".cursor\rules" -PathType Container) -and ((Get-ChildItem ".cursor\rules" -Force | Measure-Object).Count -eq 0)) {
+        Remove-Item -Path ".cursor\rules" -Force -ErrorAction SilentlyContinue
+    }
+    if ((Test-Path ".cursor" -PathType Container) -and ((Get-ChildItem ".cursor" -Force | Measure-Object).Count -eq 0)) {
+        Remove-Item -Path ".cursor" -Force -ErrorAction SilentlyContinue
+    }
+
+    Write-Host ""
+    Write-Success "Code Captain cleanup complete!"
+    Write-Host ""
+}
+
 # Function to calculate SHA256 checksum
 function Get-FileChecksum {
     param([string]$FilePath)
@@ -59,33 +302,33 @@ function Get-FileChecksum {
 # Returns: 0=no conflict, 1=user modified (preserve), 2=uncontrolled file (abort)
 function Test-FileConflict {
     param([string]$DestFile)
-    
+
     # File doesn't exist - no conflict
     if (-not (Test-Path $DestFile -PathType Leaf)) {
         return 0
     }
-    
+
     # File exists - determine conflict type
     # First check: is this an upgrade (Junior was previously installed)?
     if (-not $script:IsUpgrade) {
         # Fresh install + file exists = uncontrolled file
         return 2
     }
-    
+
     # This is an upgrade - check if file was installed by Junior
     $originalChecksum = if ($script:ExistingMetadata.files.$DestFile) { $script:ExistingMetadata.files.$DestFile.sha256 } else { $null }
-    
+
     if (-not $originalChecksum) {
         # Upgrade but file NOT in metadata = uncontrolled file
         return 2
     }
-    
+
     # File was installed by Junior - check if user modified it
     $currentChecksum = Get-FileChecksum -FilePath $DestFile
     if ($currentChecksum -ne $originalChecksum) {
         return 1  # User modified Junior file
     }
-    
+
     # Unchanged Junior file - safe to overwrite
     return 0
 }
@@ -96,17 +339,17 @@ function Install-SingleFile {
         [string]$Source,
         [string]$Dest
     )
-    
+
     $fileExisted = Test-Path $Dest -PathType Leaf
-    
+
     # Check for file conflicts
     $conflictType = Test-FileConflict -DestFile $Dest
-    
+
     if ($conflictType -eq 1) {
         # User modified Junior file - preserve
         Write-Warning "User-modified: $Dest (preserving)"
         $script:ModifiedFiles += $Dest
-        
+
         $checksum = Get-FileChecksum -FilePath $Dest
         $size = (Get-Item $Dest).Length
         $script:FileMetadata[$Dest] = @{
@@ -115,19 +358,19 @@ function Install-SingleFile {
             modified = $true
         }
         return
-        
+
     } elseif ($conflictType -eq 2) {
         # Uncontrolled file exists - conflict
         Write-ErrorMsg "Conflict: $Dest exists but was not installed by Junior"
         $script:ConflictingFiles += $Dest
         return
     }
-    
+
     # Safe to install - copy file
     $sourcePath = Join-Path $script:RepoRoot $Source
     if (Test-Path $sourcePath -PathType Leaf) {
         Copy-Item -Path $sourcePath -Destination $Dest -Force
-        
+
         $checksum = Get-FileChecksum -FilePath $Dest
         $size = (Get-Item $Dest).Length
         $script:FileMetadata[$Dest] = @{
@@ -135,11 +378,11 @@ function Install-SingleFile {
             size = $size
             modified = $false
         }
-        
+
         if ($fileExisted) {
-            Write-Success "Up-to-date: $Dest"
+            Write-Debug "Updated: $Dest"
         } else {
-            Write-Success "Installed: $Dest"
+            Write-Debug "Installed: $Dest"
         }
     } else {
         Write-Warning "Source file not found: $sourcePath"
@@ -154,11 +397,11 @@ $ConfigPath = Join-Path $ScriptDir "install-config.json"
 # Handle SyncBack mode
 if ($SyncBack) {
     Write-Status "Syncing modifications back to Junior source..."
-    Write-Status "Target directory: $TargetPath"
-    Write-Status "Source directory: $RepoRoot"
-    
+    Write-Debug "Target directory: $TargetPath"
+    Write-Debug "Source directory: $RepoRoot"
+
     Set-Location $TargetPath
-    
+
     # Check for metadata file
     $MetadataFile = ".junior\.junior-install.json"
     if (-not (Test-Path $MetadataFile -PathType Leaf)) {
@@ -166,17 +409,17 @@ if ($SyncBack) {
         Write-ErrorMsg "Metadata file not found: $MetadataFile"
         exit 1
     }
-    
+
     # Load metadata
     $ExistingMetadata = Get-Content $MetadataFile -Raw | ConvertFrom-Json
-    
+
     # Find files marked as modified (or compare against source)
     $SyncFiles = @()
     foreach ($file in $ExistingMetadata.files.PSObject.Properties.Name) {
         if (Test-Path $file -PathType Leaf) {
             # Check if file is marked as modified in metadata
             $isModified = $ExistingMetadata.files.$file.modified
-            
+
             if ($isModified) {
                 $SyncFiles += $file
             } else {
@@ -187,11 +430,11 @@ if ($SyncBack) {
                 } elseif ($file -eq "JUNIOR.md") {
                     $sourceFile = Join-Path $RepoRoot "README.md"
                 }
-                
+
                 if ($sourceFile -and (Test-Path $sourceFile -PathType Leaf)) {
                     $currentChecksum = Get-FileChecksum -FilePath $file
                     $sourceChecksum = Get-FileChecksum -FilePath $sourceFile
-                    
+
                     if ($currentChecksum -ne $sourceChecksum) {
                         $SyncFiles += $file
                     }
@@ -199,12 +442,12 @@ if ($SyncBack) {
             }
         }
     }
-    
+
     if ($SyncFiles.Count -eq 0) {
         Write-Success "No modified files to sync"
         exit 0
     }
-    
+
     Write-Host ""
     Write-Status "Modified files found ($($SyncFiles.Count)):"
     foreach ($file in $SyncFiles) {
@@ -212,7 +455,7 @@ if ($SyncBack) {
     }
     Write-Host ""
     Write-Status "Syncing files back to Junior source..."
-    
+
     # Sync files back
     Write-Status "Syncing files..."
     foreach ($file in $SyncFiles) {
@@ -228,25 +471,30 @@ if ($SyncBack) {
             Write-Warning "Skipping: $file (unknown mapping)"
             continue
         }
-        
+
         Copy-Item -Path $file -Destination $srcPath -Force
         Write-Success "Synced: $file -> $srcPath"
     }
-    
+
     Write-Host ""
     Write-Success "═══════════════════════════════════════════════════"
     Write-Success "Sync complete! $($SyncFiles.Count) files copied to Junior source"
     Write-Success "═══════════════════════════════════════════════════"
     Write-Host ""
     Write-Warning "Don't forget to commit these changes in Junior repository!"
-    
+
     exit 0
 }
 
 # Normal installation mode
-Write-Status "Installing Junior - Your expert AI developer..."
-Write-Status "Target directory: $TargetPath"
-Write-Status "Source directory: $RepoRoot"
+Write-Debug "Installing Junior - Your expert AI developer..."
+Write-Debug "Target directory: $TargetPath"
+Write-Debug "Source directory: $RepoRoot"
+
+# Show simple progress message (unless verbose)
+if (-not $Verbose) {
+    Write-Host "Installing Junior..."
+}
 
 # Verify we're in a Junior repository
 $JuniorFile = Join-Path $RepoRoot ".cursor\rules\00-junior.mdc"
@@ -256,14 +504,43 @@ if (-not (Test-Path $JuniorFile)) {
 }
 
 # Git clean check - verify Junior source is clean for accurate version tracking
-Write-Status "Checking Junior source git status..."
+Write-Debug "Checking Junior source git status..."
 Set-Location $RepoRoot
 
 $GitDir = Join-Path $RepoRoot ".git"
 if (-not (Test-Path $GitDir -PathType Container)) {
-    Write-Warning "Junior source is not a git repository. Version tracking will be limited."
-    $CommitHash = "unknown"
-    $CommitTimestamp = "unknown"
+    # Check for .githash file (created by update script when installing from tarball)
+    $GitHashFile = Join-Path $RepoRoot ".githash"
+    if (Test-Path $GitHashFile -PathType Leaf) {
+        Write-Debug "Reading version info from .githash file..."
+        $gitHashContent = Get-Content $GitHashFile -Raw
+
+        # Parse COMMIT_HASH=...
+        if ($gitHashContent -match 'COMMIT_HASH=(.+)') {
+            $CommitHash = $matches[1].Trim()
+        } else {
+            $CommitHash = "unknown"
+        }
+
+        # Parse COMMIT_DATE=...
+        if ($gitHashContent -match 'COMMIT_DATE=(.+)') {
+            $CommitDate = $matches[1].Trim()
+        }
+
+        # Parse COMMIT_TIMESTAMP=...
+        if ($gitHashContent -match 'COMMIT_TIMESTAMP=(.+)') {
+            $CommitTimestamp = $matches[1].Trim()
+        } else {
+            $CommitTimestamp = "unknown"
+        }
+
+        $ShortHash = if ($CommitHash -ne "unknown") { $CommitHash.Substring(0, 7) } else { "unknown" }
+        Write-Debug "Version info loaded from tarball metadata (commit: $ShortHash, date: $CommitDate)"
+    } else {
+        Write-Warning "Junior source is not a git repository. Version tracking will be limited."
+        $CommitHash = "unknown"
+        $CommitTimestamp = "unknown"
+    }
 } else {
     # Check for uncommitted changes
     $gitStatus = git status --porcelain
@@ -284,16 +561,16 @@ if (-not (Test-Path $GitDir -PathType Container)) {
             exit 1
         }
     }
-    
+
     # Get version info from git
     $CommitHash = git rev-parse HEAD
     $CommitTimestamp = git log -1 --format=%ct
     $ShortHash = $CommitHash.Substring(0, 7)
-    
+
     if ($IgnoreDirty) {
-        Write-Warning "Using commit: $ShortHash (with local changes)"
+        Write-Debug "Using commit: $ShortHash (with local changes)"
     } else {
-        Write-Success "Junior source is clean (commit: $ShortHash)"
+        Write-Debug "Junior source is clean (commit: $ShortHash)"
     }
 }
 
@@ -318,12 +595,14 @@ try {
 
 # Change to target directory
 Set-Location $TargetPath
-Write-Status "Working in: $(Get-Location)"
+Write-Debug "Working in: $(Get-Location)"
 
-# Check for Code Captain (requires explicit -Force to proceed)
-$hasCodeCaptain = (Test-Path ".cursor\rules\cc.mdc") -or (Test-Path "CODE_CAPTAIN.md") -or (Test-Path ".code-captain")
+# Track if Code Captain cleanup was performed
+$CCCleanedUp = $false
 
-if ($hasCodeCaptain) {
+# Check for Code Captain (offer cleanup or force installation)
+# Skip if Junior is already installed (upgrade scenario)
+if ((-not (Test-Path $MetadataFile -PathType Leaf)) -and ((Test-Path ".cursor\rules\cc.mdc") -or (Test-Path "CODE_CAPTAIN.md"))) {
     Write-Host ""
     Write-Warning "═══════════════════════════════════════════════════"
     Write-Warning "Code Captain installation detected!"
@@ -332,20 +611,39 @@ if ($hasCodeCaptain) {
     Write-Status "Found:"
     if (Test-Path ".cursor\rules\cc.mdc") { Write-Host "  • .cursor\rules\cc.mdc" }
     if (Test-Path "CODE_CAPTAIN.md") { Write-Host "  • CODE_CAPTAIN.md" }
-    if (Test-Path ".code-captain") { Write-Host "  • .code-captain\ directory" }
     Write-Host ""
-    
+
     if (-not $Force) {
-        Write-Status "Recommendations:"
-        Write-Host "  1. Review .cursor\commands\ for custom commands you want to keep"
-        Write-Host "  2. Review .cursor\rules\ for custom rules you want to keep"
-        Write-Host "  3. Consider backing up .code-captain\ if it contains work"
-        Write-Host "  4. Use /migrate command (coming soon) for proper migration"
+        Write-Status "Recommended workflow:"
+        Write-Host "  1. Cleanup Code Captain interface (rules, commands, docs)"
+        Write-Host "  2. Install Junior"
+        Write-Host "  3. After installation, run /migrate to convert .code-captain\ work to Junior"
         Write-Host ""
-        Write-ErrorMsg "Installation aborted. Use -Force to install alongside Code Captain."
-        exit 1
+        if (Test-Path ".code-captain" -PathType Container) {
+            Write-Warning "Note: Your .code-captain\ work directory will be preserved."
+            Write-Warning "Only the Code Captain rules, commands, and docs will be removed."
+        } else {
+            Write-Status "Code Captain rules, commands, and docs will be removed."
+        }
+        Write-Host ""
+
+        $response = Read-Host "Proceed with cleanup and installation? [yes/cancel]"
+
+        if (($response -eq "yes") -or ($response -eq "y")) {
+            Invoke-CodeCaptainCleanup -Config $Config
+            $CCCleanedUp = $true
+            # Continue with installation after cleanup
+        } else {
+            Write-Status "Installation cancelled."
+            Write-Host ""
+            Write-Status "To install Junior, you can:"
+            Write-Status "  1. Manually remove Code Captain files and re-run this script"
+            Write-Status "  2. Use -Force flag to install alongside (may cause conflicts)"
+            exit 0
+        }
     } else {
         Write-Warning "Proceeding with installation (-Force enabled)"
+        Write-Warning "Code Captain files will not be removed automatically."
         Write-Host ""
     }
 }
@@ -361,24 +659,24 @@ $script:ExistingMetadata = $null
 if (Test-Path $MetadataFile -PathType Leaf) {
     $IsUpgrade = $true
     $ExistingMetadata = Get-Content $MetadataFile -Raw | ConvertFrom-Json
-    Write-Status "Existing Junior installation detected - performing upgrade"
-    
+    Write-Debug "Existing Junior installation detected - performing upgrade"
+
     $ExistingVersion = if ($ExistingMetadata.version) { $ExistingMetadata.version } else { "unknown" }
     $ExistingCommit = if ($ExistingMetadata.commit_hash) { $ExistingMetadata.commit_hash.Substring(0, 7) } else { "unknown" }
-    Write-Status "Current version: $ExistingVersion (commit: $ExistingCommit)"
+    Write-Debug "Current version: $ExistingVersion (commit: $ExistingCommit)"
 }
 
 # Create directory structure
-Write-Status "Creating directory structure..."
+Write-Debug "Creating directory structure..."
 
 foreach ($dir in $Config.directories) {
     if (-not (Test-Path $dir -PathType Container)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
-    Write-Success "Created directory: $dir"
+    Write-Debug "Created directory: $dir"
 }
 
-Write-Success "Directory structure created"
+Write-Debug "Directory structure created"
 
 # Initialize metadata tracking
 $script:FileMetadata = @{}
@@ -386,18 +684,18 @@ $script:ModifiedFiles = @()
 $script:ConflictingFiles = @()
 
 # Install files based on configuration
-Write-Status "Installing files..."
+Write-Debug "Installing files..."
 
 foreach ($file in $Config.files) {
     $sourcePath = Join-Path $RepoRoot $file.source
     $destPath = $file.destination
-    
+
     if ($file.isDirectory) {
         # Copy directory contents
-        Write-Status "Installing directory: $($file.source) -> $destPath"
+        Write-Debug "Installing directory: $($file.source) -> $destPath"
         if (Test-Path $sourcePath -PathType Container) {
             $sourceFiles = Get-ChildItem -Path $sourcePath -File
-            
+
             foreach ($srcFile in $sourceFiles) {
                 $destFile = Join-Path $destPath $srcFile.Name
                 $relativeSource = "$($file.source)$($srcFile.Name)"
@@ -409,9 +707,9 @@ foreach ($file in $Config.files) {
     } else {
         # Check if file should be skipped if it exists
         if ($file.skipIfExists -and (Test-Path $destPath -PathType Leaf)) {
-            Write-Status "Skipping existing file: $destPath (preserving local customizations)"
+            Write-Debug "Skipping existing file: $destPath (preserving local customizations)"
         } else {
-            Write-Status "Installing file: $($file.source) -> $destPath"
+            Write-Debug "Installing file: $($file.source) -> $destPath"
             Install-SingleFile -Source $file.source -Dest $destPath
         }
     }
@@ -453,7 +751,7 @@ if ($script:ModifiedFiles.Count -gt 0) {
 }
 
 # Generate installation metadata
-Write-Status "Generating installation metadata..."
+Write-Debug "Generating installation metadata..."
 
 # Get current timestamp
 $InstalledAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
@@ -468,7 +766,7 @@ $Metadata = @{
 
 # Write metadata file
 $Metadata | ConvertTo-Json -Depth 10 | Set-Content $MetadataFile -Encoding UTF8
-Write-Success "Metadata saved to $MetadataFile"
+Write-Debug "Metadata saved to $MetadataFile"
 
 # Check for git repository
 if (-not (Test-Path ".git" -PathType Container)) {
@@ -476,26 +774,35 @@ if (-not (Test-Path ".git" -PathType Container)) {
 }
 
 Write-Host ""
-Write-Success "═══════════════════════════════════════════════════"
-Write-Success $Config.messages.success
-Write-Success "═══════════════════════════════════════════════════"
+Write-Success "✓ $($Config.messages.success)"
 Write-Host ""
 
-# Show installation summary
-Write-Status "Installation summary:"
-Write-Host "  ✓ Cursor rules: .cursor\rules\ (4 files)" -ForegroundColor $Colors.Green
-Write-Host "  ✓ Commands: .cursor\commands\ (4 files)" -ForegroundColor $Colors.Green
-Write-Host "  ✓ Junior guide: JUNIOR.md" -ForegroundColor $Colors.Green
-Write-Host "  ✓ Working memory: .junior\ (structure created)" -ForegroundColor $Colors.Green
-$ShortHash = if ($CommitHash -ne "unknown") { $CommitHash.Substring(0, 7) } else { "unknown" }
-Write-Host "  ✓ Version: $CommitTimestamp (commit: $ShortHash)" -ForegroundColor $Colors.Green
-Write-Host ""
+# Show installation summary (verbose only)
+if ($Verbose) {
+    Write-Status "Installation summary:"
+    Write-Host "  ✓ Cursor rules: .cursor\rules\ (5 files)" -ForegroundColor $Colors.Green
+    Write-Host "  ✓ Commands: .cursor\commands\ (4 files)" -ForegroundColor $Colors.Green
+    Write-Host "  ✓ Junior guide: JUNIOR.md" -ForegroundColor $Colors.Green
+    Write-Host "  ✓ Working memory: .junior\ (structure created)" -ForegroundColor $Colors.Green
+    $ShortHash = if ($CommitHash -ne "unknown") { $CommitHash.Substring(0, 7) } else { "unknown" }
+    Write-Host "  ✓ Version: $CommitTimestamp (commit: $ShortHash)" -ForegroundColor $Colors.Green
+    Write-Host ""
+}
 
 Write-Status "Next steps:"
-foreach ($step in $Config.messages.nextSteps) {
-    Write-Host "  $step" -ForegroundColor $Colors.White
+if ($CCCleanedUp -and (Test-Path ".code-captain" -PathType Container)) {
+    Write-Host "  1. Run /migrate to convert your .code-captain\ work to Junior"
+    Write-Host "  2. Try /status to see all your features"
+    Write-Host "  3. Use /implement to continue working on features"
+    Write-Host ""
+} else {
+    foreach ($step in $Config.messages.nextSteps) {
+        Write-Host "  $step" -ForegroundColor $Colors.White
+    }
+    Write-Host ""
 }
-Write-Host ""
 
-Write-Status "Available commands: $($Config.messages.availableCommands)"
+if ($Verbose) {
+    Write-Status "Available commands: $($Config.messages.availableCommands)"
+}
 
