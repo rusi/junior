@@ -61,6 +61,11 @@ cd C:\path\to\your\project
 irm https://rusi.github.io/junior/install.ps1 | iex
 ```
 
+**Note:** If you encounter execution policy errors, use:
+```powershell
+powershell -ExecutionPolicy Bypass -Command "irm https://rusi.github.io/junior/install.ps1 | iex"
+```
+
 The bootstrap script will:
 - ✅ Download the latest Junior release
 - ✅ Install to your current directory

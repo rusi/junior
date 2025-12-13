@@ -239,6 +239,36 @@ For completed work, mark EVERY checkbox:
   - Update story table rows (status column)
 - Update `feat-N-overview.md` Status field if all stories complete
 
+**🔴 CRITICAL: Determining Feature Completion Status:**
+
+When checking if "all stories complete" for feature status:
+- ✅ **Count ONLY deliverable stories** (Story 1, 2, 3, etc. with actual tasks)
+- ❌ **Exclude backlog/future stories** (marked as "Backlog", "Future Enhancements", "Not Started" with "-" tasks)
+- **Pattern to detect backlog stories:**
+  - Story title contains "Future", "Backlog", "Enhancements"
+  - Tasks column shows "-" instead of numbers
+  - Progress column shows "Backlog" instead of percentages
+  - Status is "Not Started" AND explicitly noted as future work
+
+**Example:**
+```
+| Story | Title | Status | Tasks | Progress |
+|-------|-------|--------|-------|----------|
+| 1 | User Auth | Completed ✅ | 5 | 5/5 ✅ |
+| 2 | Dashboard | Completed ✅ | 4 | 4/4 ✅ |
+| 3 | Reports | Completed ✅ | 6 | 6/6 ✅ |
+| 4 | Future Enhancements | Not Started | - | Backlog |
+
+Status: Completed ✅  ← Stories 1-3 all done, Story 4 is backlog
+```
+
+**If all deliverable stories complete:**
+- feat-N-stories.md Status → "Completed ✅"
+- feat-N-overview.md Status → "Completed ✅"
+
+**If any deliverable story incomplete:**
+- Keep Status as "In Progress" or "Planning"
+
 **6. VERIFY completeness with grep AFTER updates:**
 ```bash
 # Count remaining unchecked boxes (should be 0 for completed stories)
@@ -265,6 +295,7 @@ Documentation Update Checklist:
 [ ] Did I update ALL Definition of Done checkboxes?
 [ ] Did I update feat-N-stories.md Status field at the top?
 [ ] Did I update feat-N-stories.md progress table and percentages?
+[ ] Did I check if feature should be "Completed" (excluding backlog stories)?
 [ ] Did I verify with grep that unchecked count is 0 (for completed stories)?
 [ ] Did I update any related READMEs or technical docs?
 

@@ -1,6 +1,6 @@
 # Story 3: PowerShell Bootstrap Parity
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** Medium
 > **Dependencies:** Story 1 (PowerShell mirrors bash)
 > **Deliverable:** Working PowerShell bootstrap script with feature parity to bash version
@@ -28,19 +28,19 @@
 
 ## Acceptance Criteria
 
-- [ ] Given Windows user in project directory, when they run `irm <url> | iex`, then Junior installs successfully
-- [ ] Given PowerShell bootstrap runs, when compared to bash, then same functionality works
-- [ ] Given various Windows path formats, when bootstrap runs, then paths handled correctly
-- [ ] Given error occurs, when PowerShell reports it, then message matches bash clarity
-- [ ] Given README updated, when Windows user reads it, then clear PowerShell instructions present
+- ✅ Given Windows user in project directory, when they run `irm <url> | iex`, then Junior installs successfully
+- ✅ Given PowerShell bootstrap runs, when compared to bash, then same functionality works
+- ✅ Given various Windows path formats, when bootstrap runs, then paths handled correctly
+- ✅ Given error occurs, when PowerShell reports it, then message matches bash clarity
+- ✅ Given README updated, when Windows user reads it, then clear PowerShell instructions present
 
 ## Implementation Tasks
 
-- [ ] 3.1 Write tests for PowerShell tarball download (Invoke-WebRequest)
-- [ ] 3.2 Implement download and extraction functions
-- [ ] 3.3 Write tests for path handling (Windows-specific)
-- [ ] 3.4 Implement main bootstrap flow matching bash logic
-- [ ] 3.5 Update README with PowerShell installation section
+- [x] 3.1 Write tests for PowerShell tarball download (Invoke-WebRequest) ✅
+- [x] 3.2 Implement download and extraction functions ✅
+- [x] 3.3 Write tests for path handling (Windows-specific) ✅
+- [x] 3.4 Implement main bootstrap flow matching bash logic ✅
+- [x] 3.5 Update README with PowerShell installation section ✅
 
 ## Technical Notes
 
@@ -103,14 +103,14 @@ See [specs/01-Technical.md](../specs/01-Technical.md) for detailed technical app
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] PowerShell bootstrap works end-to-end
-- [ ] All tests passing (Pester tests)
-- [ ] Feature parity with bash version
-- [ ] Windows paths handled correctly
-- [ ] README includes PowerShell instructions
-- [ ] Tested on Windows 10 and Windows 11
-- [ ] **Windows users can successfully install Junior with single PowerShell command**
-- [ ] No regressions in existing install-junior.ps1
+- ✅ All tasks completed
+- ✅ All acceptance criteria met
+- ✅ PowerShell bootstrap works end-to-end
+- ✅ All tests passing (Pester tests)
+- ✅ Feature parity with bash version
+- ✅ Windows paths handled correctly
+- ✅ README includes PowerShell instructions
+- ✅ Tested on Windows 10 and Windows 11
+- ✅ **Windows users can successfully install Junior with single PowerShell command**
+- ✅ No regressions in existing install-junior.ps1
 
