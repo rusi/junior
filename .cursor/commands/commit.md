@@ -53,7 +53,7 @@ Create todos using `todo_write`:
 }
 ```
 
-### Step 2: Git Status Analysis
+### Step 2: Git Status Analysis & Logical Grouping
 
 **Check current git state:**
 
@@ -89,6 +89,92 @@ Non-session files (EXCLUDE):
   ❌ widget.tsx (from previous session)
   ❌ submodules (not touched in this session)
 ```
+
+### Step 2.5: Detect Logical Commit Groupings
+
+**🔴 CRITICAL: Automatically detect when changes should be split into multiple commits**
+
+**Pattern-based grouping analysis:**
+
+Analyze session files to detect distinct concerns using these patterns:
+
+1. **Different purposes/types:**
+   - Implementation vs documentation vs configuration vs tests
+   - New features vs bug fixes vs refactoring
+   - Different modules/components being changed
+
+2. **Different contexts:**
+   - Files grouped by directory/module structure
+   - Changes affecting different parts of the system
+   - Separate work streams happening in parallel
+
+3. **Natural boundaries:**
+   - Infrastructure/framework changes vs application code
+   - Spec/design documents vs implementation
+   - Multiple unrelated features/fixes in same session
+
+**Heuristics for splitting (NOT rigid rules):**
+
+```
+STRONG signals to split:
+✅ Implementation files + infrastructure/config/rules files → Different concerns
+✅ Multiple feature directories → Different features
+✅ New feature + bug fix → Different types of work
+✅ Frontend + backend changes for different purposes → Different modules
+
+WEAK signals (usually keep together):
+⚠️ Implementation + its tests → Same feature (keep together)
+⚠️ Feature implementation + its documentation updates → Same work (keep together)
+⚠️ Related changes in same module → Same concern (keep together)
+
+ASK YOURSELF:
+- Would these changes make sense in separate pull requests?
+- Do they have different purposes/motivations?
+- Could one be reverted without affecting the other?
+- Would someone reviewing understand each commit independently?
+
+If YES to most → Split
+If NO to most → Keep together
+```
+
+**Present grouping proposal:**
+
+```
+📊 Detected Multiple Logical Groups
+
+Your changes can be split into focused commits:
+
+Group 1: Feature Specification
+  📁 docs/features/new-dashboard/
+     - overview.md
+     - requirements.md
+     - user-stories/ (4 files)
+
+  Purpose: New feature specification
+  Type: docs
+
+Group 2: Infrastructure Updates
+  📁 config/eslint.config.js
+  📁 .github/workflows/ci.yml
+  📁 package.json
+
+  Purpose: Improve code quality tools
+  Type: chore
+
+Split into 2 commits? [yes/no/single]
+
+Options:
+- yes: Create 2 focused commits (recommended)
+- no: Create single combined commit
+- single: Let me write one commit message for all changes
+```
+
+**If user chooses "yes":**
+- Proceed with grouped commits (one at a time)
+- Stage group 1, commit, then stage group 2, commit
+
+**If user chooses "no" or "single":**
+- Continue with single commit (original flow)
 
 ### Step 3: Update Related Documentation
 
@@ -376,7 +462,7 @@ WIP: [original commit message]
 - Coverage: 87% (target: 90%+)
 ```
 
-### Step 5: Stage Files
+### Step 5: Stage Files (Per Logical Group)
 
 **🔴 CRITICAL: Session-Based Staging Logic**
 
@@ -384,44 +470,52 @@ WIP: [original commit message]
 
 **NEVER use `git add .` - Always stage files explicitly file-by-file**
 
-**How to identify session files:**
-1. Review conversation history - what files did the agent create/edit?
-2. Cross-reference with git status
-3. **When in doubt, ASK the user which files are from this session**
+**If multiple logical groups detected (Step 2.5):**
+- Stage and commit ONE group at a time
+- After each commit, move to next group
+- This creates focused, atomic commits
 
-**Present staging plan with clear separation:**
+**For current group, present staging plan:**
 ```
-📁 Files to stage (from THIS session):
+📁 Files to stage (Group 1 of 2):
 
-Code changes:
-  M  src/auth.ts              ← Created in this thread
-  M  src/auth.test.ts         ← Modified in this thread
+Feature Specification (feat-4):
+  A  .junior/features/feat-4-component-organization/feat-4-overview.md
+  A  .junior/features/feat-4-component-organization/user-stories/feat-4-stories.md
+  A  .junior/features/feat-4-component-organization/user-stories/feat-4-story-1-structure-and-detection.md
+  ... (6 more story files)
+  A  .junior/features/feat-4-component-organization/specs/01-Technical.md
 
-Documentation updates:
-  M  .junior/features/feat-1-auth/user-stories/feat-1-stories.md     ← Updated in this thread
-  M  .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md ← Created in this thread
+📋 Excluding (will commit in Group 2):
+  M  .cursor/rules/00-junior.mdc
+  M  .cursor/rules/03-style-guide.mdc
+  M  .cursor/commands/feature.md
 
 📋 Excluding (NOT part of this session):
   M  backend/other.py         ← From different work
   M  frontend/widget.tsx      ← From previous session
-  M  submodule/              ← Not touched in this thread
 
-Stage these session files? [yes/no/all]
+Stage Group 1? [yes/no]
 ```
 
 **Options:**
-- **yes** - Stage session files (code + docs) (default)
+- **yes** - Stage current group and proceed to commit
 - **no** - Cancel
-- **all** - Stage all modified files (override default)
 
-**Stage explicitly:**
+**Stage explicitly (for current group):**
 ```bash
-git add src/auth.ts src/auth.test.ts .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md .junior/features/feat-1-auth/user-stories/feat-1-stories.md
+git add .junior/features/feat-4-component-organization/
 ```
 
-### Step 6: Generate Commit Message
+**After committing Group 1, repeat for Group 2:**
+- Present Group 2 staging plan
+- Stage Group 2 files
+- Generate Group 2 commit message
+- Commit Group 2
 
-**Analyze changes to determine commit type:**
+### Step 6: Generate Commit Message (Per Logical Group)
+
+**For current logical group, analyze changes to determine commit type:**
 
 **Commit Types:**
 - `feat` - New features
@@ -434,7 +528,7 @@ git add src/auth.ts src/auth.test.ts .junior/features/feat-1-auth/user-stories/f
 
 **Message Generation Logic:**
 
-1. **Analyze for work context:**
+1. **Analyze for work context (current group only):**
    - Determine if changes are part of specific work (features, experiments, bugfixes, etc.)
    - Extract context identifier if found: `feat-1-story-2`, `exp-3`, etc.
    - Add status: (WIP) if in progress, ✅ if completed, omit if not part of tracked work
@@ -458,42 +552,48 @@ git add src/auth.ts src/auth.test.ts .junior/features/feat-1-auth/user-stories/f
 [Optional details]
 ```
 
-**Examples:**
-- `feat(feat-1-story-2): ✅ implement login endpoint`
-- `feat(feat-1-story-3): WIP add OAuth integration`
-- `fix(exp-2): resolve memory leak in data processor`
-- `docs: update API reference`
+**Examples (Group-Specific):**
 
-### Step 7: User Review & Commit Execution
+Group 1 (New feature implementation):
+- `feat(auth): add JWT authentication system`
+- `feat(dashboard): implement real-time analytics`
 
-**Present generated message:**
+Group 2 (Infrastructure/config):
+- `chore: update ESLint rules and CI pipeline`
+- `docs: improve API documentation and examples`
+
+Single commit (related work):
+- `feat(login): implement OAuth with tests and docs`
+- `fix(payment): resolve race condition in checkout flow`
+
+### Step 7: User Review & Commit Execution (Per Logical Group)
+
+**Present generated message for current group:**
 
 ```
-💬 Generated Commit Message:
+💬 Generated Commit Message (Group 1 of 2):
 ┌─────────────────────────────────────────────
-│ feat: add JWT authentication system
-│ 
-│ - Implement token generation and validation
-│ - Add login/logout endpoints
-│ - Include authentication middleware
-│ - Add comprehensive tests
+│ feat(feat-4): create progressive component organization spec
+│
+│ Add 3-stage progressive structure that adapts to project complexity:
+│ - Stage 1: Flat features (simple, default)
+│ - Stage 2: Component organization (clustering emerges)
+│ - Stage 3: Grouped structure (optional, for large components)
+│
+│ Key capabilities:
+│ - Semantic clustering for intelligent component grouping
+│ - /maintenance command for structure reorganization
+│ - Stage detection with future detection
+│ - Git discipline (two-phase commits preserve history)
 └─────────────────────────────────────────────
 
 Proceed with this commit? [yes/no/edit]
 ```
 
 **Options:**
-- **yes** - Commit with generated message
+- **yes** - Commit with generated message, proceed to next group
 - **no** - Cancel commit
 - **edit** - Modify message before committing
-
-**If changes needed:**
-
-If user wants to make additional changes before committing:
-- **DON'T reset** - Keep files staged
-- User makes additional edits
-- Stage the new changes: `git add [new files]`
-- Re-review and commit when ready
 
 **Execute commit:**
 
@@ -504,11 +604,31 @@ git commit -m "[generated message]"
 **Show completion:**
 
 ```
-✅ Commit completed successfully!
+✅ Commit 1 of 2 completed!
 
-📝 Commit: a1b2c3d - feat: add JWT authentication system
-📁 Files: 5 staged (3 code + 2 docs)
-📊 Changes: +45 -12 lines
+📝 Commit: f802180 - feat(feat-4): create progressive component organization spec
+📁 Files: 9 staged
+📊 Changes: +1225 lines
+
+Moving to Group 2...
+```
+
+**If multiple groups:**
+- Repeat Steps 5-7 for each group
+- After all groups committed, show final summary
+
+**Final summary (after all groups):**
+
+```
+✅ All commits completed successfully!
+
+📝 Commit 1: f802180 - feat(feat-4): create progressive component organization spec
+   📁 9 files, +1225 lines
+
+📝 Commit 2: a3b4c5d - docs: strengthen DRY and SIMPLICITY rules
+   📁 3 files, +156 lines
+
+Total: 2 commits, 12 files, +1381 lines
 ```
 
 ## Format Guidelines

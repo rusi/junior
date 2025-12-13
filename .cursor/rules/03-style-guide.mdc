@@ -18,6 +18,68 @@ alwaysApply: true
 - Use Markdown headers
 - Keep sections short and scannable
 
+### Documentation Principles
+
+**Thorough ≠ Verbose**
+
+- **Thorough:** Covers all design decisions, rationale, trade-offs, architecture
+- **Verbose:** Repeats information, includes obvious details, pseudo-code for known patterns
+
+**Good Example (Thorough but Concise):**
+
+```markdown
+### Decision: Semantic Clustering via Keywords
+
+**Context:** Need to propose component groupings automatically.
+
+**Decision:** Use keyword extraction and simple clustering, not NLP or AI.
+
+**Rationale:**
+- Simple, fast, no external dependencies
+- Good enough for proposal (user reviews)
+- Transparent reasoning
+- Agent knows how to implement
+
+**Alternatives:** Manual only (too much burden), AI-based (overkill, dependencies)
+
+**Trade-offs:** May miss subtle relationships. Acceptable because user reviews.
+```
+
+**Bad Example (Verbose with Unnecessary Implementation):**
+
+```python
+# Pseudo-code for semantic clustering
+function cluster_features(features):
+  keywords_map = {}
+  for feature in features:
+    words = extract_keywords(feature.name)
+    for word in words:
+      if word not in stopwords:
+        keywords_map[word] = keywords_map.get(word, []) + [feature]
+  # ... 50 more lines of implementation details
+```
+
+**DRY Cross-Reference Pattern:**
+
+✅ **Good (Reference):**
+- First mention: "See 01-structure.mdc for 3-stage progressive structure"
+- Later mentions: "Stage 2 structure (see 01-structure.mdc)"
+- Function usage: "Use `detect_stage()` from 01-structure.mdc"
+- Template: "Component overview template defined in 01-structure.mdc"
+
+❌ **Bad (Duplication):**
+- Copying entire structure definition again
+- Redefining function implementation
+- Duplicating template content
+- Repeating same explanation with different words
+
+**Structure Reference Hierarchy:**
+
+1. **01-structure.mdc** = Single source of truth for `.junior/` structure
+2. **Technical specs** = Reference structure, add architecture/decisions specific to feature
+3. **User stories** = Reference both, focus on implementation tasks
+4. **Commands** = Use functions from structure rules, don't redefine
+
 ## Task Tracking
 - Use `- [ ]` for incomplete items
 - Use `- ✅` for completed items (not `- [x]`)

@@ -15,6 +15,35 @@ Contract-style (clarification → contract → approval → generation)
 - Create structured implementation plan
 - Follow Junior's "plan before execute" principle
 
+## Specification Detail Level
+
+**Feature Overview (feat-N-overview.md):**
+- Contract (locked after approval)
+- High-level requirements (functional, non-functional)
+- User stories overview with dependencies
+- Success metrics and risks
+
+**Technical Spec (specs/01-Technical.md):**
+- Architecture diagram (high-level visualization)
+- Component descriptions (responsibility, interface, dependencies)
+- Design decisions (context, decision, rationale, alternatives, trade-offs)
+- Testing strategy (what to test, verification approach)
+- **Reference 01-structure.mdc for structure definitions (DON'T repeat)**
+- **ONE SENTENCE for implementations agent knows (clustering, sorting, parsing)**
+
+**User Stories (user-stories/feat-N-story-M.md):**
+- Context-gathering step (read existing files to understand before changing)
+- Implementation tasks (WHAT to do, not HOW - agent figures out HOW)
+- Review/refinement/testing steps after main work
+- Testing scenarios (validate behavior, not detailed test code)
+- Definition of Done (acceptance criteria, completeness checks)
+
+**Key Principles:**
+- **DRY:** Define structures/functions once in 01-structure.mdc, reference everywhere
+- **Thorough:** Include design decisions, rationale, trade-offs
+- **Concise:** Exclude pseudo-code for known patterns, avoid repetition
+- **Reference:** Link to existing definitions instead of duplicating
+
 ## Process
 
 ### Step 1: Verify Git State
