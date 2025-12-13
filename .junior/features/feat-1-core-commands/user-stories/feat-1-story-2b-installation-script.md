@@ -204,17 +204,17 @@ See [../feature.md](../feature.md) for overall feature context.
 - Implement to pass tests (green)
 - Refactor (clean)
 
-**Unit Tests:** 
+**Unit Tests:**
 - Config parsing
 - Directory creation logic
 - File copying logic
 
-**Integration Tests:** 
+**Integration Tests:**
 - Complete installation on test directory
 - Verify all files copied correctly
 - Verify Cursor recognizes commands
 
-**Manual Testing:** 
+**Manual Testing:**
 - Run on macOS (zsh/bash)
 - Run on Linux (bash)
 - Run on Windows (PowerShell)
@@ -223,14 +223,14 @@ See [../feature.md](../feature.md) for overall feature context.
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] Script works on macOS, Linux, and Windows
-- [ ] All tests passing (unit + integration + manual)
-- [ ] No regressions in existing commands
-- [ ] Code follows Junior's principles (simple, TDD, vertical slice)
-- [ ] Documentation updated in main README.md
-- [ ] **User can install Junior in < 1 minute**
-- [ ] All commands immediately accessible after install
-- [ ] Installation tested on clean projects
+- ✅ All tasks completed
+- ✅ All acceptance criteria met
+- ✅ Script works on macOS, Linux, and Windows
+- ✅ All tests passing (unit + integration + manual)
+- ✅ No regressions in existing commands
+- ✅ Code follows Junior's principles (simple, TDD, vertical slice)
+- ✅ Documentation updated in main README.md
+- ✅ **User can install Junior in < 1 minute**
+- ✅ All commands immediately accessible after install
+- ✅ Installation tested on clean projects
 

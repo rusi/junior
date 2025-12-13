@@ -34,12 +34,12 @@
 
 ## Acceptance Criteria
 
-- [ ] Given Code Captain project, when `/migrate` runs, then `.code-captain/` becomes `.junior/`
-- [ ] Given specifications exist, when migration runs, then `spec-N-name` becomes `feat-N-name`
-- [ ] Given experiments exist, when migration runs, then `exp-N-name` stays unchanged
-- [ ] Given cross-references in docs, when migration runs, then all links updated correctly
-- [ ] Given completed tasks, when migration runs, then all progress preserved
-- [ ] Given migration completes, when user runs `/status`, then all work shows correctly
+- ✅ Given Code Captain project, when `/migrate` runs, then `.code-captain/` becomes `.junior/`
+- ✅ Given specifications exist, when migration runs, then `spec-N-name` becomes `feat-N-name`
+- ✅ Given experiments exist, when migration runs, then `exp-N-name` stays unchanged
+- ✅ Given cross-references in docs, when migration runs, then all links updated correctly
+- ✅ Given completed tasks, when migration runs, then all progress preserved
+- ✅ Given migration completes, when user runs `/status`, then all work shows correctly
 
 ## Implementation Tasks
 
@@ -81,31 +81,31 @@ See [../feature.md](../feature.md) for overall feature context.
 - Implement to pass tests (green)
 - Refactor (clean)
 
-**Unit Tests:** 
+**Unit Tests:**
 - Detection logic (finds Code Captain projects)
 - Renaming patterns (spec→feat transformation)
 - Reference parsing and updating
 
-**Integration Tests:** 
+**Integration Tests:**
 - Complete migration on test Code Captain project
 - Verify all files renamed correctly
 - Verify all references updated
 - Verify work progress preserved
 
-**Manual Testing:** 
+**Manual Testing:**
 - Run on sample Code Captain project
 - Verify `/status` shows correct structure after migration
 - Check git history preserved
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] Command works end-to-end (no stubs/mocks)
-- [ ] All tests passing (unit + integration + end-to-end)
-- [ ] No regressions in existing commands
-- [ ] Code follows Junior's principles (simple, TDD, vertical slice)
-- [ ] Documentation updated
-- [ ] **User can migrate Code Captain project and continue working**
-- [ ] Migration tested and verified
+- ✅ All tasks completed
+- ✅ All acceptance criteria met
+- ✅ Command works end-to-end (no stubs/mocks)
+- ✅ All tests passing (unit + integration + end-to-end)
+- ✅ No regressions in existing commands
+- ✅ Code follows Junior's principles (simple, TDD, vertical slice)
+- ✅ Documentation updated
+- ✅ **User can migrate Code Captain project and continue working**
+- ✅ Migration tested and verified
 
