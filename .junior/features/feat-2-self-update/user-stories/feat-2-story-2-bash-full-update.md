@@ -1,6 +1,6 @@
 # Story 2: Bash Full Update Flow (Download, Install, Cleanup)
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** High
 > **Dependencies:** Story 1 (version check must work)
 > **Deliverable:** Complete update workflow - download tarball, extract, install, cleanup
@@ -29,22 +29,22 @@
 
 ## Acceptance Criteria
 
-- [ ] Given update is available, when user confirms, then tarball downloads to temp directory
-- [ ] Given tarball downloaded, when extracted, then handles nested directory (junior-main/)
-- [ ] Given source extracted, when install script runs, then uses correct path to install
-- [ ] Given install completes, when cleanup runs, then removes all temporary files
-- [ ] Given download fails, when error occurs, then displays error and cleans up partial files
-- [ ] Given `--force` flag, when script runs, then skips confirmation prompt
-- [ ] Given install script fails, when error occurs, then displays error and preserves temp directory for debugging
+- [x] Given update is available, when user confirms, then tarball downloads to temp directory ✅
+- [x] Given tarball downloaded, when extracted, then handles nested directory (junior-main/) ✅
+- [x] Given source extracted, when install script runs, then uses correct path to install ✅
+- [x] Given install completes, when cleanup runs, then removes all temporary files ✅
+- [x] Given download fails, when error occurs, then displays error and cleans up partial files ✅
+- [x] Given `--force` flag, when script runs, then skips confirmation prompt ✅
+- [x] Given install script fails, when error occurs, then displays error and preserves temp directory for debugging ✅
 
 ## Implementation Tasks
 
-- [ ] 2.1 Write tests for tarball download (TDD: mock curl, verify temp directory)
-- [ ] 2.2 Implement GitHub tarball download with progress indicator
-- [ ] 2.3 Write tests for tarball extraction (TDD: verify directory structure)
-- [ ] 2.4 Implement tarball extraction and path normalization
-- [ ] 2.5 Write tests for install script invocation and cleanup
-- [ ] 2.6 Implement install script execution, error handling, and temp cleanup
+- [x] 2.1 Write tests for tarball download (TDD: mock curl, verify temp directory) ✅
+- [x] 2.2 Implement GitHub tarball download with progress indicator ✅
+- [x] 2.3 Write tests for tarball extraction (TDD: verify directory structure) ✅
+- [x] 2.4 Implement tarball extraction and path normalization ✅
+- [x] 2.5 Write tests for install script invocation and cleanup ✅
+- [x] 2.6 Implement install script execution, error handling, and temp cleanup ✅
 
 ## Technical Notes
 
@@ -119,13 +119,13 @@ See [specs/01-Technical.md](../specs/01-Technical.md) for detailed technical app
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] Full update flow works end-to-end (check, download, extract, install, cleanup)
-- [ ] All tests passing (unit + integration)
-- [ ] Error handling tested (download failure, install failure)
-- [ ] Temp cleanup verified in success and error cases
-- [ ] Code follows bash best practices
-- [ ] **User can run `.junior/update.sh`, confirm, and see Junior updated**
-- [ ] Ready for Story 3 (PowerShell implementation)
+- [x] All tasks completed ✅
+- [x] All acceptance criteria met ✅
+- [x] Full update flow works end-to-end (check, download, extract, install, cleanup) ✅
+- [x] All tests passing (unit + integration) - 29/29 tests ✅
+- [x] Error handling tested (download failure, install failure) ✅
+- [x] Temp cleanup verified in success and error cases ✅
+- [x] Code follows bash best practices ✅
+- [x] **User can run `.junior/update.sh`, confirm, and see Junior updated** ✅
+- [x] Ready for Story 3 (PowerShell implementation) ✅
 

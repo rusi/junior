@@ -1,7 +1,12 @@
 #!/bin/bash
 
 # Junior Installation Script
-# Usage: ./scripts/install-junior.sh /path/to/project
+# Usage: ./scripts/install-junior.sh [options] /path/to/project
+# Options:
+#   -v, --verbose       Show detailed installation output
+#   -s, --sync-back     Sync modified files back to source
+#   -i, --ignore-dirty  Skip dirty repository check
+#   -f, --force         Skip all confirmations
 # Compatible with bash 3.2+ (macOS default)
 
 set -e  # Exit on any error
@@ -12,6 +17,9 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# Verbose flag (default: false)
+VERBOSE=false
 
 # Function to print colored output
 print_status() {
@@ -28,6 +36,13 @@ print_warning() {
 
 print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Debug output (only shown with --verbose)
+print_debug() {
+    if [ "$VERBOSE" = true ]; then
+        echo -e "${BLUE}[DEBUG]${NC} $1"
+    fi
 }
 
 # Function to calculate SHA256 checksum
@@ -57,33 +72,45 @@ get_file_size() {
 # Returns: 0=no conflict, 1=user modified (preserve), 2=uncontrolled file (abort)
 check_file_conflict() {
     local dest_file="$1"
-    
+    local source_file="$2"
+
     # File doesn't exist - no conflict
     if [ ! -f "$dest_file" ]; then
         return 0
     fi
-    
+
     # File exists - determine conflict type
     # First check: is this an upgrade (Junior was previously installed)?
     if [ "$IS_UPGRADE" != true ]; then
         # Fresh install + file exists = uncontrolled file
         return 2
     fi
-    
+
     # This is an upgrade - check if file was installed by Junior
     local original_checksum=$(echo "$EXISTING_METADATA" | jq -r ".files[\"$dest_file\"].sha256 // \"\"")
-    
+
     if [ -z "$original_checksum" ]; then
         # Upgrade but file NOT in metadata = uncontrolled file
+        # File exists on disk but Junior didn't install it
+        # User must have created this file or copied it manually
         return 2
     fi
-    
+
     # File was installed by Junior - check if user modified it
     local current_checksum=$(calculate_checksum "$dest_file")
     if [ "$current_checksum" != "$original_checksum" ]; then
-        return 1  # User modified Junior file
+        # File was modified - but check if it matches what we're about to install
+        # If user already has the new version, it's not a conflict
+        if [ -f "$REPO_ROOT/$source_file" ]; then
+            local new_source_checksum=$(calculate_checksum "$REPO_ROOT/$source_file")
+            if [ "$current_checksum" = "$new_source_checksum" ]; then
+                # Current file matches new source - user already has this version
+                return 0  # No conflict, safe to "update" (will be skipped as identical)
+            fi
+        fi
+        return 1  # User modified Junior file (and doesn't match new version)
     fi
-    
+
     # Unchanged Junior file - safe to overwrite
     return 0
 }
@@ -94,14 +121,14 @@ add_file_metadata() {
     local checksum="$2"
     local size="$3"
     local modified="${4:-false}"
-    
+
     local entry=$(jq -n \
         --arg path "$dest" \
         --arg sha "$checksum" \
         --arg sz "$size" \
         --arg mod "$modified" \
         '{($path): {sha256: $sha, size: ($sz|tonumber), modified: ($mod=="true")}}')
-    
+
     if [ -z "$FILE_METADATA_JSON" ]; then
         FILE_METADATA_JSON="$entry"
     else
@@ -116,7 +143,7 @@ cleanup_code_captain() {
     print_status "Code Captain Cleanup"
     print_status "═══════════════════════════════════════════════════"
     echo ""
-    
+
     # Extract Junior files from config (to exclude from uncertain files)
     JUNIOR_RULES=()
     JUNIOR_COMMANDS=()
@@ -127,16 +154,16 @@ cleanup_code_captain() {
             JUNIOR_COMMANDS+=("$(basename "$dest")")
         fi
     done < <(echo "$CONFIG_CONTENT" | jq -r '.files[].destination')
-    
+
     # Known Code Captain files (95% confidence)
     KNOWN_CC_FILES=()
     KNOWN_CC_COMMANDS=()
     KNOWN_CC_RULES=()
-    
+
     # Check for known Code Captain files
     [ -f "CODE_CAPTAIN.md" ] && KNOWN_CC_FILES+=("CODE_CAPTAIN.md")
     [ -f ".cursor/rules/cc.mdc" ] && KNOWN_CC_RULES+=(".cursor/rules/cc.mdc")
-    
+
     # Known Code Captain commands (including overlaps with Junior)
     CC_COMMAND_PATTERNS=(
         "commit.md"                        # CC and Junior both have this
@@ -159,17 +186,17 @@ cleanup_code_captain() {
         "swab.md"
         "update-story.md"
     )
-    
+
     for cmd in "${CC_COMMAND_PATTERNS[@]}"; do
         if [ -f ".cursor/commands/$cmd" ]; then
             KNOWN_CC_COMMANDS+=(".cursor/commands/$cmd")
         fi
     done
-    
+
     # Scan for other commands/rules (uncertain)
     UNCERTAIN_COMMANDS=()
     UNCERTAIN_RULES=()
-    
+
     if [ -d ".cursor/commands" ]; then
         while IFS= read -r cmd; do
             if [ -f "$cmd" ]; then
@@ -181,7 +208,7 @@ cleanup_code_captain() {
                         break
                     fi
                 done
-                
+
                 # Also skip Junior commands (extracted from config)
                 basename_cmd=$(basename "$cmd")
                 for junior_cmd in "${JUNIOR_COMMANDS[@]}"; do
@@ -190,14 +217,14 @@ cleanup_code_captain() {
                         break
                     fi
                 done
-                
+
                 if [ "$is_known" = false ]; then
                     UNCERTAIN_COMMANDS+=("$cmd")
                 fi
             fi
         done < <(find .cursor/commands -name "*.md" -type f 2>/dev/null || true)
     fi
-    
+
     if [ -d ".cursor/rules" ]; then
         while IFS= read -r rule; do
             if [ -f "$rule" ]; then
@@ -209,7 +236,7 @@ cleanup_code_captain() {
                         break
                     fi
                 done
-                
+
                 # Also skip Junior rules (extracted from config)
                 basename_rule=$(basename "$rule")
                 for junior_rule in "${JUNIOR_RULES[@]}"; do
@@ -218,19 +245,19 @@ cleanup_code_captain() {
                         break
                     fi
                 done
-                
+
                 if [ "$is_known" = false ]; then
                     UNCERTAIN_RULES+=("$rule")
                 fi
             fi
         done < <(find .cursor/rules -name "*.mdc" -type f 2>/dev/null || true)
     fi
-    
+
     # Present files to user
     echo ""
     print_status "Files to remove (95% confidence from Code Captain):"
     echo ""
-    
+
     if [ ${#KNOWN_CC_FILES[@]} -gt 0 ]; then
         echo "  Documentation:"
         for file in "${KNOWN_CC_FILES[@]}"; do
@@ -238,7 +265,7 @@ cleanup_code_captain() {
         done
         echo ""
     fi
-    
+
     if [ ${#KNOWN_CC_RULES[@]} -gt 0 ]; then
         echo "  Rules:"
         for file in "${KNOWN_CC_RULES[@]}"; do
@@ -246,7 +273,7 @@ cleanup_code_captain() {
         done
         echo ""
     fi
-    
+
     if [ ${#KNOWN_CC_COMMANDS[@]} -gt 0 ]; then
         echo "  Commands (${#KNOWN_CC_COMMANDS[@]} files):"
         for file in "${KNOWN_CC_COMMANDS[@]}"; do
@@ -254,12 +281,12 @@ cleanup_code_captain() {
         done
         echo ""
     fi
-    
+
     if [ ${#UNCERTAIN_COMMANDS[@]} -gt 0 ] || [ ${#UNCERTAIN_RULES[@]} -gt 0 ]; then
         echo ""
         print_status "Files with uncertain origin (will be KEPT):"
         echo ""
-        
+
         if [ ${#UNCERTAIN_COMMANDS[@]} -gt 0 ]; then
             echo "  Commands:"
             for file in "${UNCERTAIN_COMMANDS[@]}"; do
@@ -267,7 +294,7 @@ cleanup_code_captain() {
             done
             echo ""
         fi
-        
+
         if [ ${#UNCERTAIN_RULES[@]} -gt 0 ]; then
             echo "  Rules:"
             for file in "${UNCERTAIN_RULES[@]}"; do
@@ -275,24 +302,24 @@ cleanup_code_captain() {
             done
             echo ""
         fi
-        
+
         print_status "These files might be custom. They will NOT be removed."
         print_status "Review them manually after installation if needed."
         echo ""
     fi
-    
+
     echo ""
     if [ -d ".code-captain" ]; then
         print_warning "Note: .code-captain/ directory is NOT removed by this cleanup."
         print_warning "Use /migrate command after installation to migrate your work."
     fi
     echo ""
-    
+
     # Confirm cleanup
     if [ "$FORCE" != true ]; then
         echo -n "Remove Code Captain files and continue with installation? [yes/cancel]: "
         read -r response
-        
+
         if [ "$response" != "yes" ] && [ "$response" != "y" ]; then
             print_status "Installation cancelled. No changes made."
             exit 0
@@ -300,22 +327,22 @@ cleanup_code_captain() {
     else
         print_warning "Auto-confirming cleanup (--force enabled)"
     fi
-    
+
     # Perform cleanup (ONLY known CC files)
     print_status "Removing Code Captain files..."
-    
+
     for file in "${KNOWN_CC_FILES[@]}" "${KNOWN_CC_RULES[@]}" "${KNOWN_CC_COMMANDS[@]}"; do
         if [ -f "$file" ]; then
             rm "$file"
             print_success "Removed: $file"
         fi
     done
-    
+
     # Clean up empty directories
     rmdir .cursor/commands 2>/dev/null || true
     rmdir .cursor/rules 2>/dev/null || true
     rmdir .cursor 2>/dev/null || true
-    
+
     echo ""
     print_success "Code Captain cleanup complete!"
     echo ""
@@ -326,42 +353,60 @@ install_file() {
     local source="$1"
     local dest="$2"
     local file_existed=false
-    
+
     [ -f "$dest" ] && file_existed=true
-    
+
     # Check for file conflicts (capture immediately to avoid set -e exit)
     local conflict_type
-    check_file_conflict "$dest" && conflict_type=$? || conflict_type=$?
-    
+    check_file_conflict "$dest" "$source" && conflict_type=$? || conflict_type=$?
+
     if [ $conflict_type -eq 1 ]; then
         # User modified Junior file - preserve
         print_warning "User-modified: $dest (preserving)"
         MODIFIED_FILES+=("$dest")
-        
-        local checksum=$(calculate_checksum "$dest")
-        local size=$(get_file_size "$dest")
-        add_file_metadata "$dest" "$checksum" "$size" "true"
+
+        # Store checksum of SOURCE (what we WOULD have installed), not destination (user's modification)
+        # This allows future installs to detect if new version matches user's changes
+        local source_checksum=$(calculate_checksum "$REPO_ROOT/$source")
+        local source_size=$(get_file_size "$REPO_ROOT/$source")
+        add_file_metadata "$dest" "$source_checksum" "$source_size" "true"
         return 0
-        
+
     elif [ $conflict_type -eq 2 ]; then
         # Uncontrolled file exists - conflict
         print_error "Conflict: $dest exists but was not installed by Junior"
         CONFLICTING_FILES+=("$dest")
         return 1
     fi
-    
-    # Safe to install - copy file
+
+    # Safe to install - check if file needs updating
     if [ -f "$REPO_ROOT/$source" ]; then
-        cp "$REPO_ROOT/$source" "$dest"
-        
-        local checksum=$(calculate_checksum "$dest")
-        local size=$(get_file_size "$dest")
-        add_file_metadata "$dest" "$checksum" "$size" "false"
-        
+        local source_checksum=$(calculate_checksum "$REPO_ROOT/$source")
+
+        # If file exists and hasn't changed, skip copy
         if [ "$file_existed" = true ]; then
-            print_success "Up-to-date: $dest"
+            local dest_checksum=$(calculate_checksum "$dest")
+            if [ "$source_checksum" = "$dest_checksum" ]; then
+                # File is identical - no copy needed, reuse existing checksum
+                local size=$(get_file_size "$dest")
+                add_file_metadata "$dest" "$source_checksum" "$size" "false"
+                print_debug "Up-to-date: $dest"
+                return 0
+            fi
+        fi
+
+        # File needs updating or doesn't exist - copy it
+        cp "$REPO_ROOT/$source" "$dest"
+
+        # Store checksum of SOURCE (what we installed), not destination
+        # source_checksum already calculated at line 357
+        local size=$(get_file_size "$dest")
+        add_file_metadata "$dest" "$source_checksum" "$size" "false"
+
+        if [ "$file_existed" = true ]; then
+            print_debug "Updated: $dest"
         else
-            print_success "Installed: $dest"
+            print_debug "Installed: $dest"
         fi
         return 0
     else
@@ -390,15 +435,19 @@ TARGET_DIR=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --sync-back)
+        -v|--verbose)
+            VERBOSE=true
+            shift
+            ;;
+        -s|--sync-back)
             SYNC_BACK=true
             shift
             ;;
-        --ignore-dirty)
+        -i|--ignore-dirty)
             IGNORE_DIRTY=true
             shift
             ;;
-        --force)
+        -f|--force)
             FORCE=true
             shift
             ;;
@@ -414,9 +463,10 @@ if [ -z "$TARGET_DIR" ]; then
     print_error "Usage: $0 [OPTIONS] <target_project_directory>"
     echo ""
     echo "Options:"
-    echo "  --sync-back      Sync modified files back to Junior source"
-    echo "  --ignore-dirty   Skip git clean check (for testing/development)"
-    echo "  --force          Skip all confirmation prompts and proceed with installation"
+    echo "  -v, --verbose       Show detailed installation output"
+    echo "  -s, --sync-back     Sync modified files back to Junior source"
+    echo "  -i, --ignore-dirty  Skip git clean check (for testing/development)"
+    echo "  -f, --force         Skip all confirmation prompts"
     echo ""
     echo "Examples:"
     echo "  $0 ~/sources/my_project                           # Install Junior"
@@ -433,11 +483,11 @@ CONFIG_FILE="$SCRIPT_DIR/install-config.json"
 # Handle --sync-back mode
 if [ "$SYNC_BACK" = true ]; then
     print_status "Syncing modifications back to Junior source..."
-    print_status "Target directory: $TARGET_DIR"
-    print_status "Source directory: $REPO_ROOT"
-    
+    print_debug "Target directory: $TARGET_DIR"
+    print_debug "Source directory: $REPO_ROOT"
+
     cd "$TARGET_DIR"
-    
+
     # Check for metadata file
     METADATA_FILE=".junior/.junior-install.json"
     if [ ! -f "$METADATA_FILE" ]; then
@@ -445,10 +495,10 @@ if [ "$SYNC_BACK" = true ]; then
         print_error "Metadata file not found: $METADATA_FILE"
         exit 1
     fi
-    
+
     # Load metadata
     EXISTING_METADATA=$(cat "$METADATA_FILE")
-    
+
     # Find files that differ from what was installed
     # Skip files with same SHA as installed - source might have newer changes
     SYNC_FILES=()
@@ -456,15 +506,15 @@ if [ "$SYNC_BACK" = true ]; then
         if [ -f "$file" ]; then
             # Get the SHA that was recorded during installation
             INSTALLED_SHA=$(echo "$EXISTING_METADATA" | jq -r ".files[\"$file\"].sha256 // \"\"")
-            
+
             if [ -z "$INSTALLED_SHA" ]; then
                 # File not in metadata - skip
                 continue
             fi
-            
+
             # Check current SHA
             CURRENT_SHA=$(calculate_checksum "$file")
-            
+
             # Only sync if file differs from what was installed
             # If same as installed, skip - source might have newer changes
             if [ "$CURRENT_SHA" != "$INSTALLED_SHA" ]; then
@@ -472,12 +522,12 @@ if [ "$SYNC_BACK" = true ]; then
             fi
         fi
     done < <(echo "$EXISTING_METADATA" | jq -r '.files | keys[]')
-    
+
     if [ ${#SYNC_FILES[@]} -eq 0 ]; then
         print_success "No modified files to sync"
         exit 0
     fi
-    
+
     echo ""
     print_status "Modified files found (${#SYNC_FILES[@]}):"
     for file in "${SYNC_FILES[@]}"; do
@@ -485,7 +535,7 @@ if [ "$SYNC_BACK" = true ]; then
     done
     echo ""
     print_status "Syncing files back to Junior source..."
-    
+
     # Sync files back
     print_status "Syncing files..."
     for file in "${SYNC_FILES[@]}"; do
@@ -500,25 +550,25 @@ if [ "$SYNC_BACK" = true ]; then
             print_warning "Skipping: $file (unknown mapping)"
             continue
         fi
-        
+
         cp "$file" "$src_path"
         print_success "Synced: $file -> $src_path"
     done
-    
+
     echo ""
     print_success "═══════════════════════════════════════════════════"
     print_success "Sync complete! ${#SYNC_FILES[@]} files copied to Junior source"
     print_success "═══════════════════════════════════════════════════"
     echo ""
     print_warning "Don't forget to commit these changes in Junior repository!"
-    
+
     exit 0
 fi
 
 # Normal installation mode
-print_status "Installing Junior - Your expert AI developer..."
-print_status "Target directory: $TARGET_DIR"
-print_status "Source directory: $REPO_ROOT"
+print_debug "Installing Junior - Your expert AI developer..."
+print_debug "Target directory: $TARGET_DIR"
+print_debug "Source directory: $REPO_ROOT"
 
 # Verify we're in a Junior repository (check for Junior-specific files)
 if [ ! -f "$REPO_ROOT/.cursor/rules/00-junior.mdc" ]; then
@@ -526,14 +576,26 @@ if [ ! -f "$REPO_ROOT/.cursor/rules/00-junior.mdc" ]; then
     exit 1
 fi
 
+# Show simple progress message (unless verbose)
+if [ "$VERBOSE" != true ]; then
+    echo "Installing Junior..."
+fi
+
 # Git clean check - verify Junior source is clean for accurate version tracking
-print_status "Checking Junior source git status..."
+print_debug "Checking Junior source git status..."
 cd "$REPO_ROOT"
 
 if [ ! -d ".git" ]; then
-    print_warning "Junior source is not a git repository. Version tracking will be limited."
-    COMMIT_HASH="unknown"
-    COMMIT_TIMESTAMP="unknown"
+    # Check for .githash file (created by update script when installing from tarball)
+    if [ -f ".githash" ]; then
+        print_debug "Reading version info from .githash file..."
+        source ".githash"
+        print_debug "Version info loaded from tarball metadata (commit: ${COMMIT_HASH:0:7}, date: $COMMIT_DATE)"
+    else
+        print_warning "Junior source is not a git repository. Version tracking will be limited."
+        COMMIT_HASH="unknown"
+        COMMIT_TIMESTAMP="unknown"
+    fi
 else
     if [[ -n $(git status --porcelain) ]]; then
         if [ "$IGNORE_DIRTY" = true ]; then
@@ -552,15 +614,15 @@ else
             exit 1
         fi
     fi
-    
+
     # Get version info from git
     COMMIT_HASH=$(git rev-parse HEAD)
     COMMIT_TIMESTAMP=$(git log -1 --format=%ct)
-    
+
     if [ "$IGNORE_DIRTY" = true ]; then
-        print_warning "Using commit: ${COMMIT_HASH:0:7} (with local changes)"
+        print_debug "Using commit: ${COMMIT_HASH:0:7} (with local changes)"
     else
-        print_success "Junior source is clean (commit: ${COMMIT_HASH:0:7})"
+        print_debug "Junior source is clean (commit: ${COMMIT_HASH:0:7})"
     fi
 fi
 
@@ -591,7 +653,7 @@ CONFIG_CONTENT=$(cat "$CONFIG_FILE")
 
 # Change to target directory
 cd "$TARGET_DIR"
-print_status "Working in: $(pwd)"
+print_debug "Working in: $(pwd)"
 
 # Track if Code Captain cleanup was performed
 CC_CLEANED_UP=false
@@ -608,7 +670,7 @@ if [ ! -f ".junior/.junior-install.json" ] && { [ -f ".cursor/rules/cc.mdc" ] ||
     [ -f ".cursor/rules/cc.mdc" ] && echo "  • .cursor/rules/cc.mdc"
     [ -f "CODE_CAPTAIN.md" ] && echo "  • CODE_CAPTAIN.md"
     echo ""
-    
+
     if [ "$FORCE" != true ]; then
         print_status "Recommended workflow:"
         echo "  1. Cleanup Code Captain interface (rules, commands, docs)"
@@ -624,7 +686,7 @@ if [ ! -f ".junior/.junior-install.json" ] && { [ -f ".cursor/rules/cc.mdc" ] ||
         echo ""
         echo -n "Proceed with cleanup and installation? [yes/cancel]: "
         read -r CC_OPTION
-        
+
         case "$CC_OPTION" in
             yes|y)
                 cleanup_code_captain
@@ -658,26 +720,26 @@ EXISTING_METADATA=""
 if [ -f "$METADATA_FILE" ]; then
     IS_UPGRADE=true
     EXISTING_METADATA=$(cat "$METADATA_FILE")
-    print_status "Existing Junior installation detected - performing upgrade"
-    
+    print_debug "Existing Junior installation detected - performing upgrade"
+
     # Extract existing version
     EXISTING_VERSION=$(echo "$EXISTING_METADATA" | jq -r '.version // "unknown"')
     EXISTING_COMMIT=$(echo "$EXISTING_METADATA" | jq -r '.commit_hash // "unknown"')
-    print_status "Current version: $EXISTING_VERSION (commit: ${EXISTING_COMMIT:0:7})"
+    print_debug "Current version: $EXISTING_VERSION (commit: ${EXISTING_COMMIT:0:7})"
 fi
 
 # Create directory structure
-print_status "Creating directory structure..."
+print_debug "Creating directory structure..."
 
 # Create directories from config
 while IFS= read -r dir; do
     if [ -n "$dir" ]; then
         mkdir -p "$dir"
-        print_success "Created directory: $dir"
+        print_debug "Created directory: $dir"
     fi
 done <<< "$(extract_directories "$CONFIG_CONTENT")"
 
-print_success "Directory structure created"
+print_debug "Directory structure created"
 
 # Initialize metadata tracking (bash 3.2 compatible - no associative arrays)
 FILE_METADATA_JSON=""
@@ -685,13 +747,13 @@ MODIFIED_FILES=()
 CONFLICTING_FILES=()
 
 # Install files based on configuration
-print_status "Installing files..."
+print_debug "Installing files..."
 
 # Process files from config using jq
 while IFS='|' read -r SOURCE DEST IS_DIR SKIP_IF_EXISTS; do
     if [ -n "$SOURCE" ] && [ -n "$DEST" ]; then
         if [ "$IS_DIR" = "true" ]; then
-            print_status "Installing directory: $SOURCE -> $DEST"
+            print_debug "Installing directory: $SOURCE -> $DEST"
             if [ -d "$REPO_ROOT/$SOURCE" ]; then
                 # Copy all files from directory
                 for src_file in "$REPO_ROOT/$SOURCE"*; do
@@ -707,9 +769,9 @@ while IFS='|' read -r SOURCE DEST IS_DIR SKIP_IF_EXISTS; do
         else
             # Check if file should be skipped if it exists
             if [ "$SKIP_IF_EXISTS" = "true" ] && [ -f "$DEST" ]; then
-                print_status "Skipping existing file: $DEST (preserving local customizations)"
+                print_debug "Skipping existing file: $DEST (preserving local customizations)"
             else
-                print_status "Installing file: $SOURCE -> $DEST"
+                print_debug "Installing file: $SOURCE -> $DEST"
                 install_file "$SOURCE" "$DEST"
             fi
         fi
@@ -752,7 +814,7 @@ if [ ${#MODIFIED_FILES[@]} -gt 0 ]; then
 fi
 
 # Generate installation metadata
-print_status "Generating installation metadata..."
+print_debug "Generating installation metadata..."
 
 # Use accumulated FILE_METADATA_JSON (already in correct format)
 if [ -z "$FILE_METADATA_JSON" ]; then
@@ -779,7 +841,7 @@ METADATA_JSON=$(jq -n \
 
 # Write metadata file
 echo "$METADATA_JSON" > "$METADATA_FILE"
-print_success "Metadata saved to $METADATA_FILE"
+print_debug "Metadata saved to $METADATA_FILE"
 
 # Initialize git if not already initialized
 if [ ! -d ".git" ]; then
@@ -792,19 +854,19 @@ NEXT_STEPS=$(echo "$CONFIG_CONTENT" | jq -r '.messages.nextSteps[]' 2>/dev/null 
 AVAILABLE_COMMANDS=$(echo "$CONFIG_CONTENT" | jq -r '.messages.availableCommands // "Available commands: /feature, /implement, /commit"')
 
 echo ""
-print_success "═══════════════════════════════════════════════════"
-print_success "$SUCCESS_MSG"
-print_success "═══════════════════════════════════════════════════"
+print_success "✓ $SUCCESS_MSG"
 echo ""
 
-# Show installation summary
-print_status "Installation summary:"
-echo "  ✓ Cursor rules: .cursor/rules/ (5 files)"
-echo "  ✓ Commands: .cursor/commands/ (4 files)"
-echo "  ✓ Junior guide: JUNIOR.md"
-echo "  ✓ Working memory: .junior/ (structure created)"
-echo "  ✓ Version: $COMMIT_TIMESTAMP (commit: ${COMMIT_HASH:0:7})"
-echo ""
+# Show installation summary (verbose only)
+if [ "$VERBOSE" = true ]; then
+    print_status "Installation summary:"
+    echo "  ✓ Cursor rules: .cursor/rules/ (5 files)"
+    echo "  ✓ Commands: .cursor/commands/ (4 files)"
+    echo "  ✓ Junior guide: JUNIOR.md"
+    echo "  ✓ Working memory: .junior/ (structure created)"
+    echo "  ✓ Version: $COMMIT_TIMESTAMP (commit: ${COMMIT_HASH:0:7})"
+    echo ""
+fi
 
 print_status "Next steps:"
 if [ "$CC_CLEANED_UP" = true ] && [ -d ".code-captain" ]; then
@@ -826,5 +888,9 @@ else
     echo ""
 fi
 
-print_status "Available commands: $AVAILABLE_COMMANDS"
+if [ "$VERBOSE" = true ]; then
+    print_status "Available commands: $AVAILABLE_COMMANDS"
+fi
 
+# Explicit success exit
+exit 0
