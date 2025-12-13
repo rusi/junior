@@ -13,7 +13,7 @@ set -e  # Exit on any error
 # Configuration
 # ============================================================================
 
-GITHUB_REPO="USER/junior"
+GITHUB_REPO="rusi/junior"
 GITHUB_BRANCH="main"
 TARBALL_URL="https://github.com/${GITHUB_REPO}/archive/refs/heads/${GITHUB_BRANCH}.tar.gz"
 
@@ -28,15 +28,15 @@ NC='\033[0m'  # No Color
 # ============================================================================
 
 print_status() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    printf "${BLUE}[INFO]${NC} %s\n" "$1"
 }
 
 print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    printf "${GREEN}[SUCCESS]${NC} %s\n" "$1"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    printf "${RED}[ERROR]${NC} %s\n" "$1"
 }
 
 # ============================================================================
