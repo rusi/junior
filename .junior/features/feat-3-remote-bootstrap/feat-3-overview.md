@@ -1,7 +1,7 @@
 # Remote Install/Update Bootstrap
 
 > Created: 2025-12-07
-> Status: Planning
+> Status: In Progress
 > Contract Locked: ✅
 
 ## Feature Contract

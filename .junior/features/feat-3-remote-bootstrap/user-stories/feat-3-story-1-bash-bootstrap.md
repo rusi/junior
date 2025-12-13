@@ -1,6 +1,6 @@
 # Story 1: Bash Bootstrap Script
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** High
 > **Dependencies:** None
 > **Deliverable:** Working bash bootstrap script that installs/updates Junior via single curl command
@@ -28,21 +28,21 @@
 
 ## Acceptance Criteria
 
-- [ ] Given user is in project directory, when they run `curl -LsSf <url> | sh`, then Junior installs successfully
-- [ ] Given Junior not installed, when bootstrap runs, then fresh install completes
-- [ ] Given old Junior installed (no update.sh), when bootstrap runs, then upgrade completes
-- [ ] Given bootstrap encounters error, when failure occurs, then clear error message shown and temp cleaned up
-- [ ] Given tarball downloaded, when extraction fails, then error reported and partial files removed
-- [ ] Given install script fails, when error occurs, then bootstrap reports failure clearly
+- [x] Given user is in project directory, when they run `curl -LsSf <url> | sh`, then Junior installs successfully ✅
+- [x] Given Junior not installed, when bootstrap runs, then fresh install completes ✅
+- [x] Given old Junior installed (no update.sh), when bootstrap runs, then upgrade completes ✅
+- [x] Given bootstrap encounters error, when failure occurs, then clear error message shown and temp cleaned up ✅
+- [x] Given tarball downloaded, when extraction fails, then error reported and partial files removed ✅
+- [x] Given install script fails, when error occurs, then bootstrap reports failure clearly ✅
 
 ## Implementation Tasks
 
-- [ ] 1.1 Write tests for tarball download (TDD: test first)
-- [ ] 1.2 Implement download_tarball() function with curl/wget fallback
-- [ ] 1.3 Write tests for extraction and path detection
-- [ ] 1.4 Implement extract_tarball() with temp directory handling
-- [ ] 1.5 Write tests for install script delegation and cleanup
-- [ ] 1.6 Implement main bootstrap flow with error handling
+- [x] 1.1 Write tests for tarball download (TDD: test first) ✅
+- [x] 1.2 Implement download_tarball() function with curl/wget fallback ✅
+- [x] 1.3 Write tests for extraction and path detection ✅
+- [x] 1.4 Implement extract_tarball() with temp directory handling ✅
+- [x] 1.5 Write tests for install script delegation and cleanup ✅
+- [x] 1.6 Implement main bootstrap flow with error handling ✅
 
 ## Technical Notes
 
@@ -101,14 +101,14 @@ See [specs/01-Technical.md](../specs/01-Technical.md) for detailed technical app
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] Bootstrap works end-to-end (user can install via curl)
-- [ ] All tests passing (unit + integration)
-- [ ] No regressions in existing install scripts
-- [ ] Code follows bash best practices
-- [ ] Error messages are clear and actionable
-- [ ] Temp files cleaned up on success and error
-- [ ] **User can successfully install Junior with single curl command**
-- [ ] Tested on macOS and Linux
+- [x] All tasks completed ✅
+- [x] All acceptance criteria met ✅
+- [x] Bootstrap works end-to-end (user can install via curl) ✅
+- [x] All tests passing (unit + integration) ✅
+- [x] No regressions in existing install scripts ✅
+- [x] Code follows bash best practices ✅
+- [x] Error messages are clear and actionable ✅
+- [x] Temp files cleaned up on success and error ✅
+- [x] **User can successfully install Junior with single curl command** ✅
+- [ ] Tested on macOS and Linux (ready for manual testing)
 
