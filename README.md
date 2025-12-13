@@ -45,7 +45,31 @@ Junior turns Cursor into an expert software collaborator that:
 
 ### Installation
 
-**Easy installation in any project:**
+**Quick Install (Recommended):**
+
+Install Junior with a single command — no repository clone needed:
+
+**macOS / Linux:**
+```bash
+cd /path/to/your/project
+curl -LsSf https://rusi.github.io/junior/install.sh | sh
+```
+
+**Windows (PowerShell):**
+```powershell
+cd C:\path\to\your\project
+irm https://rusi.github.io/junior/install.ps1 | iex
+```
+
+The bootstrap script will:
+- ✅ Download the latest Junior release
+- ✅ Install to your current directory
+- ✅ Create `.cursor/` and `.junior/` directory structure
+- ✅ Generate version tracking metadata
+
+**Alternative: Install from Repository**
+
+If you prefer to clone the repository first:
 
 **macOS / Linux:**
 ```bash
@@ -65,27 +89,11 @@ git clone https://github.com/rusi/junior.git
 .\junior\scripts\install-junior.ps1 -TargetPath "C:\path\to\your\project"
 ```
 
-The installation script will:
-- ✅ Create `.cursor/` and `.junior/` directory structure
-- ✅ Copy all commands and rules to your project
-- ✅ Generate version tracking metadata
-- ✅ Preserve any existing customizations during upgrades
+### Updating Junior
 
-**Manual installation:**
-```bash
-# Copy Junior files to your project
-cp -r /path/to/junior/.cursor /path/to/your/project/
-cp /path/to/junior/README.md /path/to/your/project/JUNIOR.md
+**Method 1: Built-in Update Script (Recommended)**
 
-# Create Junior working memory structure
-mkdir -p /path/to/your/project/.junior/{features,experiments,research,decisions,docs,ideas,bugs,enhancements}
-```
-
-### Updating
-
-**Built-in update (recommended):**
-
-Junior includes an update script that checks GitHub and installs updates automatically:
+If you have `.junior/update.sh` (installed with recent versions):
 
 ```bash
 # macOS / Linux
@@ -107,9 +115,25 @@ The update script will:
 .\.junior\update.ps1 -Force
 ```
 
-**Alternative: Update from Junior repo**
+**Method 2: Remote Bootstrap (For Older Versions)**
 
-If you have the Junior repository cloned, you can run the install script again:
+If you have an older Junior version without `.junior/update.sh`, use the bootstrap script:
+
+```bash
+# macOS / Linux
+cd /path/to/your/project
+curl -LsSf https://rusi.github.io/junior/install.sh | sh
+
+# Windows (PowerShell)
+cd C:\path\to\your\project
+irm https://rusi.github.io/junior/install.ps1 | iex
+```
+
+This will upgrade your installation and add the update script for future updates.
+
+**Method 3: Update from Repository**
+
+If you have the Junior repository cloned:
 
 ```bash
 # macOS / Linux
@@ -129,6 +153,45 @@ The script will detect and preserve any user-modified files automatically.
 # Windows (PowerShell)
 .\junior\scripts\install-junior.ps1 -SyncBack -TargetPath "C:\path\to\your\project"
 ```
+
+### Troubleshooting Installation
+
+**Common Issues:**
+
+**"curl: command not found" or "wget: command not found"**
+- **macOS:** Install with `brew install curl` or `brew install wget`
+- **Linux:** Install with `sudo apt install curl` or `sudo yum install curl`
+- **Windows:** Use PowerShell method instead (built-in)
+
+**"tar: command not found"**
+- **macOS:** tar is pre-installed, check your PATH
+- **Linux:** Install with `sudo apt install tar` or `sudo yum install tar`
+- **Windows:** tar is built-in on Windows 10+, use PowerShell method
+
+**"Failed to download Junior tarball"**
+- Check your internet connection
+- Verify GitHub is accessible: `curl -I https://github.com`
+- Try alternative method: Clone repository and run install script
+
+**"Installation failed" or "Permission denied"**
+- Ensure you have write permissions in the target directory
+- Try running from your project root (not system directories)
+- Check disk space: `df -h` (Unix) or `Get-PSDrive` (PowerShell)
+
+**"Could not find extracted Junior directory"**
+- This is rare - the tarball extraction may have failed
+- Try alternative method: Clone repository and run install script
+- Report issue at: https://github.com/rusi/junior/issues
+
+**Installation appears to hang**
+- Large downloads may take time on slow connections
+- Wait 30-60 seconds before canceling
+- Try alternative method if problem persists
+
+**Need Help?**
+- Open an issue: https://github.com/rusi/junior/issues
+- Check existing issues for solutions
+- Include error messages and your OS/shell version
 
 **Open your project in Cursor and start using commands immediately** - try `/feature` to get started!
 

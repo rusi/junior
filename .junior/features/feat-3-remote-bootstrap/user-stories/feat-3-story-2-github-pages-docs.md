@@ -1,6 +1,6 @@
 # Story 2: GitHub Pages + Documentation
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** High
 > **Dependencies:** Story 1 (need bash script to publish)
 > **Deliverable:** Live GitHub Pages serving bootstrap script + clear README documentation
@@ -28,20 +28,20 @@
 
 ## Acceptance Criteria
 
-- [ ] Given GitHub Pages enabled, when user visits github.io URL, then install.sh is accessible
-- [ ] Given user reads README, when looking for installation, then clear instructions are present
-- [ ] Given fresh install scenario, when user follows README, then they successfully install Junior
-- [ ] Given update scenario (old version), when user follows README, then they successfully update
-- [ ] Given user has feat-2 update.sh, when reading docs, then they understand to use that instead
-- [ ] Given user encounters error, when checking README, then troubleshooting tips help resolve issue
+- [x] Given GitHub Pages enabled, when user visits github.io URL, then install.sh is accessible ✅
+- [x] Given user reads README, when looking for installation, then clear instructions are present ✅
+- [x] Given fresh install scenario, when user follows README, then they successfully install Junior ✅
+- [x] Given update scenario (old version), when user follows README, then they successfully update ✅
+- [x] Given user has feat-2 update.sh, when reading docs, then they understand to use that instead ✅
+- [x] Given user encounters error, when checking README, then troubleshooting tips help resolve issue ✅
 
 ## Implementation Tasks
 
-- [ ] 2.1 Enable GitHub Pages in repository settings (serve from `/docs`)
-- [ ] 2.2 Verify docs/install.sh is accessible via github.io URL
-- [ ] 2.3 Create README installation section with clear examples
-- [ ] 2.4 Document fresh install, update (old), and update (new) scenarios
-- [ ] 2.5 Add troubleshooting section with common issues
+- [x] 2.1 Enable GitHub Pages in repository settings (serve from `/docs`) ✅
+- [x] 2.2 Verify docs/install.sh is accessible via github.io URL ✅
+- [x] 2.3 Create README installation section with clear examples ✅
+- [x] 2.4 Document fresh install, update (old), and update (new) scenarios ✅
+- [x] 2.5 Add troubleshooting section with common issues ✅
 
 ## Technical Notes
 
@@ -102,14 +102,14 @@ See [specs/01-Technical.md](../specs/01-Technical.md) for detailed technical app
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] GitHub Pages serving docs/install.sh successfully
-- [ ] README has clear installation section
-- [ ] Fresh install scenario documented and tested
-- [ ] Update scenarios documented (old vs new)
-- [ ] Troubleshooting section helps resolve common issues
-- [ ] **Public can access script and successfully install Junior following README**
-- [ ] No broken links in documentation
-- [ ] Documentation reviewed for clarity
+- [x] All tasks completed ✅
+- [x] All acceptance criteria met ✅
+- [x] GitHub Pages serving docs/install.sh successfully ✅
+- [x] README has clear installation section ✅
+- [x] Fresh install scenario documented and tested ✅
+- [x] Update scenarios documented (old vs new) ✅
+- [x] Troubleshooting section helps resolve common issues ✅
+- [x] **Public can access script and successfully install Junior following README** ✅
+- [x] No broken links in documentation ✅
+- [x] Documentation reviewed for clarity ✅
 
