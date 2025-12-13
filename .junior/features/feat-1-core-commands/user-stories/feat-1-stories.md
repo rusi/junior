@@ -22,8 +22,10 @@
 | 10 | Implement /bugfix Command | Not Started | 7 | 0/7 |
 | 11 | Implement /enhancement Command | Not Started | 6 | 0/6 |
 | 12 | Implement /update-feature Command | Not Started | 2 | 0/2 |
+| 13 | Refactor Command Foundation | Not Started | 6 | 0/6 |
+| 14 | Create /refactor Command | Not Started | 7 | 0/7 |
 
-**Total:** 50/100 tasks (50%)
+**Total:** 50/113 tasks (44%)
 
 ## Story Dependencies
 
@@ -49,6 +51,10 @@
 - Story 11: /enhancement (similar to /bugfix, lighter weight)
 - Story 12: /update-feature (modifies existing features, follows /feature patterns)
 
+**Tier 5: Code Quality & Refactoring** (Story 13 first, then Story 14)
+- Story 13: Refactor command foundation (restructure `.junior/` organization)
+- Story 14: /refactor command (depends on Story 13 for improvements/ structure)
+
 ## Implementation Order
 
 **Recommended sequence:**
@@ -62,6 +68,8 @@
 7. **Story 7-9** - Project management → Enable project setup and idea capture
 8. **Story 10-11** - Maintenance workflows → Cover all development scenarios
 9. **Story 12** - Build /update-feature → Enable feature modifications
+10. **Story 13** - Refactor command foundation → Restructure `.junior/` organization
+11. **Story 14** - Build /refactor command → Enable code quality improvements
 
 Each story must be:
 - End-to-end integrated
@@ -84,4 +92,6 @@ Each story must be:
 - [Story 10: Implement /bugfix Command](./feat-1-story-10-bugfix-command.md)
 - [Story 11: Implement /enhancement Command](./feat-1-story-11-enhancement-command.md)
 - [Story 12: Implement /update-feature Command](./feat-1-story-12-update-feature-command.md)
+- [Story 13: Refactor Command Foundation](./feat-1-story-13-refactor-command-foundation.md)
+- [Story 14: Create /refactor Command](./feat-1-story-14-refactor-command.md)
 
