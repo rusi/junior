@@ -36,7 +36,8 @@ Only proceed if git working directory is clean.
 ```json
 {
   "todos": [
-    {"id": "scan", "content": "Scan context", "status": "in_progress"},
+    {"id": "scan", "content": "Scan & build context", "status": "in_progress"},
+    {"id": "analyze", "content": "Analyze feature placement", "status": "pending"},
     {"id": "clarify", "content": "Clarify requirements", "status": "pending"},
     {"id": "contract", "content": "Present contract", "status": "pending"},
     {"id": "generate", "content": "Generate spec", "status": "pending"},
@@ -46,23 +47,114 @@ Only proceed if git working directory is clean.
 }
 ```
 
-### Step 3: Context Scan
+### Step 3: Context Scan & Feature Analysis
 
-- `list_dir` `.junior/features/` for existing features
-- `codebase_search` for architecture patterns
+**3.1: Scan & build comprehensive context**
+
+Scan all `.junior/` working memory to understand existing work:
+
+- `list_dir` `.junior/features/` → existing features
+  - `read_file` each `feat-N-overview.md` to understand feature scope and status
+  - `read_file` each `feat-N-stories.md` to see current story breakdown
+- `list_dir` `.junior/research/` → technical investigations
+- `list_dir` `.junior/experiments/` → validation experiments
+- `list_dir` `.junior/debugging/` → active debugging sessions
+- `list_dir` `.junior/bugs/` → tracked bugs
+- `list_dir` `.junior/enhancements/` → small improvements
+- `codebase_search` for architecture patterns relevant to request
 - Load project context if available
-- Identify next feature number (feat-1, feat-2, etc.)
+- Identify next feature/story numbers
 
-**Output:** Brief context summary (no files yet)
+**Build mental model:**
+- What features exist and their scopes
+- What's in progress vs planned vs backlog
+- What research/experiments relate to this request
+- Where contradictions or overlaps might exist
+- How this fits into overall architecture
+
+**3.2: Analyze request placement**
+
+**Critical Decision:** Determine if user's request should be:
+
+1. **New Feature (feat-N)** - Create new feature directory
+   - ✅ When: Fundamentally different capability/workflow
+   - ✅ When: Standalone feature with independent scope
+   - ✅ When: No strong relationship to existing features
+   - Example: "User authentication" is different from "Payment processing"
+
+2. **New Story in Existing Feature (feat-X-story-Y)** - Add to existing feature
+   - ✅ When: Extends or enhances existing feature scope
+   - ✅ When: Logically belongs to existing feature's domain
+   - ✅ When: Completes or improves existing feature
+   - Example: Adding "Password reset" to existing "User authentication" feature
+
+3. **Modification of Existing Story (use /update-feature instead)**
+   - ✅ When: Changes requirements of existing story
+   - ✅ When: Fixes or refines existing specifications
+   - Example: "Update Story 2 to include email validation"
+
+**Decision Process:**
+
+If existing features found:
+1. Analyze each existing feature's scope and purpose
+2. Compare user request against each feature
+3. Present analysis to user:
+
+```
+📊 Context Analysis
+
+Found {N} existing features:
+- feat-1: [Name] - [Brief scope description]
+- feat-2: [Name] - [Brief scope description]
+
+Your request: "[User's request]"
+
+**Recommendation: [New Feature | Add to feat-X | Use /update-feature]**
+
+**Reasoning:**
+[1-2 sentences explaining why this placement makes sense]
+
+**If new feature:**
+- Will be created as feat-{N+1}
+- Scope: [Initial understanding of scope]
+
+**If add to existing:**
+- Will add story to feat-X
+- Current stories: {M} stories
+- New story will be: feat-X-story-{M+1}
+
+Does this placement make sense, or should we discuss? [yes | discuss | suggest: {alternative}]
+```
+
+Wait for user confirmation before proceeding to clarification.
+
+**3.3: Set working mode**
+
+Based on decision and user confirmation:
+- **New Feature mode:** Full feature specification (contract + stories + specs)
+- **Add Story mode:** Add story to existing feature (update existing feat-X)
+- **Update Existing:** Modify existing story/feature specifications
+
+All modes proceed to Step 4 for clarification (scope varies by mode).
+
+**Output:** Analysis summary with recommendation and user confirmation
 
 ### Step 4: Gap Analysis & Clarification Loop
 
+**Applies to:** All modes (new feature, add story, update existing)
+
 **Mission:**
-> Transform rough feature idea into crystal-clear specification. Challenge complexity, surface concerns early, build 95% confidence before creating any files.
+> Transform rough idea into crystal-clear specification. Challenge complexity, surface concerns early, check for contradictions with existing work, build 95% confidence before creating any files.
+
+**Clarification scope varies by mode:**
+
+- **New Feature:** Full feature understanding (purpose, scope, stories, integration, risks)
+- **Add Story:** Story-specific details (capability, integration with existing stories, dependencies, deliverable)
+- **Update Existing:** Changes needed (what's wrong, what should change, impact on dependent stories)
 
 **Internal gap analysis (don't show user):**
 
-Silently identify every missing detail, then ask ONE focused question at a time targeting highest-impact unknown:
+Silently identify every missing detail, check for contradictions with existing features/stories, then ask ONE focused question at a time targeting highest-impact unknown:
 
 - **Purpose & value** - What problem does this solve? Who for?
   - Example: "What specific user problem does this solve, and who experiences it?"
@@ -86,17 +178,60 @@ Silently identify every missing detail, then ask ONE focused question at a time 
 **Process:**
 - Target highest-impact unknowns first
 - After each answer, scan codebase for additional context if relevant
+- **Check for contradictions** with existing features/stories/research
 - Never declare "final question" - let conversation flow naturally
 - User signals when ready by responding to contract proposal
+
+**🔴 CRITICAL: Contradiction Detection & Reconciliation**
+
+During clarification, actively check for contradictions:
+
+1. **Feature-level contradictions:**
+   - Does this conflict with existing feature scope/goals?
+   - Does this duplicate existing feature capabilities?
+   - Does this violate established architecture decisions?
+
+2. **Story-level contradictions:**
+   - Does this conflict with existing story implementations?
+   - Does this change break dependent stories?
+   - Does this create inconsistencies in the feature?
+
+3. **Technical contradictions:**
+   - Does this conflict with codebase patterns?
+   - Does this violate documented design decisions?
+   - Does this create integration conflicts?
+
+**When contradictions found:**
+
+```
+⚠️ Potential Contradiction Detected
+
+Your request: [description]
+Conflicts with: [feat-X or story or pattern]
+
+**Issue:** [Specific contradiction]
+
+**Options to resolve:**
+1. [Modify your request to align]
+2. [Update existing feature/story to accommodate]
+3. [Refactor both to eliminate conflict]
+
+**Recommendation:** [Which option and why]
+
+How should we proceed?
+```
+
+**Don't proceed until contradictions are resolved.**
 
 **Critical analysis responsibility:**
 
 Junior must push back when:
 - Requirements seem technically infeasible with current architecture
 - Scope is too large (recommend breaking down)
-- Request conflicts with existing codebase patterns
+- Request conflicts with existing codebase patterns or features
 - Business logic doesn't align with stated user value
 - Performance/security/scalability concerns exist
+- **Contradictions exist with current features/stories/research**
 
 **Pushback phrasing:**
 - "I see a potential issue with [requirement] because [technical reason]. Would [simpler alternative] work better?"
@@ -134,6 +269,10 @@ Before presenting contract, mentally validate story breakdown:
 
 ### Step 5: Present Contract
 
+**Contract format varies by mode:**
+
+**For New Feature:**
+
 ```
 ## Feature Contract
 
@@ -170,11 +309,87 @@ Before presenting contract, mentally validate story breakdown:
 Options: yes | edit: [changes] | risks | simpler
 ```
 
+**For Add Story to Existing Feature:**
+
+```
+## Story Contract
+
+**Feature:** feat-X - [Feature Name]
+**New Story:** feat-X-story-{M+1} - [Story Title]
+
+**Purpose:** [What this story adds to the feature]
+**User Value:** [What user can now do after this story]
+**Deliverable:** [User-visible, working, end-to-end output]
+
+**Scope:**
+- ✅ Included: [Specific capabilities this story delivers]
+- ❌ Excluded: [Out of scope for this story]
+
+**Integration with Existing Stories:**
+- **Depends on:** [feat-X-story-Y] for [reason]
+- **Extends:** [existing capability] with [new capability]
+- **Changes:** [any modifications to existing stories, if needed]
+
+**Vertical Slice Validation:**
+- DB: [database changes, if any]
+- Backend: [API/logic changes]
+- Frontend: [UI changes]
+- Tests: [test coverage approach]
+- User sees: [specific working output]
+
+**⚠️ Impact Analysis:**
+- Affects existing stories: [list any that need updates]
+- Breaks nothing: [confirmation]
+- Integration points: [how this connects]
+
+---
+Options: yes | edit: [changes] | discuss
+```
+
+**For Update Existing Feature/Story:**
+
+```
+## Update Contract
+
+**Target:** [feat-X or feat-X-story-Y]
+**Current State:** [brief description of what exists]
+**Requested Changes:** [what user wants to change]
+
+**Proposed Updates:**
+- Change 1: [specific modification]
+- Change 2: [specific modification]
+
+**Impact Analysis:**
+- **Dependent Stories:** [which stories are affected]
+- **Breaking Changes:** [what breaks, if anything]
+- **Required Updates:** [other files/stories that need updates]
+- **Regression Risk:** [low/medium/high with explanation]
+
+**Contradiction Resolution:**
+[If this update was needed to resolve contradictions, explain how]
+
+**Updated Scope:**
+- ✅ Still Included: [capabilities that remain]
+- ✅ Now Included: [new capabilities]
+- ❌ Now Excluded: [things being removed/descoped]
+
+---
+Options: yes | edit: [changes] | discuss
+```
+
 Wait for user approval.
 
 ### Step 6: Generate Spec Package
 
+**Generation scope varies by mode:**
+
+- **New Feature:** Full feature package (overview + stories + specs)
+- **Add Story:** New story file + update feat-X-stories.md
+- **Update Existing:** Modify targeted files + update dependent files
+
 #### 6.1: Create Directory Structure
+
+**For New Feature:**
 
 Per `01-structure.mdc`:
 ```
@@ -190,7 +405,34 @@ Per `01-structure.mdc`:
     └── 04-UI-Wireframes.md
 ```
 
+**For Add Story:**
+
+Update existing structure:
+```
+.junior/features/feat-{X}-{name}/
+├── feat-X-overview.md (no changes)
+├── user-stories/
+│   ├── feat-{X}-stories.md (UPDATE: add new story to table)
+│   └── feat-{X}-story-{M+1}-{name}.md (CREATE: new story)
+└── specs/ (no changes unless story requires)
+```
+
+**For Update Existing:**
+
+Modify targeted files:
+```
+.junior/features/feat-{X}-{name}/
+├── feat-X-overview.md (UPDATE if needed)
+├── user-stories/
+│   ├── feat-{X}-stories.md (UPDATE if story list changes)
+│   ├── feat-{X}-story-Y-{name}.md (UPDATE: modify story)
+│   └── feat-{X}-story-Z-{name}.md (UPDATE: cascade changes if dependent)
+└── specs/ (UPDATE if technical changes needed)
+```
+
 #### 6.2: Generate feat-N-overview.md
+
+**For New Feature only:**
 
 ```markdown
 # [Feature Name]
@@ -252,6 +494,10 @@ High-level strategy:
 ```
 
 #### 6.3: Generate User Stories
+
+**For New Feature:** Generate all stories
+**For Add Story:** Generate one new story + update stories.md
+**For Update Existing:** Modify targeted story + cascade updates
 
 **🔴 CRITICAL: Every Story MUST Be a Vertical Slice**
 
