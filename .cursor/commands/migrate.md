@@ -70,6 +70,10 @@ find .code-captain/specs -maxdepth 1 -type d ! -name specs 2>/dev/null
 # Find experiments
 find .code-captain/experiments -maxdepth 1 -type d ! -name experiments 2>/dev/null
 
+# Find bugs and enhancements
+find .code-captain/bugs -maxdepth 1 -type d ! -name bugs 2>/dev/null
+find .code-captain/enhancements -maxdepth 1 -type d ! -name enhancements 2>/dev/null
+
 # Count docs and research files
 find .code-captain/docs -type f -name "*.md" 2>/dev/null | wc -l
 find .code-captain/research -type f -name "*.md" 2>/dev/null | wc -l
@@ -88,6 +92,8 @@ find .code-captain/research -type f -name "*.md" 2>/dev/null | wc -l
 4. Scan and identify:
    - Features in `.code-captain/specs/`
    - Experiments in `.code-captain/experiments/`
+   - Bugs in `.code-captain/bugs/` (will be nested under features)
+   - Enhancements in `.code-captain/enhancements/` (will be nested under features)
    - Research docs in `.code-captain/research/`
    - Product docs in `.code-captain/product/`
    - Other docs in `.code-captain/docs/`
@@ -105,6 +111,8 @@ Mode: Convert (no existing Junior)
 Found:
 ✅ N features (list first few with future names)
 ✅ N experiments
+✅ N bugs (will be nested under features)
+✅ N enhancements (will be nested under features)
 ✅ N research docs, N product docs, N other docs
 
 Status: Ready for migration
@@ -117,11 +125,13 @@ Example for **merge mode** (Junior exists):
 Version: v2 (spec-N-name pattern)
 Mode: Merge (Junior exists)
 
-Code Captain: N features, N experiments, N docs
+Code Captain: N features, N experiments, N bugs, N enhancements, N docs
 Junior: N features, N experiments, N docs
 
 Strategy:
 • Renumber Code Captain features (feat-X → feat-Y where Y is next available)
+• Nest bugs under their parent features (prompt user for feature mapping)
+• Nest enhancements under their parent features (prompt user for feature mapping)
 • Merge product/docs/research intelligently
 • Handle name conflicts with -cc suffix
 
@@ -180,6 +190,16 @@ FEATURE RENAMES:
 EXPERIMENTS:
 • List experiments (usually unchanged if already exp-N-name)
 
+BUGS (Nested Under Features):
+• List bugs with proposed feature mapping
+• Prompt user to confirm or adjust feature assignment
+• Example: bug-1-login-issue → feat-3-auth/bugs/bug-1-login-issue
+
+ENHANCEMENTS (Nested Under Features):
+• List enhancements with proposed feature mapping
+• Prompt user to confirm or adjust feature assignment
+• Example: enh-1-ui-polish → feat-5-dashboard/enhancements/enh-1-ui-polish
+
 PRODUCT & DOCUMENTATION:
 • product/decisions.md → decisions/product-decisions.md
 • Other product/*.md → docs/
@@ -218,13 +238,37 @@ Proceed with migration? [Type 'yes' to proceed, 'cancel' to abort]
    - If `YYYY-MM-DD-name` pattern → rename to `feat-N-name` (sequential: 1, 2, 3...)
    - Use `git mv` to move to `.junior/features/feat-N-name`
 3. Handle experiments (usually already `exp-N-name`, just move to `.junior/experiments/`)
-4. Merge documentation intelligently (see below)
+4. Handle bugs (nest under features, see below)
+5. Handle enhancements (nest under features, see below)
+6. Merge documentation intelligently (see below)
 
 **Merge mode** (Junior exists):
 1. Determine next available feature/experiment numbers in Junior
 2. Move Code Captain features with renumbering to avoid conflicts
 3. Move Code Captain experiments with renumbering
-4. Merge documentation intelligently (see below)
+4. Handle bugs (nest under features, see below)
+5. Handle enhancements (nest under features, see below)
+6. Merge documentation intelligently (see below)
+
+**Bugs/Enhancements nesting** (both modes):
+
+For each bug in `.code-captain/bugs/`:
+1. Parse bug metadata to identify related feature (if mentioned)
+2. Present user with feature options:
+   - Existing features list
+   - Create new feature (if bug reveals missing feature)
+3. User selects parent feature
+4. Move bug to `.junior/features/feat-N-name/bugs/bug-M-name/`
+5. Renumber bug-M within each feature (sequential: bug-1, bug-2, etc.)
+
+For each enhancement in `.code-captain/enhancements/`:
+1. Parse enhancement metadata to identify related feature
+2. Present user with feature options:
+   - Existing features list
+   - Skip if enhancement is actually a refactor (suggest moving to improvements/)
+3. User selects parent feature
+4. Move enhancement to `.junior/features/feat-N-name/enhancements/enh-M-name/`
+5. Renumber enh-M within each feature (sequential: enh-1, enh-2, etc.)
 
 **Documentation merging** (both modes):
 - Create `.junior/decisions/` and `.junior/docs/` if needed
@@ -385,14 +429,14 @@ This preserves git history better - git tracks file moves separately from conten
 2. Commit with message like:
    ```
    Migrate Code Captain to Junior: rename all files
-   
+
    - Rename N features to feat-N-name
    - Rename N experiments to exp-N-name
    - Rename spec.md → feat-N-overview.md, spec-lite.md → feature-lite.md
    - Rename sub-specs/ → specs/
    - Rename all story files: README.md → feat-N-stories.md, stories to feat-N-story-M-name.md
    - Move product/docs/research to Junior structure
-   
+
    All renames via git mv to preserve history.
    Next: Update cross-references in content.
    ```
@@ -481,7 +525,7 @@ Example success:
 🔍 Reference Verification:
 
 ✅ Date-prefixed references: 0 remaining
-✅ .code-captain/ references: 0 remaining  
+✅ .code-captain/ references: 0 remaining
 ✅ spec.md/spec-lite.md/sub-specs/ references: 0 remaining
 ✅ Unprefixed story references: 0 remaining
 ✅ Story links in feat-N-stories.md: All updated (0 ](./story- patterns)
@@ -570,7 +614,7 @@ All done!
 - `read_file` - Validation
 - `grep` / `search_replace` - Update references
 
-**CRITICAL:** 
+**CRITICAL:**
 - Never use `list_dir` for `.code-captain/` or `.junior/` - they're hidden. Use `run_terminal_cmd`.
 - ALWAYS verify renames (Step 8) before committing (Step 9)
 - ALWAYS verify references (Step 11) before committing (Step 12)
@@ -593,7 +637,7 @@ All done!
 
 **Before:** Ensure clean git status, close files, validate structure.
 
-**During:** 
+**During:**
 - Use `git mv` for all renames (preserves history)
 - Verify renames are complete before committing (Step 8)
 - Commit renames first (Step 9), then content changes (Step 12) - separate commits

@@ -16,10 +16,10 @@
 **In Scope:**
 - Create bugfix.md command file with bug-specific workflow
 - Capture bug description and reproduction steps
-- Create bug spec in `.junior/bugs/bug-N-name/`
+- Create bug spec in `.junior/features/feat-N-name/bugs/bug-M-name/` (nested within parent feature)
 - TDD workflow: write failing test → fix → verify test passes
 - Track bug stories and implementation tasks
-- Link to related features/code areas
+- Link to parent feature and related code areas
 
 **Out of Scope:**
 - Bug tracking systems integration (Jira, GitHub Issues, etc.)
@@ -29,8 +29,9 @@
 
 ## Acceptance Criteria
 
-- [ ] Given bug discovered, when `/bugfix` runs, then captures description and reproduction steps
-- [ ] Given bug captured, when spec created, then stored in `.junior/bugs/bug-N-name/`
+- [ ] Given bug discovered, when `/bugfix` runs, then prompts for parent feature selection
+- [ ] Given parent feature selected, when bug captured, then stored in `.junior/features/feat-N-name/bugs/bug-M-name/`
+- [ ] Given bug spec created, when reviewing structure, then nested under correct parent feature
 - [ ] Given bug spec, when implementing, then follows TDD (failing test first)
 - [ ] Given fix implemented, when complete, then test passes and bug verified
 - [ ] Given bug closed, when reviewing, then reproduction steps documented for future reference
@@ -39,30 +40,35 @@
 ## Implementation Tasks
 
 - [ ] 10.1 Research `reference-impl/cursor/commands/fix-bug.md` for bug-specific workflow patterns
-- [ ] 10.2 Run `/new-command` with prompt: "Create bugfix command for bug-specific workflow with reproduction steps and verification. Clarification asks: bug description, exact reproduction steps, expected vs actual behavior, affected codebase area. Generates bug spec in `.junior/bugs/bug-N-name/` with bug.md and user-stories/. Emphasizes TDD workflow: write failing test that reproduces bug, implement fix, verify test passes and no regressions. Includes verification checklist. Implements feat-1-story-10."
-- [ ] 10.3 User review: Document real or hypothetical bug, verify reproduction steps template
-- [ ] 10.4 Test bug spec generation and structure
+- [ ] 10.2 Run `/new-command` with prompt: "Create bugfix command for bug-specific workflow with reproduction steps and verification. Clarification asks: which feature does this bug belong to, bug description, exact reproduction steps, expected vs actual behavior, affected codebase area. Generates bug spec in `.junior/features/feat-N-name/bugs/bug-M-name/` (nested within parent feature) with bug-M-overview.md and bug-M-resolution.md. Emphasizes TDD workflow: write failing test that reproduces bug, implement fix, verify test passes and no regressions. Includes verification checklist. Implements feat-1-story-10."
+- [ ] 10.3 User review: Document real or hypothetical bug, verify parent feature selection and nested structure
+- [ ] 10.4 Test bug spec generation and nested directory structure
 - [ ] 10.5 Verify TDD workflow emphasis is clear
 - [ ] 10.6 Refine verification checklist based on completeness
 - [ ] 10.7 Finalize: Test complete workflow with real bug scenario
 
 ## Technical Notes
 
-**Bug Directory Structure:**
+**Bug Directory Structure (Nested in Features):**
 ```
-.junior/bugs/bug-N-name/
-├── bug.md                 # Main bug specification
-└── user-stories/          # Implementation tasks
-    ├── README.md          # Progress tracking
-    └── bug-N-story-M-name.md
+.junior/features/feat-N-name/bugs/bug-M-name/
+├── bug-M-overview.md      # Bug description, reproduction steps, expected vs actual
+└── bug-M-resolution.md    # Root cause, fix approach, verification (created after fix)
 ```
 
+**Key changes from previous structure:**
+- Bugs now nest **within their parent feature** (not top-level `.junior/bugs/`)
+- Numbering: `bug-1-name`, `bug-2-name` (sequential within each feature)
+- Path example: `.junior/features/feat-3-admin-panel/bugs/bug-1-login-failure/`
+- Bug belongs to the feature it affects - better organization and context
+
 **Bug Clarification Questions:**
-1. "What's the bug in one sentence?"
-2. "What are the exact steps to reproduce it?"
-3. "What do you expect to happen?"
-4. "What actually happens?"
-5. "What area of the codebase is affected?"
+1. "Which feature does this bug belong to?" (Select from existing features or create new)
+2. "What's the bug in one sentence?"
+3. "What are the exact steps to reproduce it?"
+4. "What do you expect to happen?"
+5. "What actually happens?"
+6. "What area of the codebase is affected?"
 
 **TDD Emphasis:**
 - Step 1: Write test that reproduces bug (test fails)
@@ -92,17 +98,17 @@ See [../feature.md](../feature.md) for overall feature context.
 - Implement to pass tests (green)
 - Refactor (clean)
 
-**Unit Tests:** 
+**Unit Tests:**
 - Bug contract generation
 - Reproduction step parsing
 - Story generation logic
 
-**Integration Tests:** 
+**Integration Tests:**
 - Complete bugfix workflow
 - Bug spec creation and storage
 - Cross-references to affected code
 
-**Manual Testing:** 
+**Manual Testing:**
 - Capture real bug with reproduction steps
 - Follow TDD workflow
 - Verify fix and no regressions

@@ -11,14 +11,16 @@ Junior maintains persistent memory in `.junior/`:
 ```
 .junior/
 ├── features/       # Feature specifications (numbered: feat-1-name, feat-2-name, etc.)
+│   └── feat-N-name/
+│       ├── bugs/         # Bugs within this feature (nested)
+│       └── enhancements/ # Enhancements within this feature (nested)
+├── improvements/   # Code quality improvements (top-level: refactoring, optimization, tech debt)
 ├── debugging/      # Debug investigations (numbered: dbg-1-name, dbg-2-name, etc.)
 ├── experiments/    # Experiments (numbered: exp-1-name, exp-2-name, etc.)
 ├── research/       # Technical research documents
 ├── decisions/      # Architecture Decision Records (ADRs)
 ├── docs/           # Reference documentation
-├── ideas/          # Product ideas (idea-N-name.md, quick capture)
-├── bugs/           # Bug tracking (bug-N-name, with reproduction steps)
-└── enhancements/   # Small improvements (enh-N-name, lighter than features)
+└── ideas/          # Product ideas (idea-N-name.md, quick capture)
 ```
 
 ### Feature Structure
@@ -62,16 +64,56 @@ Junior maintains persistent memory in `.junior/`:
 └── research-links.md                # Related work
 ```
 
+### Bug Structure (Nested in Features)
+```
+.junior/features/feat-{N}-{name}/bugs/bug-{M}-{name}/
+├── bug-{M}-overview.md              # Bug description, reproduction steps, expected vs actual
+└── bug-{M}-resolution.md            # Root cause, fix approach, verification
+```
+
+**Bugs are feature-specific** and nest within their parent feature. They follow the bugfix workflow (reproduce → fix → verify).
+
+### Enhancement Structure (Nested in Features)
+```
+.junior/features/feat-{N}-{name}/enhancements/enh-{M}-{name}/
+└── enh-{M}-overview.md              # Enhancement description, value, scope
+```
+
+**Enhancements are feature-specific** small improvements (UI polish, performance optimization, etc.) that nest within their parent feature.
+
+### Improvements Structure (Top-Level)
+```
+.junior/improvements/imp-{N}-{name}/
+├── imp-{N}-overview.md              # Main improvement specification
+└── user-stories/                    # Implementation tasks (if needed)
+    ├── imp-{N}-stories.md           # Progress tracking
+    ├── imp-{N}-story-1-{name}.md
+    └── imp-{N}-story-{M}-{name}.md
+```
+
+**Improvements are NOT feature-specific** and include:
+- ✅ **Refactoring:** Systematic code restructuring, architectural changes
+- ✅ **Performance optimization:** Speed/memory improvements with no behavior change
+- ✅ **Technical debt reduction:** Cleanup, modernization, pattern updates
+- ✅ **Code quality improvements:** Linting, testing, documentation
+- ✅ **Library migrations:** Dependency updates, framework upgrades
+- ❌ **NOT user-facing feature changes** (those are features)
+- ❌ **NOT bug fixes** (those nest in features as `bugs/`)
+- ❌ **NOT feature enhancements** (those nest in features as `enhancements/`)
+
 ### Numbering Convention
 - Features: `feat-1-name`, `feat-2-name` (simple sequential)
 - Debugging: `dbg-1-name`, `dbg-2-name` (simple sequential)
 - Experiments: `exp-1-name`, `exp-2-name` (simple sequential)
+- Improvements: `imp-1-name`, `imp-2-name` (simple sequential, top-level)
+- Bugs: `bug-1-name`, `bug-2-name` (sequential within each feature)
+- Enhancements: `enh-1-name`, `enh-2-name` (sequential within each feature)
 - Stories: `feat-1-story-1-name`, `feat-1-story-2-name` (simple sequential)
 - Debug steps: `dbg-1-step-1-name`, `dbg-1-step-2-name` (simple sequential)
-- Story tracking: `feat-1-stories.md`, `exp-1-stories.md` (NOT README.md)
+- Story tracking: `feat-1-stories.md`, `exp-1-stories.md`, `imp-1-stories.md` (NOT README.md)
 - Debug step tracking: `dbg-1-steps.md` (NOT README.md)
 
-**CRITICAL:** All files MUST use consistent naming with feature/experiment/debug prefix:
+**CRITICAL:** All files MUST use consistent naming with feature/experiment/debug/improvement/bug/enhancement prefix:
   - ✅ `feat-5-overview.md` (main spec)
   - ✅ `feat-5-stories.md` (story tracking)
   - ✅ `feat-5-story-3-api-integration.md` (individual story)
@@ -81,8 +123,14 @@ Junior maintains persistent memory in `.junior/`:
   - ✅ `dbg-1-steps.md` (hypotheses + investigation plan)
   - ✅ `dbg-1-step-2-check-cert.md` (individual investigation step)
   - ✅ `dbg-1-resolution.md` (root cause + fix approach)
+  - ✅ `imp-3-overview.md` (improvement spec, top-level)
+  - ✅ `imp-3-stories.md` (improvement story tracking)
+  - ✅ `bug-2-overview.md` (bug spec, nested in feature)
+  - ✅ `bug-2-resolution.md` (bug fix approach)
+  - ✅ `enh-1-overview.md` (enhancement spec, nested in feature)
   - ❌ `feature.md` or `experiment.md` or `debug.md` (generic, wrong!)
-  - ❌ `README.md` anywhere in features/experiments/debugging (use descriptive names!)
+  - ❌ `improvement.md` or `bug.md` or `enhancement.md` (generic, wrong!)
+  - ❌ `README.md` anywhere in features/experiments/debugging/improvements (use descriptive names!)
   - ❌ `2025-10-01-story-1-setup.md` (date-prefix, wrong!)
   - ❌ `story-1-setup.md` or `step-1-name.md` (no prefix, wrong!)
 

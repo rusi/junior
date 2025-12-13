@@ -1,6 +1,6 @@
 # Story 13: Refactor Command Foundation
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** High
 > **Dependencies:** None
 > **Deliverable:** Restructured `.junior/` organization with nested bugs/enhancements and new improvements bucket
@@ -31,39 +31,39 @@
 
 ## Acceptance Criteria
 
-- [ ] Given `01-structure.md` is updated, when developer reads it, then structure clearly shows nested bugs/enhancements and top-level improvements
-- [ ] Given Story 10 spec is updated, when `/bugfix` is implemented, then bugs are created in `features/feat-N/bugs/bug-1/` structure
-- [ ] Given Story 11 spec is updated, when `/enhancement` is implemented, then enhancements are created in `features/feat-N/enhancements/enh-1/` structure
-- [ ] Given migrate command is updated, when converting Code Captain project with bugs, then bugs are nested under appropriate features
-- [ ] Given migrate command is updated, when converting Code Captain project with enhancements, then enhancements are nested under appropriate features
-- [ ] Given install script is updated, when Junior is installed, then only `.junior/` and `.junior/features/` directories are created
+- [x] Given `01-structure.md` is updated, when developer reads it, then structure clearly shows nested bugs/enhancements and top-level improvements ✅
+- [x] Given Story 10 spec is updated, when `/bugfix` is implemented, then bugs are created in `features/feat-N/bugs/bug-1/` structure ✅
+- [x] Given Story 11 spec is updated, when `/enhancement` is implemented, then enhancements are created in `features/feat-N/enhancements/enh-1/` structure ✅
+- [x] Given migrate command is updated, when converting Code Captain project with bugs, then bugs are nested under appropriate features ✅
+- [x] Given migrate command is updated, when converting Code Captain project with enhancements, then enhancements are nested under appropriate features ✅
+- [x] Given install script is updated, when Junior is installed, then only `.junior/` and `.junior/features/` directories are created ✅
 
 ## Implementation Tasks
 
-- [ ] 13.1 Read and analyze current `01-structure.md` to understand existing format and conventions
-- [ ] 13.2 Update `01-structure.md` with new organizational structure:
+- [x] 13.1 Read and analyze current `01-structure.md` to understand existing format and conventions ✅
+- [x] 13.2 Update `01-structure.md` with new organizational structure:
   - Add nested bugs structure under features
   - Add nested enhancements structure under features
   - Add top-level improvements bucket with clear scope definition
   - Include directory tree examples for each structure
-  - Document numbering conventions (bug-1, enh-1, imp-1)
-- [ ] 13.3 Update Story 10 (`feat-1-story-10-bugfix-command.md`) specification:
+  - Document numbering conventions (bug-1, enh-1, imp-1) ✅
+- [x] 13.3 Update Story 10 (`feat-1-story-10-bugfix-command.md`) specification:
   - Change bug location from `.junior/bugs/` to `.junior/features/feat-N/bugs/`
   - Update technical notes with nested structure
-  - Update command examples to reflect new paths
-- [ ] 13.4 Update Story 11 (`feat-1-story-11-enhancement-command.md`) specification:
+  - Update command examples to reflect new paths ✅
+- [x] 13.4 Update Story 11 (`feat-1-story-11-enhancement-command.md`) specification:
   - Change enhancement location from `.junior/enhancements/` to `.junior/features/feat-N/enhancements/`
   - Update technical notes with nested structure
-  - Update command examples to reflect new paths
-- [ ] 13.5 Update `.cursor/commands/migrate.md` script:
+  - Update command examples to reflect new paths ✅
+- [x] 13.5 Update `.cursor/commands/migrate.md` script:
   - Add logic to detect bugs in Code Captain projects
   - Add logic to detect enhancements in Code Captain projects
   - Map bugs/enhancements to appropriate features (may require user input)
-  - Document migration strategy in command
-- [ ] 13.6 Update install scripts (`scripts/install-junior.sh` and `scripts/install-junior.ps1`):
+  - Document migration strategy in command ✅
+- [x] 13.6 Update install scripts (`scripts/install-junior.sh` and `scripts/install-junior.ps1`):
   - Remove automatic creation of bugs/, enhancements/, research/, experiments/, etc.
   - Keep only `.junior/` and `.junior/features/` creation
-  - Document that commands create other directories as needed
+  - Document that commands create other directories as needed ✅
 
 ## Technical Notes
 
@@ -167,15 +167,15 @@ Commands create their own directories:
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] `01-structure.md` updated with complete new structure
-- [ ] Story 10 specification reflects nested bugs structure
-- [ ] Story 11 specification reflects nested enhancements structure
-- [ ] Migrate command documentation includes bugs/enhancements handling
-- [ ] Install scripts updated to minimal directory creation
-- [ ] All cross-references in documentation are correct
-- [ ] Structure is clear, consistent, and follows Junior's principles
-- [ ] No regressions in existing features
-- [ ] **Foundation ready for Story 14 (refactor command) implementation**
+- [x] All tasks completed ✅
+- [x] All acceptance criteria met ✅
+- [x] `01-structure.md` updated with complete new structure ✅
+- [x] Story 10 specification reflects nested bugs structure ✅
+- [x] Story 11 specification reflects nested enhancements structure ✅
+- [x] Migrate command documentation includes bugs/enhancements handling ✅
+- [x] Install scripts updated to minimal directory creation ✅
+- [x] All cross-references in documentation are correct ✅
+- [x] Structure is clear, consistent, and follows Junior's principles ✅
+- [x] No regressions in existing features ✅
+- [x] **Foundation ready for Story 14 (refactor command) implementation** ✅
 

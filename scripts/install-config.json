@@ -2,15 +2,7 @@
   "directories": [
     ".cursor/rules",
     ".cursor/commands",
-    ".junior/features",
-    ".junior/experiments",
-    ".junior/research",
-    ".junior/decisions",
-    ".junior/docs",
-    ".junior/ideas",
-    ".junior/bugs",
-    ".junior/enhancements",
-    ".junior/debugging"
+    ".junior/features"
   ],
   "files": [
     {
