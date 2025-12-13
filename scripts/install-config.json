@@ -44,7 +44,13 @@
     },
     {
       "source": ".junior/update.sh",
-      "destination": ".junior/update.sh"
+      "destination": ".junior/update.sh",
+      "platform": "unix"
+    },
+    {
+      "source": ".junior/update.ps1",
+      "destination": ".junior/update.ps1",
+      "platform": "windows"
     }
   ],
   "messages": {

@@ -15,10 +15,10 @@ Junior builds end-to-end **products**, not just software.
 Junior believes great engineering starts with _why_. It doesn't write code to fill commits — it builds systems that deliver business value, enhance user experience, and move metrics that matter.
 
 **Core principles:**
-1. **Build with purpose.** Every change should serve a real goal.  
-2. **Challenge to improve.** Healthy friction produces better design.  
-3. **Mentorship at scale.** Learn continuously. Share reasoning.  
-4. **Craftsmanship.** Write code that ages well.  
+1. **Build with purpose.** Every change should serve a real goal.
+2. **Challenge to improve.** Healthy friction produces better design.
+3. **Mentorship at scale.** Learn continuously. Share reasoning.
+4. **Craftsmanship.** Write code that ages well.
 5. **Business impact first.** Technical elegance is only valuable when it drives outcomes.
 
 **Expertise:**
@@ -81,9 +81,35 @@ cp /path/to/junior/README.md /path/to/your/project/JUNIOR.md
 mkdir -p /path/to/your/project/.junior/{features,experiments,research,decisions,docs,ideas,bugs,enhancements}
 ```
 
-### Upgrading
+### Updating
 
-To upgrade an existing Junior installation, simply run the installation script again:
+**Built-in update (recommended):**
+
+Junior includes an update script that checks GitHub and installs updates automatically:
+
+```bash
+# macOS / Linux
+./.junior/update.sh
+
+# Windows (PowerShell)
+.\.junior\update.ps1
+```
+
+The update script will:
+- ✅ Check GitHub for the latest Junior version
+- ✅ Show current vs. available version (commit hash and timestamp)
+- ✅ Download and install updates automatically
+- ✅ Preserve your customizations
+
+**Skip confirmation (automation):**
+```bash
+./.junior/update.sh --force
+.\.junior\update.ps1 -Force
+```
+
+**Alternative: Update from Junior repo**
+
+If you have the Junior repository cloned, you can run the install script again:
 
 ```bash
 # macOS / Linux
@@ -93,11 +119,7 @@ To upgrade an existing Junior installation, simply run the installation script a
 .\junior\scripts\install-junior.ps1 -TargetPath "C:\path\to\your\project"
 ```
 
-The script will:
-- Detect user-modified files and preserve them automatically
-- Update only unmodified Junior files
-- Update version tracking metadata
-- Maintain all your customizations
+The script will detect and preserve any user-modified files automatically.
 
 **Sync your customizations back to Junior source:**
 ```bash
@@ -107,11 +129,6 @@ The script will:
 # Windows (PowerShell)
 .\junior\scripts\install-junior.ps1 -SyncBack -TargetPath "C:\path\to\your\project"
 ```
-
-**Advanced options:**
-- `--ignore-dirty` / `-IgnoreDirty`: Skip git clean check (testing only)
-- `--force` / `-Force`: Override safety checks (special cases only)
-- `--sync-back` / `-SyncBack`: Copy modified files back to Junior source
 
 **Open your project in Cursor and start using commands immediately** - try `/feature` to get started!
 
@@ -186,15 +203,15 @@ Junior: 🚀 Junior online. Let's think, then code.
 User: Email/password and Google OAuth
 
 Junior: [Asks focused questions until 95% clear...]
-        
+
         ## Feature Contract
-        
+
         **Feature:** User authentication with email/password and Google OAuth
         **User Value:** Secure account creation and login
         **Success Criteria:** Users can register, login, and access protected routes
-        
+
         [Shows complete contract with concerns and recommendations]
-        
+
         Options: [yes/edit/risks/simpler]
 
 User: yes
@@ -220,11 +237,11 @@ Junior: 📁 Files to stage (from this session):
           A  .junior/features/feat-1-auth/user-stories/feat-1-story-1-registration.md
           A  .junior/features/feat-1-auth/user-stories/feat-1-story-2-login.md
           A  .junior/features/feat-1-auth/user-stories/feat-1-story-3-oauth.md
-        
+
         💬 Commit Message:
         ┌─────────────────────────────────
         │ docs(feat-1): add user auth specification
-        │ 
+        │
         │ - Feature overview with acceptance criteria
         │ - 3 user stories for incremental delivery
         └─────────────────────────────────
@@ -238,14 +255,14 @@ User: yes
 User: /implement feat-1-story-1
 
 Junior: 🎯 Implementing: feat-1-story-1-registration
-        
+
         [Reads story spec, plans implementation]
         [Writes tests first (TDD)]
         [Implements until tests pass]
         [Updates story progress]
-        
+
         ✅ Story complete!
-        
+
         Files created/modified:
           A  src/auth/register.ts
           A  src/auth/register.test.ts
@@ -263,11 +280,11 @@ Junior: 📁 Files to stage:
           A  src/auth/register.test.ts
           A  src/db/users.ts
           M  .junior/features/feat-1-auth/user-stories/feat-1-story-1-registration.md
-        
+
         💬 Commit Message:
         ┌─────────────────────────────────
         │ feat(feat-1-story-1): ✅ user registration
-        │ 
+        │
         │ - Email/password registration endpoint
         │ - Password hashing with bcrypt
         │ - User storage in database
@@ -355,5 +372,5 @@ Based on Junior (https://github.com/rusi/junior) by Ruslan Hristov
 
 ## 🙏 Acknowledgment
 
-Junior was inspired by the original *Code Captain* concept by [@devobsessed](https://github.com/devobsessed).  
+Junior was inspired by the original *Code Captain* concept by [@devobsessed](https://github.com/devobsessed).
 It shares the same vision of helping AI agents become effective software collaborators.

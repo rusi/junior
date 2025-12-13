@@ -686,7 +686,16 @@ $script:ConflictingFiles = @()
 # Install files based on configuration
 Write-Debug "Installing files..."
 
+# Detect current platform
+$currentPlatform = if ($IsWindows -or $env:OS -match "Windows") { "windows" } else { "unix" }
+
 foreach ($file in $Config.files) {
+    # Skip files that don't match current platform
+    if ($file.platform -and $file.platform -ne $currentPlatform) {
+        Write-Debug "Skipping platform-specific file: $($file.source) (requires: $($file.platform), current: $currentPlatform)"
+        continue
+    }
+
     $sourcePath = Join-Path $RepoRoot $file.source
     $destPath = $file.destination
 

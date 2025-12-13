@@ -421,10 +421,20 @@ extract_directories() {
     echo "$json" | jq -r '.directories[]' 2>/dev/null || echo ""
 }
 
+# Function to detect current platform
+detect_platform() {
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" || "$OSTYPE" == "cygwin" ]]; then
+        echo "windows"
+    else
+        echo "unix"
+    fi
+}
+
 # Function to extract file operations from JSON config using jq
 extract_files() {
     local json="$1"
-    echo "$json" | jq -r '.files[] | "\(.source)|\(.destination)|\(.isDirectory // false)|\(.skipIfExists // false)"' 2>/dev/null || echo ""
+    local current_platform=$(detect_platform)
+    echo "$json" | jq -r --arg platform "$current_platform" '.files[] | select(.platform == null or .platform == $platform) | "\(.source)|\(.destination)|\(.isDirectory // false)|\(.skipIfExists // false)"' 2>/dev/null || echo ""
 }
 
 # Parse arguments

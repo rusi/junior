@@ -231,10 +231,13 @@ grep -n "\[ \]" feat-N-story-X.md
 
 For completed work, mark EVERY checkbox:
 - Change `- [ ]` → `- ✅` for ALL completed items
-- Change `Status: In Progress` → `Status: Completed ✅`
-- Update progress tracking in `feat-N-stories.md`
-- Update task counts (X/Y completed)
-- Update percentages
+- Change `Status: In Progress` → `Status: Completed ✅` in individual story files
+- Update progress tracking in `feat-N-stories.md`:
+  - Update **Status field at top** (Planning → In Progress → Completed ✅)
+  - Update task counts (X/Y completed)
+  - Update percentages
+  - Update story table rows (status column)
+- Update `feat-N-overview.md` Status field if all stories complete
 
 **6. VERIFY completeness with grep AFTER updates:**
 ```bash
@@ -256,11 +259,12 @@ Documentation Update Checklist:
 
 [ ] Did I read the ENTIRE story file (not just one section)?
 [ ] Did I use grep to find ALL checkbox sections?
-[ ] Did I update the Status field at the top?
+[ ] Did I update the Status field at the top of the story file?
 [ ] Did I update ALL Acceptance Criteria checkboxes?
 [ ] Did I update ALL Implementation Tasks checkboxes?
 [ ] Did I update ALL Definition of Done checkboxes?
-[ ] Did I update progress tracking in feat-N-stories.md?
+[ ] Did I update feat-N-stories.md Status field at the top?
+[ ] Did I update feat-N-stories.md progress table and percentages?
 [ ] Did I verify with grep that unchecked count is 0 (for completed stories)?
 [ ] Did I update any related READMEs or technical docs?
 

@@ -1,6 +1,6 @@
 # Story 4: Install Integration & Documentation
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** High
 > **Dependencies:** Story 3 (both update scripts must exist)
 > **Deliverable:** Update scripts installed with Junior, documented and ready for users
@@ -26,19 +26,19 @@
 
 ## Acceptance Criteria
 
-- [ ] Given fresh Junior install, when installed, then `.junior/update.sh` and `.junior/update.ps1` are present
-- [ ] Given existing Junior install, when upgraded, then update scripts are added
-- [ ] Given user reads `JUNIOR.md`, when looking for updates, then finds clear instructions
-- [ ] Given user reads Junior repo `README.md`, when checking installation docs, then sees update section
-- [ ] Given update scripts installed, when user runs them, then they work without additional setup
+- [x] Given fresh Junior install, when installed, then platform-specific update script is present ✅
+- [x] Given existing Junior install, when upgraded, then update scripts are added ✅
+- [x] Given user reads `JUNIOR.md`, when looking for updates, then finds clear instructions ✅
+- [x] Given user reads Junior repo `README.md`, when checking installation docs, then sees update section ✅
+- [x] Given update scripts installed, when user runs them, then they work without additional setup ✅
 
 ## Implementation Tasks
 
-- [ ] 4.1 Add update scripts to `install-config.json` files array
-- [ ] 4.2 Update `README.md` (becomes `JUNIOR.md` in user projects) with update instructions
-- [ ] 4.3 Update Junior repo `README.md` with update feature documentation
-- [ ] 4.4 Test fresh installation includes update scripts
-- [ ] 4.5 Test upgrade scenario (re-run install on project with existing Junior)
+- [x] 4.1 Add update scripts to `install-config.json` files array ✅
+- [x] 4.2 Update `README.md` (becomes `JUNIOR.md` in user projects) with update instructions ✅
+- [x] 4.3 Update Junior repo `README.md` with update feature documentation ✅
+- [x] 4.4 Test fresh installation includes update scripts ✅
+- [x] 4.5 Test upgrade scenario (re-run install on project with existing Junior) ✅
 
 ## Technical Notes
 
@@ -117,13 +117,13 @@ See [specs/01-Technical.md](../specs/01-Technical.md) for detailed technical app
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] Update scripts added to `install-config.json`
-- [ ] Documentation updated (JUNIOR.md and README.md)
-- [ ] Fresh install includes update scripts
-- [ ] Upgrade scenario adds update scripts
-- [ ] **New Junior installations come with working update capability**
-- [ ] **Documentation is clear and accurate**
-- [ ] Feature complete and ready for release
+- [x] All tasks completed ✅
+- [x] All acceptance criteria met ✅
+- [x] Update scripts added to `install-config.json` with platform detection ✅
+- [x] Documentation updated (JUNIOR.md and README.md) - simplified and clear ✅
+- [x] Fresh install includes platform-specific update script ✅
+- [x] Upgrade scenario adds update scripts ✅
+- [x] **New Junior installations come with working update capability** ✅
+- [x] **Documentation is clear and accurate** ✅
+- [x] Feature complete and ready for release ✅
 
