@@ -1,6 +1,6 @@
 # Story 2: Maintenance Command
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** High
 > **Dependencies:** Story 1 (requires stage detection)
 > **Deliverable:** Working `/maintenance` command via `/new-command`
@@ -35,7 +35,7 @@
 
 ## Implementation Tasks
 
-- [ ] 2.1 Run `/new-command` with maintenance command prompt (see below)
+- [x] 2.1 Run `/new-command` with maintenance command prompt (see below) ✅
 
 **Prompt for `/new-command`:**
 
