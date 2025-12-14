@@ -598,6 +598,22 @@ What would you like to do next?
 - ❌ **NEVER** put findings/analysis/validation reports in user-stories/
 - ❌ **NEVER** put story specifications in docs/
 
+### ⚠️ CRITICAL: All Deliverables Must Be Timeless
+
+**NEVER reference stories, tasks, or steps in ANY deliverable:**
+
+❌ Code comments: `# Story 2: Add validation` or `# Task 1.2: Parse data`
+❌ Code names: `test_story_2_validation()`, `story2_handler()`, `task_1_2_result`
+❌ Documentation: "Story 3 will implement..." or "After Task 2.3..."
+
+✅ **Instead, describe WHAT and WHY:**
+
+✅ Code comments: `# Validate input format` or `# Parse protocol header`
+✅ Code names: `test_validates_input_format()`, `handle_notification()`, `parse_result`
+✅ Documentation: "System uses adapter pattern for..." or "Protocol state machine handles..."
+
+**Test:** Would this be clear in 2 years with no story/task context? If no, remove references.
+
 **Reminder to user:**
 - Update specs if implementation differs from plan
 - Update related documentation

@@ -1,0 +1,446 @@
+# Software Architecture Document Guide
+
+## Core Principle
+
+**Architecture documents explain HOW the system is designed (structure, flow, patterns), not HOW to implement it (code, libraries, details).**
+
+**Architecture Design vs Implementation:**
+- ✅ Architecture: "System uses state machine with 6 states: Init → Connect → Auth → Active → Disconnect → Error"
+- ✅ Architecture: "Layered design: Presentation → Business Logic → Data Access"
+- ❌ Implementation: "Use `switch/case` statement to handle states" or "Import `requests` library for HTTP"
+
+**Timeless test:** The doc should be equally valid whether:
+- Building system from scratch
+- Understanding existing system
+- Porting to new platform
+- Onboarding new team member
+
+**The Golden Rule: Show, don't tell.**
+- One diagram > three paragraphs
+- State machines and flow diagrams are essential
+- Visual architecture > text descriptions
+- Interface contracts > implementation details
+- Quality attributes > feature lists
+
+## Audience
+
+Architecture docs serve multiple readers:
+- **Engineers** need to understand design decisions and interfaces
+- **Architects** need to see patterns and trade-offs
+- **Future you** needs to remember why you made these choices
+
+Write for the engineer joining your team in 6 months.
+
+## What Architecture Documents ARE
+
+✅ **Design rationale** - WHY we chose this approach over alternatives
+✅ **System structure** - HOW system is organized (layers, components, modules)
+✅ **Visual models** - State machines, flow diagrams, component diagrams (essential!)
+✅ **Quality attributes** - Performance, scalability, testability, security goals
+✅ **Constraints** - Technical limitations that shaped design
+✅ **Trade-offs** - What we gained vs. what we sacrificed
+✅ **Key patterns** - Layered, event-driven, microservices, pub/sub
+✅ **Interface contracts** - APIs between components (not implementation)
+✅ **Data flow** - How information moves through the system
+✅ **Error handling strategy** - Fail fast, retry, graceful degradation
+
+## What Architecture Documents ARE NOT
+
+❌ **Implementation code** - No working code with error handling, logging, state management
+❌ **Project plans** - No story references, sprints, migrations, schedules
+❌ **Problem/solution narratives** - No "current code is bad, new code is good"
+❌ **Step-by-step tutorials** - Focus on design, not build instructions
+❌ **Comprehensive spec** - Just enough to understand key decisions
+
+## Standard Structure
+
+**Based on ISO/IEC/IEEE 42010 and industry best practices (4+1 View Model, C4 Model).**
+
+### 1. Context & Scope
+- **System purpose:** What problem does this solve?
+- **Stakeholders:** Who cares about this system?
+- **System boundary:** What's in vs. out (context diagram)
+- **External dependencies:** What systems/services does it interact with?
+
+### 2. Quality Attributes (Architectural Drivers)
+**These drive all design decisions.** Be specific with measurable criteria:
+- **Performance:** Response time <100ms, throughput 1000 req/sec
+- **Scalability:** Handle 10K concurrent users
+- **Availability:** 99.9% uptime
+- **Testability:** Unit tests without external dependencies
+- **Portability:** Run on Windows, Linux, macOS, embedded (ESP32, STM32)
+- **Security:** AES-256 encryption, OAuth2 authentication
+- **Maintainability:** New developer productive in 2 days
+
+### 3. System Structure (Architectural Views)
+
+#### Logical View
+**Components, layers, modules, and their relationships:**
+- **Components:** High-level components (what are the major pieces?)
+- **Interfaces:** Contracts between components (how do they talk?)
+- **Relationships:** How components interact (dependencies, calls, events)
+- **Data flow:** Information movement through system (arrows showing direction)
+
+**Show with diagrams:**
+- Component diagram
+- Layer diagram (presentation, business logic, data)
+- Module decomposition
+
+```
+Example:
+┌─────────────────┐
+│  Presentation   │
+├─────────────────┤
+│ Business Logic  │
+├─────────────────┤
+│  Data Access    │
+└─────────────────┘
+```
+
+#### Process View (Runtime Behavior)
+**CRITICAL: State machines and flow diagrams:**
+- **State machines:** Show states, transitions, events, guards
+- **Sequence diagrams:** Show interaction flow between components
+- **Activity diagrams:** Show business process flow
+- **Error paths:** Not just happy path - show error recovery
+
+```
+Example State Machine:
+Idle → Connecting → Authenticating → Active
+  ↓       ↓            ↓              ↓
+  └───────┴────────────┴────────→ Error → Retry/Disconnect
+```
+
+#### Data View
+- Data models and schemas
+- Data flow diagrams
+- State/persistence requirements
+
+#### Deployment View
+- **Physical topology:** Servers, containers, devices
+- **Runtime environment:** OS, dependencies, resources
+- **Configuration:** Environment variables, config files
+
+### 4. Key Design Decisions (ADRs)
+
+**One decision = one concise section. Include:**
+
+- **Context:** What situation led to this decision?
+- **Decision:** What was decided?
+- **Rationale:** Why this approach?
+- **Alternatives:** What else was considered and why rejected?
+- **Consequences/Trade-offs:** What we gained vs. what we sacrificed?
+- **Constraints:** What forced or limited this decision?
+
+**Example:**
+- Context: "Need clear separation between UI, logic, and data"
+- Decision: "Use 3-tier layered architecture"
+- Alternatives: "Monolithic (not maintainable), Microservices (too complex)"
+- Trade-offs: "Gained testability and clear boundaries, cost is extra abstraction layer"
+
+### 5. Cross-Cutting Concerns
+- **Error handling:** Fail fast vs. retry vs. graceful degradation
+- **Logging/Monitoring:** What to log, retention policy
+- **Security:** Authentication, authorization, encryption
+- **Transaction management:** ACID requirements, consistency model
+- **Configuration:** How settings are managed
+
+## Visual Diagrams (Essential!)
+
+**Visual diagrams are EXACTLY what good architecture documentation needs.**
+
+### State Machine Diagrams (Critical for Stateful Systems)
+**Show:**
+- ✅ All states (boxes)
+- ✅ All transitions (arrows with trigger events)
+- ✅ Error states and recovery paths
+- ✅ Guard conditions (when transition can occur)
+
+```
+Example: Payment Processing
+
+[Pending] --validate--> [Processing] --success--> [Completed]
+   |                        |                         |
+   |--reject--> [Rejected]  |--fail--> [Failed]       |
+   |                        |            |            |
+   └------------------------┴------------┴--retry--> [Pending]
+```
+
+**Why essential:** Someone can understand system behavior just by looking at the diagram.
+
+### Flow Diagrams (Data Flow, Control Flow)
+**Show:**
+- ✅ Data movement through system
+- ✅ Processing steps
+- ✅ Decision points
+- ✅ Error handling paths
+
+```
+Example: Order Processing Flow
+
+User Request → Validate → Check Inventory → Process Payment → Confirm
+                  |            |                  |
+                  v            v                  v
+              [Error]      [Error]           [Error] → Rollback
+```
+
+### Component/Module Diagrams
+**Show:**
+- ✅ Major components and their responsibilities
+- ✅ Interfaces between components
+- ✅ Dependency direction (arrows point from dependent to dependency)
+
+```
+Example:
+┌──────────┐         ┌────────────┐
+│ Frontend │────────>│  API       │
+└──────────┘         └────────────┘
+                           │
+                           v
+                     ┌────────────┐         ┌──────────┐
+                     │  Service   │────────>│ Database │
+                     └────────────┘         └──────────┘
+```
+
+### Sequence Diagrams (Interaction Flow)
+**Show:**
+- ✅ Component interactions over time
+- ✅ Message passing
+- ✅ Return values
+- ✅ Error scenarios
+
+```
+Example:
+Client          API           Service         Database
+  │──request──>│               │                 │
+  │            │───validate───>│                 │
+  │            │               │─────query──────>│
+  │            │               │<────result──────│
+  │            │<──response────│                 │
+  │<──result───│               │                 │
+```
+
+## Code Guidelines
+
+**Less code is better. Show contracts, not implementations.**
+
+### ✅ YES: Interface contracts
+```python
+class PaymentProcessor(ABC):
+    def process_payment(amount: Decimal, account: str) -> PaymentResult: ...
+    def refund(transaction_id: str) -> RefundResult: ...
+```
+
+```java
+public interface OrderService {
+    Order createOrder(List<Item> items);
+    void cancelOrder(String orderId);
+}
+```
+
+### ✅ YES: Simple data structures
+```python
+@dataclass
+class Order:
+    order_id: str
+    items: list[Item]
+    total: Decimal
+    status: OrderStatus
+```
+
+### ❌ NO: Complete implementations
+```python
+class OrderProcessor:
+    def __init__(self):
+        self._orders = {}  # Implementation details
+        self._logger = setup_logger()  # Implementation details
+        self._cache = LRUCache(1000)  # Implementation details
+```
+
+### ❌ NO: Error handling code
+```python
+try:
+    result = process_order(order)
+    logger.info(f"Order {order.id} processed")
+    return result
+except ValidationError as e:
+    logger.error(f"Validation failed: {e}")  # This is implementation
+    raise
+```
+
+**Rule of thumb:** If it has logging, error handling, state management, or business logic, it's too detailed.
+
+## Language: Present Tense, Design Perspective
+
+**Describe the design, not the journey to get there.**
+
+### ❌ Wrong: Implementation/Problem Language
+
+- "We need to decouple payment processing"
+- "This will make it easier to add new payment types"
+- "Currently orders are processed synchronously"
+- "Story 5 will implement authentication"
+- "Refactor from monolith to microservices"
+- "Create OrderProcessor class"
+- "The old code is slow and hard to test"
+
+### ✅ Right: Design Language
+
+- "System uses strategy pattern for payment methods"
+- "Strategy pattern enables adding payment providers without core changes"
+- "Event-driven architecture processes orders asynchronously"
+- "Authentication flow: OAuth2 → JWT token → Resource access"
+- "System architecture: API Gateway → Order Service → Inventory Service → Payment Service"
+- "Order processing via state machine: Pending → Validated → Paid → Shipped"
+- "Cache layer reduces database queries by 80%, mock services enable fast testing"
+
+**Think:** If someone built this system from scratch tomorrow, would this language still make sense? If no, rewrite it.
+
+## Quality Checklist
+
+**Before publishing, verify:**
+
+- [ ] **Timeless test:** Would this doc be valid if building system from scratch tomorrow?
+- [ ] **Visual diagrams:** State machines, flow diagrams, component diagrams present?
+- [ ] **Quality attributes explicit:** Performance, scalability, availability with measurable criteria?
+- [ ] **Design rationale clear:** WHY we chose this approach for each major decision?
+- [ ] **Trade-offs documented:** What we gained vs. what we sacrificed?
+- [ ] **Alternatives considered:** What else did we evaluate and why did we reject it?
+- [ ] **Error paths shown:** Not just happy path - recovery and failure scenarios included?
+- [ ] **No implementation code:** Only interface contracts, no error handling/logging/state management?
+- [ ] **No project references:** Zero story/sprint/migration language?
+- [ ] **Understandable:** Could new team member grasp system design in 20 minutes?
+
+**Critical Tests:**
+- **Timeless:** If you see "currently", "we need to", "Story 5 will", "refactor from X" → REWRITE
+- **Visual:** If key flow/structure is only in text, not diagrams → ADD DIAGRAM
+- **Rationale:** If decision lacks "why" or alternatives → NOT COMPLETE
+
+**If you fail the timeless test, it's not architecture - it's a project plan.**
+
+## Before/After Example
+
+### ❌ Bad (Problem/Solution Narrative)
+
+**What it looks like:**
+- Starts with "Problem: Monolithic Order Processing"
+- Describes current implementation ("2,500 lines, slow, can't scale")
+- Uses future tense ("We'll create OrderEventBus class...")
+- Includes 100+ lines of implementation code with error handling
+- References sprints/stories ("Sprint 3, Stories 12-15")
+
+**Why it's bad:** Problem framing, story/sprint references, too much implementation code, migration language.
+
+---
+
+### ✅ Good (Design Rationale)
+
+**What it includes:**
+
+**1. Quality Attributes (Measurable)**
+- Performance: Process 1000 orders/sec
+- Scalability: Horizontal scaling via message queue
+- Reliability: At-least-once delivery, idempotent operations
+
+**2. Visual Diagrams (State Machine)**
+
+```
+[New] --validate--> [Validated] --reserve--> [Reserved] --pay--> [Paid] --ship--> [Shipped]
+  |                    |                        |                   |
+  └--error--> [Failed] └--timeout--> [Expired]  └--cancel--> [Cancelled]
+```
+
+**3. Data Flow**
+
+```
+Order API → OrderService → Event Bus → [InventoryService, PaymentService, ShippingService]
+                                              ↓              ↓              ↓
+                                          Event Bus ← State Updates ← Each Service
+```
+
+**4. Decision with Rationale**
+
+- **Decision:** Event-driven architecture with message queue (RabbitMQ) for async processing
+- **Alternatives:** Synchronous API calls (not scalable, single point of failure), Database polling (high latency, resource intensive)
+- **Trade-offs:** Gained horizontal scalability, fault isolation, async processing; Cost is eventual consistency, increased complexity, message queue dependency
+
+**5. Key Interfaces (Contracts Only)**
+
+```python
+class OrderService:
+    def create_order(items: list[Item]) -> OrderId
+    def get_order_status(order_id: OrderId) -> OrderStatus
+
+class EventBus:
+    def publish(event: OrderEvent) -> None
+    def subscribe(event_type: str, handler: EventHandler) -> None
+```
+
+**Why it's good:** Clear design focus, explicit quality attributes, visual diagrams, minimal code, timeless.
+
+## Architecture Document Template
+
+**Full template available in:** `architecture-document-template.md`
+
+**Use the template as starting point. Include only sections that clarify key decisions.**
+
+### Quick Reference: What to Include
+
+**Must have:**
+1. Context & Scope (system boundary)
+2. Quality Attributes (measurable criteria)
+3. Visual diagrams (state machines, component diagrams, flows)
+4. Key design decisions with rationale
+
+**Optional (include if clarifies decisions):**
+5. Deployment view (physical topology)
+6. Cross-cutting concerns (error handling, security, logging)
+7. References (ADRs, related docs)
+
+**Key Principles:**
+- **Show the design** (diagrams, state machines, flows)
+- **Explain the why** (rationale, alternatives, trade-offs)
+- **Skip the how** (no implementation code)
+
+---
+
+## Best Practices Summary
+
+### The Power of Visual Diagrams
+
+**Visual diagrams are NOT optional - they are ESSENTIAL for good architecture documentation.**
+
+Why diagrams matter:
+- **Show, don't tell:** Visual representation beats text every time
+- **Self-documenting:** Diagram shows flow/structure at a glance
+- **Clear communication:** Boxes for components, arrows for flow - universal language
+- **Error paths visible:** Not just happy path, show recovery and failure scenarios
+- **Validation tool:** If you can't draw it, you don't understand it yet
+
+**Required diagrams:**
+1. **Context diagram:** System boundary and external dependencies
+2. **Component diagram:** Major components and their relationships
+3. **State machine:** For any stateful system (critical!)
+4. **Sequence/flow diagram:** Key interaction patterns
+5. **Deployment diagram:** Physical topology
+
+### Industry References
+
+This guide aligns with proven practices:
+- **ISO/IEC/IEEE 42010:** Standard for architecture description
+- **4+1 Architectural View Model** (Philippe Kruchten): Logical, Process, Physical, Development, Scenarios
+- **C4 Model** (Simon Brown): Context, Container, Component, Code
+- **Software Architecture in Practice** (Bass, Clements, Kazman): Quality attributes drive decisions
+- **Documenting Software Architectures** (Clements et al.): Views and Beyond
+
+### Remember
+
+**Architecture = Design decisions that are hard to change**
+
+Document the WHY behind these decisions so future engineers (including future you) understand the reasoning, constraints, and trade-offs that shaped the system.
+
+**Good architecture documentation:**
+- Teaches new team members the system design in 20 minutes
+- Survives implementation changes (timeless)
+- Makes decisions traceable (can answer "why did we do it this way?")
+- Enables informed evolution (understand trade-offs before changing)
