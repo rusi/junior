@@ -1,6 +1,6 @@
 # Story 14: Create /refactor Command
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** Medium
 > **Dependencies:** Story 13 (requires improvements/ structure)
 > **Deliverable:** Working `/refactor` command for intelligent code quality improvements with adaptive workflow
@@ -35,19 +35,19 @@
 
 ## Acceptance Criteria
 
-- [ ] Given user runs `/refactor`, when describing work, then clarification loop asks focused questions about intent, scope, and goals
-- [ ] Given user describes adding new capability, when `/refactor` detects it's a feature, then strongly recommends `/feature` with reasoning and allows veto override
-- [ ] Given user describes fixing broken behavior, when `/refactor` detects it's a bug, then strongly recommends `/bugfix` with reasoning and allows veto override
-- [ ] Given clarification is complete, when complexity assessment runs, then presents clear analysis (files, dependencies, risk) and recommendation (direct vs spec)
-- [ ] Given small scope refactoring, when user approves direct execution, then executes changes without creating `.junior/` files
-- [ ] Given medium/large scope refactoring, when user approves, then presents refactoring contract with improvement-specific sections
-- [ ] Given contract is approved, when generating spec, then creates `improvements/imp-N-name/` with adapted structure and refactoring-specific story format
-- [ ] Given improvement spec is generated, when reviewing stories, then final story captures future improvements and out-of-scope work
+- ✅ Given user runs `/refactor`, when describing work, then clarification loop asks focused questions about intent, scope, and goals
+- ✅ Given user describes adding new capability, when `/refactor` detects it's a feature, then strongly recommends `/feature` with reasoning and allows veto override
+- ✅ Given user describes fixing broken behavior, when `/refactor` detects it's a bug, then strongly recommends `/bugfix` with reasoning and allows veto override
+- ✅ Given clarification is complete, when complexity assessment runs, then presents clear analysis (files, dependencies, risk) and recommendation (direct vs spec)
+- ✅ Given small scope refactoring, when user approves direct execution, then executes changes without creating `.junior/` files
+- ✅ Given medium/large scope refactoring, when user approves, then presents refactoring contract with improvement-specific sections
+- ✅ Given contract is approved, when generating spec, then creates `improvements/imp-N-name/` with adapted structure and refactoring-specific story format
+- ✅ Given improvement spec is generated, when reviewing stories, then final story captures future improvements and out-of-scope work
 
 ## Implementation Tasks
 
-- [ ] 14.1 Research refactoring patterns by reading existing commands (`feature.md`, `implement.md`, `new-command.md`)
-- [ ] 14.2 Run `/new-command` with comprehensive prompt:
+- [x] 14.1 Research refactoring patterns by reading existing commands (`feature.md`, `implement.md`, `new-command.md`) ✅
+- [x] 14.2 Run `/new-command` with comprehensive prompt: ✅
 
 **Prompt for `/new-command`:**
 ```
@@ -123,34 +123,33 @@ Phase 3B - Contract & Generation (medium/large scope):
 Implements feat-1-story-14.
 ```
 
-- [ ] 14.3 User review: Run `/refactor` with multiple test scenarios:
+- [x] 14.3 User review: Run `/refactor` with multiple test scenarios:
   - Small scope: "refactor calculateTotal function to be more readable"
   - Large scope: "refactor database layer to use repository pattern"
   - Feature disguised: "refactor authentication to add OAuth support"
-  - Bug disguised: "refactor login - it's broken"
-- [ ] 14.4 Refine based on review feedback:
-  - Adjust complexity assessment thresholds if needed
-  - Improve guardian routing pattern detection
-  - Enhance refactoring contract clarity
-  - Polish story templates
-- [ ] 14.5 Verify complete command functionality:
+  - Bug disguised: "refactor login - it's broken" ✅
+- [x] 14.4 Refine based on review feedback:
+  - Simplified risk level examples (removed prescriptive "auth is high risk")
+  - Cleaned structure display
+  - Consolidated examples (940 → 709 lines, 24% reduction) ✅
+- [x] 14.5 Verify complete command functionality:
   - Clarification loop asks right questions
   - Guardian routing works correctly with veto override
   - Complexity assessment is accurate
   - Direct execution works for small scope
   - Spec generation works for large scope
-  - Story structure follows refactoring patterns
-- [ ] 14.6 Test edge cases:
+  - Story structure follows refactoring patterns ✅
+- [x] 14.6 Test edge cases:
   - Vague refactoring request (forces clarification)
   - User veto override (guardian challenged, user insists)
-  - Borderline complexity (could go either way)
-  - Very large refactoring (10+ files, high risk)
-- [ ] 14.7 Finalize documentation:
-  - Decision tree (refactor vs feature vs bug)
-  - Complexity assessment criteria
-  - When to execute directly vs create spec
-  - How to structure improvement stories
-  - Examples covering all major scenarios
+  - Borderline complexity (user can override recommendation)
+  - Very large refactoring (10+ files, high risk) ✅
+- [x] 14.7 Finalize documentation:
+  - Decision tree (refactor vs feature vs bug) - Step 2.2
+  - Complexity assessment criteria - Step 3
+  - When to execute directly vs create spec - Step 4A/4B
+  - How to structure improvement stories - Step 4B
+  - Examples covering all major scenarios - consolidated examples ✅
 
 ## Technical Notes
 
@@ -495,23 +494,23 @@ Document in contract: "⚠️ Note: User classified as refactor, may have featur
 
 ## Definition of Done
 
-- [ ] All tasks completed
-- [ ] All acceptance criteria met
-- [ ] `/refactor` command file created at `.cursor/commands/refactor.md`
-- [ ] Clarification loop asks focused questions about intent, scope, motivation
-- [ ] Guardian routing detects features/bugs and challenges appropriately
-- [ ] User veto override works ("I disagree, but proceeding...")
-- [ ] Complexity assessment analyzes files, dependencies, risk accurately
-- [ ] Small scope refactoring executes directly without `.junior/` tracking
-- [ ] Medium/Large scope refactoring generates complete improvement spec
-- [ ] Refactoring contract includes all improvement-specific sections
-- [ ] Story template includes Current State, Target State, Regression Prevention, Rollback Plan
-- [ ] Final story "Future Improvements" captures out-of-scope work
-- [ ] Command examples cover all major scenarios
-- [ ] Decision tree documented (refactor vs feature vs bug)
-- [ ] Date handling follows `02-current-date.md` rule
-- [ ] No regressions in `.junior/` structure
-- [ ] Code follows Junior's principles
-- [ ] **User can run `/refactor` and get intelligent routing, accurate assessment, and appropriate workflow (direct or spec-based)**
-- [ ] Tested with at least 5 different refactoring scenarios (small, large, feature-disguised, bug-disguised, vague)
+- ✅ All tasks completed
+- ✅ All acceptance criteria met
+- ✅ `/refactor` command file created at `.cursor/commands/refactor.md`
+- ✅ Clarification loop asks focused questions about intent, scope, motivation
+- ✅ Guardian routing detects features/bugs and challenges appropriately
+- ✅ User veto override works ("I disagree, but proceeding...")
+- ✅ Complexity assessment analyzes files, dependencies, risk accurately
+- ✅ Small scope refactoring executes directly without `.junior/` tracking
+- ✅ Medium/Large scope refactoring generates complete improvement spec
+- ✅ Refactoring contract includes all improvement-specific sections
+- ✅ Story template includes Current State, Target State, Regression Prevention, Rollback Plan
+- ✅ Final story "Future Improvements" captures out-of-scope work
+- ✅ Command examples cover all major scenarios
+- ✅ Decision tree documented (refactor vs feature vs bug)
+- ✅ Date handling follows `02-current-date.md` rule
+- ✅ No regressions in `.junior/` structure
+- ✅ Code follows Junior's principles
+- ✅ **User can run `/refactor` and get intelligent routing, accurate assessment, and appropriate workflow (direct or spec-based)**
+- ✅ Tested with at least 5 different refactoring scenarios (small, large, feature-disguised, bug-disguised, vague)
 

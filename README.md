@@ -209,12 +209,12 @@ The script will detect and preserve any user-modified files automatically.
 - `/debug` - Systematic debugging with evidence-based investigation (contract-style)
 - `/implement` - Execute feature stories with TDD workflow
 - `/commit` - Intelligent git commits with session-based staging
+- `/refactor` - Intelligent code quality improvements with adaptive workflow
 - `/new-command` - Create new Junior commands
 
 **Coming Soon:**
 - `/bugfix` - Create implementation stories from debug resolutions
 - `/research` - Technical investigation
-- `/refactor` - Code improvement
 - `/review` - Code review
 
 ### 🔄 Development Workflow

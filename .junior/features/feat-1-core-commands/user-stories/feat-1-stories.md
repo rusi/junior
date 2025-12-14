@@ -23,9 +23,9 @@
 | 11 | Implement /enhancement Command | Not Started | 6 | 0/6 |
 | 12 | Implement /update-feature Command | Not Started | 2 | 0/2 |
 | 13 | Refactor Command Foundation | Completed ✅ | 6 | 6/6 ✅ |
-| 14 | Create /refactor Command | Not Started | 7 | 0/7 |
+| 14 | Create /refactor Command | Completed ✅ | 7 | 7/7 ✅ |
 
-**Total:** 56/113 tasks (50%)
+**Total:** 63/113 tasks (56%)
 
 ## Story Dependencies
 
