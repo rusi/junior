@@ -11,6 +11,8 @@ $ErrorActionPreference = "Stop"
 # Configuration
 # ============================================================================
 
+$SCRIPT_VERSION = "2025-12-14 00:35:19 UTC"
+
 $GITHUB_REPO = "rusi/junior"
 $GITHUB_BRANCH = "main"
 $TARBALL_URL = "https://github.com/$GITHUB_REPO/archive/refs/heads/$GITHUB_BRANCH.tar.gz"
@@ -44,6 +46,24 @@ function Write-ErrorMsg {
 # ============================================================================
 # Core Functions
 # ============================================================================
+
+# Query GitHub API for latest commit info
+function Get-GitHubLatest {
+    $apiUrl = "https://api.github.com/repos/$GITHUB_REPO/commits/$GITHUB_BRANCH"
+
+    Write-Status "Fetching version info from GitHub..."
+
+    try {
+        $response = Invoke-RestMethod -Uri $apiUrl -UseBasicParsing -ErrorAction Stop
+        $script:LATEST_COMMIT = $response.sha
+        $script:LATEST_DATE = $response.commit.committer.date
+        return $true
+    }
+    catch {
+        # Silently fail - version tracking not critical for bootstrap
+        return $false
+    }
+}
 
 # Download tarball using Invoke-WebRequest
 function Get-Tarball {
@@ -116,6 +136,7 @@ function Invoke-Install {
 # Main bootstrap flow
 function Invoke-Bootstrap {
     Write-Status "Installing Junior..."
+    Write-Status "Bootstrap script version: $SCRIPT_VERSION"
 
     # Detect current directory as target
     $targetDir = Get-Location
@@ -126,7 +147,16 @@ function Invoke-Bootstrap {
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
     Write-Status "Using temp directory: $tempDir"
 
+    # Initialize version variables
+    $script:LATEST_COMMIT = "unknown"
+    $script:LATEST_DATE = "unknown"
+
     try {
+        # Query GitHub for latest commit info (best effort, continue on failure)
+        if (-not (Get-GitHubLatest)) {
+            # Silently fall back to unknown - version tracking not critical for bootstrap
+        }
+
         # Download tarball
         Write-Status "Downloading Junior..."
         $tarballFile = Join-Path $tempDir "junior.tar.gz"
@@ -147,6 +177,34 @@ function Invoke-Bootstrap {
             throw "Could not find extracted Junior directory"
         }
         Write-Status "Extracted to: $extractedDir"
+
+        # Write git hash file for version tracking (always create, even if API failed)
+        if ($script:LATEST_COMMIT -ne "unknown") {
+            # Calculate timestamp from date
+            try {
+                $commitDate = [DateTime]::Parse($script:LATEST_DATE)
+                $commitTimestamp = [int][double]::Parse(($commitDate.ToUniversalTime() - [DateTime]::new(1970, 1, 1, 0, 0, 0, [DateTimeKind]::Utc)).TotalSeconds)
+            }
+            catch {
+                $commitTimestamp = "unknown"
+            }
+
+            $commitShort = $script:LATEST_COMMIT.Substring(0, [Math]::Min(7, $script:LATEST_COMMIT.Length))
+            Write-Status "Version info embedded (commit: $commitShort)"
+        }
+        else {
+            # API failed - use unknown values but still create file to suppress warning
+            $commitTimestamp = "unknown"
+        }
+
+        # Always create .githash file (prevents "not a git repository" warning)
+        $githashContent = @"
+COMMIT_HASH=$($script:LATEST_COMMIT)
+COMMIT_DATE=$($script:LATEST_DATE)
+COMMIT_TIMESTAMP=$commitTimestamp
+"@
+        $githashPath = Join-Path $extractedDir ".githash"
+        Set-Content -Path $githashPath -Value $githashContent -NoNewline
 
         # Run install script
         Write-Status "Running install script..."
