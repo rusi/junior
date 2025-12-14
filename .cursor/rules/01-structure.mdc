@@ -23,6 +23,154 @@ Junior maintains persistent memory in `.junior/`:
 └── ideas/          # Product ideas (idea-N-name.md, quick capture)
 ```
 
+## 3-Stage Progressive Structure
+
+Junior uses a **progressive 3-stage structure** that adapts to project complexity. Projects start simple and evolve naturally as complexity emerges.
+
+**Philosophy:** Start simple. Add structure only when it brings value. Each stage is optional transition, not forced.
+
+### Stage 1: Simple Flat Structure (Default for New Projects)
+
+**When:** Small projects, <10 features, single logical component
+
+**Structure:**
+
+```
+.junior/features/
+├── feat-1-auth/
+├── feat-2-api/
+├── feat-3-dashboard/
+└── feat-4-reports/
+```
+
+**Characteristics:**
+- Zero overhead, no component ceremony
+- Implicit "one component" project
+- Best for: Small projects, prototypes, early development
+- All features at top level under `.junior/features/`
+
+**Detection:** No `comp-*/` directories exist under `.junior/features/`
+
+**Transition to Stage 2:** When semantic clustering detects 4-6+ features that naturally group into distinct components (e.g., backend features, frontend features, installation features). Use `/maintenance` to reorganize.
+
+---
+
+### Stage 2: Component Organization (Flat Within Component)
+
+**When:** Multiple logical components emerge, clear feature clustering
+
+**Structure:**
+
+```
+.junior/features/
+├── comp-1-backend/
+│   ├── comp-1-overview.md
+│   ├── feat-1-auth/
+│   ├── feat-2-api/
+│   └── imp-1-refactor/
+├── comp-2-frontend/
+│   ├── comp-2-overview.md
+│   ├── feat-3-dashboard/
+│   └── feat-4-reports/
+└── comp-3-installation/
+    ├── comp-3-overview.md
+    └── feat-5-installer/
+```
+
+**Characteristics:**
+- Components group related features
+- Flat within each component (no `features/` subdirectory)
+- Each component has `comp-N-overview.md` with purpose, scope, feature list
+- Best for: Growing projects with distinct logical areas
+
+**Detection:** `comp-*/` directories exist under `.junior/features/`, but components do NOT have `features/` subdirectory
+
+**Transition from Stage 1:** Run `/maintenance` when semantic clustering identifies natural groupings
+**Transition to Stage 3:** When component grows large (>13 items) OR needs `docs/` or `specs/` directories (type mixing)
+
+---
+
+### Stage 3: Grouped Structure (Type-Based Organization)
+
+**When:** Component has many items (>13) OR component needs `docs/`/`specs/` directories
+
+**Structure:**
+
+```
+.junior/features/
+└── comp-1-backend/
+    ├── comp-1-overview.md
+    ├── features/              # Grouped by type
+    │   ├── feat-1-auth/
+    │   └── feat-2-api/
+    ├── improvements/          # Grouped by type
+    │   └── imp-1-refactor/
+    ├── bugs/                  # Component-level bugs
+    │   └── bug-1-auth-issue/
+    ├── docs/                  # Component-level documentation
+    └── specs/                 # Component-level specs
+```
+
+**Characteristics:**
+- Items grouped by type within component (`features/`, `improvements/`, `docs/`, `specs/`)
+- Cleaner navigation for large components
+- Optional optimization (not required)
+- Best for: Complex components with many items
+
+**Detection:** Component has `features/` subdirectory
+
+**Transition from Stage 2:** Run `/maintenance` when component grows large OR when adding `docs/`/`specs/` would create type mixing
+
+---
+
+### Stage Detection
+
+Commands automatically detect which stage the project is in using filesystem checks:
+
+**Stage 1 Detection:**
+- No `comp-*/` directories under `.junior/features/`
+- Returns: `"stage1"`
+
+**Stage 2 Detection:**
+- `comp-*/` directories exist under `.junior/features/`
+- NO `features/` subdirectory within components
+- Returns: `"stage2"`
+
+**Stage 3 Detection:**
+- `comp-*/` directories exist under `.junior/features/`
+- Component(s) have `features/` subdirectory
+- Returns: `"stage3"`
+
+**Performance:** Detection completes in <100ms on typical projects (<10 components, <50 features)
+
+### Stage Detection Requirements
+
+**Commands must detect current stage and adapt behavior accordingly.**
+
+**Stage detection logic:**
+- Returns: `"stage1"` | `"stage2"` | `"stage3"`
+- Check for `comp-*/` directories under `.junior/features/`
+- If components exist, check for `features/` subdirectories (Stage 3 indicator)
+- Fast filesystem checks only, no content parsing
+
+**Future stage detection (proactive):**
+- Detect if action would trigger Stage 2→3 transition
+- Triggers: Adding `docs/` or `specs/` to Stage 2 component, OR component >13 items
+- Prompt user to run `/maintenance` first (cleaner to reorganize before adding)
+
+### Component Overview Structure
+
+**Stage 2+ components require `comp-N-overview.md` with:**
+- Purpose and scope (1-2 sentences)
+- Features table (ID, title, status, description)
+- Improvements table (ID, title, status, description)
+- Component dependencies (depends on, used by)
+- Technical notes (optional)
+
+**Commands must auto-update component overviews when features/improvements added or status changes.**
+
+Component overview template defined in `/maintenance` command. Other commands reference it.
+
 ### Feature Structure
 ```
 .junior/features/feat-{N}-{name}/
@@ -111,18 +259,22 @@ Junior maintains persistent memory in `.junior/`:
 - ❌ **NOT feature enhancements** (those nest in features as `enhancements/`)
 
 ### Numbering Convention
-- Features: `feat-1-name`, `feat-2-name` (simple sequential)
-- Debugging: `dbg-1-name`, `dbg-2-name` (simple sequential)
-- Experiments: `exp-1-name`, `exp-2-name` (simple sequential)
-- Improvements: `imp-1-name`, `imp-2-name` (simple sequential, top-level)
-- Bugs: `bug-1-name`, `bug-2-name` (sequential within each feature)
-- Enhancements: `enh-1-name`, `enh-2-name` (sequential within each feature)
-- Stories: `feat-1-story-1-name`, `feat-1-story-2-name` (simple sequential)
-- Debug steps: `dbg-1-step-1-name`, `dbg-1-step-2-name` (simple sequential)
-- Story tracking: `feat-1-stories.md`, `exp-1-stories.md`, `imp-1-stories.md` (NOT README.md)
-- Debug step tracking: `dbg-1-steps.md` (NOT README.md)
+- **Components:** `comp-1-name`, `comp-2-name` (simple sequential, Stage 2+)
+- **Component overviews:** `comp-1-overview.md`, `comp-2-overview.md` (NOT README.md)
+- **Features:** `feat-1-name`, `feat-2-name` (simple sequential)
+- **Debugging:** `dbg-1-name`, `dbg-2-name` (simple sequential)
+- **Experiments:** `exp-1-name`, `exp-2-name` (simple sequential)
+- **Improvements:** `imp-1-name`, `imp-2-name` (simple sequential, top-level)
+- **Bugs:** `bug-1-name`, `bug-2-name` (sequential within each feature)
+- **Enhancements:** `enh-1-name`, `enh-2-name` (sequential within each feature)
+- **Stories:** `feat-1-story-1-name`, `feat-1-story-2-name` (simple sequential)
+- **Debug steps:** `dbg-1-step-1-name`, `dbg-1-step-2-name` (simple sequential)
+- **Story tracking:** `feat-1-stories.md`, `exp-1-stories.md`, `imp-1-stories.md` (NOT README.md)
+- **Debug step tracking:** `dbg-1-steps.md` (NOT README.md)
 
-**CRITICAL:** All files MUST use consistent naming with feature/experiment/debug/improvement/bug/enhancement prefix:
+**CRITICAL:** All files MUST use consistent naming with feature/experiment/debug/improvement/bug/enhancement/component prefix:
+  - ✅ `comp-1-overview.md` (component overview, Stage 2+)
+  - ✅ `comp-2-overview.md` (component overview)
   - ✅ `feat-5-overview.md` (main spec)
   - ✅ `feat-5-stories.md` (story tracking)
   - ✅ `feat-5-story-3-api-integration.md` (individual story)
@@ -138,8 +290,8 @@ Junior maintains persistent memory in `.junior/`:
   - ✅ `bug-2-resolution.md` (bug fix approach)
   - ✅ `enh-1-overview.md` (enhancement spec, nested in feature)
   - ❌ `feature.md` or `experiment.md` or `debug.md` (generic, wrong!)
-  - ❌ `improvement.md` or `bug.md` or `enhancement.md` (generic, wrong!)
-  - ❌ `README.md` anywhere in features/experiments/debugging/improvements (use descriptive names!)
+  - ❌ `improvement.md` or `bug.md` or `enhancement.md` or `component.md` (generic, wrong!)
+  - ❌ `README.md` anywhere in features/experiments/debugging/improvements/components (use descriptive names!)
   - ❌ `2025-10-01-story-1-setup.md` (date-prefix, wrong!)
   - ❌ `story-1-setup.md` or `step-1-name.md` (no prefix, wrong!)
 
