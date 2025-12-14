@@ -128,10 +128,10 @@ Junior: [Loads story directly and starts context gathering]
 ```
 User: /implement
 Junior: 📋 Story Discovery
-        
+
         Based on current progress, next story appears to be:
         **Story:** Story 2: User Dashboard
-        
+
         Is this the story you want to implement? [yes/no/list]
 ```
 
@@ -139,10 +139,10 @@ Junior: 📋 Story Discovery
 ```
 User: /implement next story
 Junior: 📋 Next Story
-        
+
         Story 3: User Settings
         Status: Not Started
-        
+
         Start implementing this story? [yes/no]
 ```
 
@@ -586,6 +586,18 @@ What would you like to do next?
 - Task checkboxes in story file
 - Progress percentages in feat-N-stories.md
 - Story status when all tasks complete
+
+**Where to put implementation documents:**
+
+- ✅ **feat-N/docs/**: Validation reports, findings, analysis, implementation notes
+  - `validation-*.md` - Test findings, validation results
+  - `analysis-*.md` - Technical analysis documents
+  - `implementation-*.md` - Implementation lessons learned
+- ✅ **feat-N/user-stories/**: ONLY story specifications and progress tracking
+  - `feat-N-story-{M}-{name}.md` - Individual stories
+  - `feat-N-stories.md` - Progress tracking
+- ❌ **NEVER** put findings/analysis/validation reports in user-stories/
+- ❌ **NEVER** put story specifications in docs/
 
 **Reminder to user:**
 - Update specs if implementation differs from plan

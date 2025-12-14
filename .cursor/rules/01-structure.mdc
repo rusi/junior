@@ -27,18 +27,27 @@ Junior maintains persistent memory in `.junior/`:
 ```
 .junior/features/feat-{N}-{name}/
 ├── feat-{N}-overview.md             # Main feature specification (NOT feature.md or README.md)
-├── user-stories/                    # Implementation tasks
+├── user-stories/                    # Implementation tasks ONLY
 │   ├── feat-{N}-stories.md          # Progress tracking (NOT README.md)
 │   ├── feat-{N}-story-1-{name}.md   # Individual stories
 │   ├── feat-{N}-story-2-{name}.md
 │   └── feat-{N}-story-{M}-{name}.md
-├── specs/                           # Technical details (numbered, if needed)
+├── specs/                           # Technical specifications (numbered, if needed)
 │   ├── 01-Architecture.md
 │   ├── 02-API.md
 │   └── 03-Database.md
-└── docs/                            # Analysis, comparisons, technical notes (optional)
-    └── analysis-*.md
+└── docs/                            # Analysis, findings, validation results, technical notes
+    ├── validation-*.md              # Validation reports, test findings
+    ├── analysis-*.md                # Technical analysis documents
+    ├── comparison-*.md              # Comparison studies
+    └── implementation-*.md          # Implementation findings, lessons learned
 ```
+
+**CRITICAL: user-stories/ vs docs/ separation:**
+- ✅ **user-stories/**: ONLY story specifications and progress tracking
+- ✅ **docs/**: Findings, validation reports, analysis, lessons learned, implementation notes
+- ❌ **NEVER** put validation findings, analysis, or reports in user-stories/
+- ❌ **NEVER** put story specifications in docs/
 
 ### Debugging Structure
 ```
