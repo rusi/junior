@@ -140,7 +140,9 @@ Status: Ready for migration
 
 **Error handling:** If no `.code-captain/` found, show error message suggesting `/init` for new projects.
 
-### Step 3: Validate Structure
+### Step 3: Validate Structure & Analyze Target Stage
+
+**Part A: Structure Validation**
 
 **Validation tasks:**
 
@@ -174,14 +176,165 @@ Total: N stories across N features
 Ready to proceed with migration.
 ```
 
+---
+
+**Part B: Complexity Analysis & Target Stage Determination**
+
+**Analyze Code Captain specs to determine appropriate Junior stage:**
+
+**Step 1: Count features**
+
+```bash
+# Count specs in Code Captain
+find .code-captain/specs -maxdepth 1 -type d ! -name specs 2>/dev/null | wc -l
+```
+
+**Step 2: Determine analysis approach**
+
+- **If <6 features:** Skip clustering analysis → **Target: Stage 1 (flat)**
+  - Simple projects benefit from flat structure
+  - Zero overhead, maintains simplicity
+
+- **If 6+ features:** Proceed to semantic clustering analysis
+
+**Step 3: Semantic Clustering Analysis (for 6+ features only)**
+
+1. **Extract feature information:**
+   - Read each spec's `spec.md` or main file
+   - Extract feature name and brief description/purpose
+   - Build list of features with metadata
+
+2. **Keyword-based clustering:**
+   - Extract keywords from feature names (remove stopwords: "feature", "system", "module", "spec")
+   - Find features with shared keywords (2+ shared keywords = potential cluster)
+   - Group features into potential components
+   - Validate clusters: minimum 3 features per component
+
+3. **Clustering threshold:**
+   - **Recommend Stage 2 if:** 3-4+ features cluster into distinct groups
+   - **Recommend Stage 1 if:** No clear clustering (artificial grouping avoided)
+
+**Step 4: Present analysis results**
+
+**Example A: Small project (<6 features) → Stage 1**
+
+```
+📊 Complexity Analysis
+
+Features: 4 features
+Target Stage: Stage 1 (flat structure)
+
+Reasoning:
+• Small project with <6 features
+• Flat structure maintains simplicity
+• Component organization unnecessary
+
+Migration will create:
+.junior/features/
+├── feat-1-[name]/
+├── feat-2-[name]/
+├── feat-3-[name]/
+└── feat-4-[name]/
+```
+
+**Example B: Large project with clustering → Stage 2**
+
+```
+📊 Complexity Analysis
+
+Features: 8 features
+Target Stage: Stage 2 (component organization)
+
+Semantic Clustering Detected:
+• comp-1-authentication: 3 features
+  - spec-1-user-auth (keywords: auth, user, login)
+  - spec-2-session-mgmt (keywords: auth, session, user)
+  - spec-3-password-reset (keywords: auth, password, user)
+
+• comp-2-analytics: 3 features
+  - spec-4-dashboard (keywords: analytics, dashboard, metrics)
+  - spec-5-reports (keywords: analytics, reports, data)
+  - spec-6-tracking (keywords: analytics, tracking, metrics)
+
+• comp-3-admin: 2 features
+  - spec-7-admin-panel (keywords: admin, config, panel)
+  - spec-8-settings (keywords: admin, config, settings)
+
+Reasoning:
+• Clear natural groupings identified
+• 3 components with distinct purposes
+• Improves organization from day one
+
+Migration will create:
+.junior/features/
+├── comp-1-authentication/
+│   ├── comp-1-overview.md
+│   ├── feat-1-user-auth/
+│   ├── feat-2-session-mgmt/
+│   └── feat-3-password-reset/
+├── comp-2-analytics/
+│   ├── comp-2-overview.md
+│   ├── feat-4-dashboard/
+│   ├── feat-5-reports/
+│   └── feat-6-tracking/
+└── comp-3-admin/
+    ├── comp-3-overview.md
+    ├── feat-7-admin-panel/
+    └── feat-8-settings/
+```
+
+**Example C: Large project without clustering → Stage 1**
+
+```
+📊 Complexity Analysis
+
+Features: 8 features
+Target Stage: Stage 1 (flat structure)
+
+Reasoning:
+• No clear semantic clustering detected
+• Features are diverse with minimal shared keywords
+• Component organization would be artificial
+• Flat structure maintains clarity
+
+Migration will create:
+.junior/features/
+├── feat-1-[name]/
+├── feat-2-[name]/
+├── feat-3-[name]/
+...
+└── feat-8-[name]/
+
+Note: Can reorganize later with /maintenance if patterns emerge.
+```
+
 ### Step 4: Create Migration Plan & Get Approval
 
 **⚠️ THIS IS THE ONLY STEP THAT REQUIRES USER APPROVAL - STOP HERE**
 
-**Generate migration plan showing:**
+**Generate migration plan based on target stage determined in Step 3:**
+
+---
+
+**Migration Plan A: Code Captain → Junior Stage 1 (Flat Structure)**
+
+Use this plan when:
+- Project has <6 features
+- OR 6+ features but no clear clustering detected
 
 ```
-📋 Migration Plan
+📋 Migration Plan - Code Captain → Junior Stage 1
+
+TARGET: Junior Stage 1 (flat features)
+FEATURES: N features
+
+STRUCTURE:
+.junior/features/
+├── feat-1-[name]/
+├── feat-2-[name]/
+├── feat-3-[name]/
+...
+└── feat-N-[name]/
 
 FEATURE RENAMES:
 • List all features with before → after names
@@ -212,7 +365,8 @@ REFERENCE UPDATES:
 
 GIT OPERATIONS:
 • Use git mv for all renames (preserves history)
-• Commit renames first, then content changes
+• Commit renames first (Step 9), then content changes (Step 12)
+• Two separate commits for clear history
 • User reviews before committing
 
 ESTIMATED TIME: ~30-60 seconds
@@ -223,20 +377,112 @@ ESTIMATED CHANGES: ~X files renamed, ~Y reference updates
 Proceed with migration? [Type 'yes' to proceed, 'cancel' to abort]
 ```
 
+---
+
+**Migration Plan B: Code Captain → Junior Stage 2 (Component Organization)**
+
+Use this plan when:
+- Project has 6+ features
+- AND clear clustering detected (3-4+ features per group)
+
+```
+📋 Migration Plan - Code Captain → Junior Stage 2
+
+TARGET: Junior Stage 2 (component organization)
+FEATURES: N features organized into M components
+
+STRUCTURE:
+.junior/features/
+├── comp-1-[name]/
+│   ├── comp-1-overview.md
+│   ├── feat-1-[name]/
+│   ├── feat-2-[name]/
+│   └── feat-3-[name]/
+├── comp-2-[name]/
+│   ├── comp-2-overview.md
+│   ├── feat-4-[name]/
+│   └── feat-5-[name]/
+└── comp-3-[name]/
+    ├── comp-3-overview.md
+    ├── feat-6-[name]/
+    └── feat-7-[name]/
+
+COMPONENT GROUPING (Semantic Clustering):
+• comp-1-[name]: K features
+  - spec-1-[name] (keywords: ...)
+  - spec-2-[name] (keywords: ...)
+  - spec-3-[name] (keywords: ...)
+
+• comp-2-[name]: L features
+  - spec-4-[name] (keywords: ...)
+  - spec-5-[name] (keywords: ...)
+
+• comp-3-[name]: O features
+  - spec-6-[name] (keywords: ...)
+  - spec-7-[name] (keywords: ...)
+
+You can adjust component grouping before proceeding.
+Type 'adjust: [description]' to modify grouping.
+
+EXPERIMENTS:
+• List experiments (usually unchanged if already exp-N-name)
+
+BUGS (Nested Under Features):
+• List bugs with proposed feature mapping
+• Prompt user to confirm or adjust feature assignment
+• Example: bug-1-login-issue → feat-3-auth/bugs/bug-1-login-issue
+
+ENHANCEMENTS (Nested Under Features):
+• List enhancements with proposed feature mapping
+• Prompt user to confirm or adjust feature assignment
+• Example: enh-1-ui-polish → feat-5-dashboard/enhancements/enh-1-ui-polish
+
+PRODUCT & DOCUMENTATION:
+• product/decisions.md → decisions/product-decisions.md
+• Other product/*.md → docs/
+• docs/ and research/ merged intelligently
+
+REFERENCE UPDATES:
+• Update markdown links (spec-N → feat-N, date-prefixes → feat-N)
+• Update .code-captain/ → .junior/ references
+• Update file references (spec.md → feat-N-overview.md, etc.)
+• Update paths for component organization (feat-N → comp-M/feat-N)
+
+GIT OPERATIONS:
+• Phase 1 commit: File moves (git mv preserves history)
+• Phase 2 commit: Component overviews + reference updates
+• Two separate commits for clear history
+
+ESTIMATED TIME: ~45-90 seconds
+ESTIMATED CHANGES: ~X files renamed, ~Y reference updates, M component overviews created
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Proceed with migration? [Type 'yes' to proceed, 'adjust: [changes]' to modify, 'cancel' to abort]
+```
+
+---
+
 **Wait for user approval before proceeding to Step 5.**
 
-### Step 5: Rename Directories Using Git
+### Step 5: Execute Migration (File Moves)
 
 **CRITICAL: Use git mv for all operations to preserve history**
 
-**Migration tasks based on mode:**
+**Branch based on target stage (determined in Step 3):**
+
+---
+
+**Path A: Migrate to Stage 1 (Flat Structure)**
+
+Use when target is Stage 1 (flat features, no components).
 
 **Convert mode** (no Junior exists):
-1. If `.code-captain/` exists as root, create `.junior/features/` directory
+1. Create `.junior/features/` directory
 2. For each spec in `.code-captain/specs/`:
    - If `spec-N-name` pattern → rename to `feat-N-name`
    - If `YYYY-MM-DD-name` pattern → rename to `feat-N-name` (sequential: 1, 2, 3...)
-   - Use `git mv` to move to `.junior/features/feat-N-name`
+   - Use `git mv` to move to `.junior/features/feat-N-name` (flat, no components)
 3. Handle experiments (usually already `exp-N-name`, just move to `.junior/experiments/`)
 4. Handle bugs (nest under features, see below)
 5. Handle enhancements (nest under features, see below)
@@ -249,6 +495,88 @@ Proceed with migration? [Type 'yes' to proceed, 'cancel' to abort]
 4. Handle bugs (nest under features, see below)
 5. Handle enhancements (nest under features, see below)
 6. Merge documentation intelligently (see below)
+
+**Show progress:** "✅ Phase 1 complete: [N] features migrated to Stage 1 (flat)"
+
+---
+
+**Path B: Migrate to Stage 2 (Component Organization) - Phase 1**
+
+Use when target is Stage 2 (component-based organization).
+
+**Phase 1: Create components and move features with git mv**
+
+```bash
+# Create .junior/features/ directory
+mkdir -p .junior/features
+
+# Create component directories based on clustering from Step 3
+mkdir -p .junior/features/comp-1-[component-name]
+mkdir -p .junior/features/comp-2-[component-name]
+mkdir -p .junior/features/comp-3-[component-name]
+
+# Move Code Captain specs to Junior features, organized by component
+# Component 1
+git mv .code-captain/specs/spec-1-[name] .junior/features/comp-1-[name]/feat-1-[name]
+git mv .code-captain/specs/spec-2-[name] .junior/features/comp-1-[name]/feat-2-[name]
+git mv .code-captain/specs/spec-3-[name] .junior/features/comp-1-[name]/feat-3-[name]
+
+# Component 2
+git mv .code-captain/specs/spec-4-[name] .junior/features/comp-2-[name]/feat-4-[name]
+git mv .code-captain/specs/spec-5-[name] .junior/features/comp-2-[name]/feat-5-[name]
+
+# Component 3
+git mv .code-captain/specs/spec-6-[name] .junior/features/comp-3-[name]/feat-6-[name]
+git mv .code-captain/specs/spec-7-[name] .junior/features/comp-3-[name]/feat-7-[name]
+
+# ... continue for all features based on clustering proposal
+```
+
+**Handle experiments, bugs, enhancements (same as Stage 1):**
+- Move experiments to `.junior/experiments/`
+- Nest bugs under their parent features
+- Nest enhancements under their parent features
+- Merge documentation intelligently
+
+**Verification after Phase 1:**
+
+```bash
+# Verify all features moved
+find .code-captain/specs -maxdepth 1 -type d ! -name specs 2>/dev/null | wc -l  # Should be 0
+
+# Verify features in components
+find .junior/features/comp-* -maxdepth 1 -type d -name "feat-*" | wc -l  # Should match total features
+
+# Check git status
+git status
+```
+
+**Commit Phase 1:**
+
+```bash
+# Add moved directories explicitly (git mv already staged moves)
+# Verify what's staged
+git status
+
+git commit -m "$(cat <<'EOF'
+Migrate Code Captain to Junior Stage 2: organize features into components (file moves)
+
+- Created [M] components based on semantic clustering
+- Moved [N] features into component structure
+- Components: [comp-1-name], [comp-2-name], [comp-3-name]
+- Used git mv to preserve file history
+
+Phase 1 of 2: File moves only (no content changes)
+Next: Create component overviews and update references
+EOF
+)"
+```
+
+**Show progress:** "✅ Phase 1 complete: [N] features organized into [M] components"
+
+**Note:** Continue to Steps 6-7 for file naming, then Step 10 will create component overviews (Phase 2).
+
+---
 
 **Bugs/Enhancements nesting** (both modes):
 
@@ -441,7 +769,15 @@ This preserves git history better - git tracks file moves separately from conten
    Next: Update cross-references in content.
    ```
 
-### Step 10: Update Cross-References
+### Step 10: Update Cross-References & Create Component Overviews
+
+**Branch based on target stage:**
+
+---
+
+**Path A: Stage 1 Cross-Reference Updates Only**
+
+Use when target is Stage 1 (flat structure, no components).
 
 **Update all markdown references** using find/grep/sed:
 
@@ -475,6 +811,92 @@ This preserves git history better - git tracks file moves separately from conten
    - NEVER do blanket sed on entire project - it will corrupt command file references!
 
 Show progress: "Updated N references in M files"
+
+---
+
+**Path B: Stage 2 Phase 2 - Component Overviews & References**
+
+Use when target is Stage 2 (component organization).
+
+**10.1: Create component overview files**
+
+For each component created in Step 5 Phase 1, create `comp-N-overview.md`:
+
+Use template from `/maintenance` command (see 01-structure.mdc for reference):
+
+```markdown
+# [Component Name]
+
+> Created: [current date from date command]
+> Status: Active
+
+## Purpose
+
+[1-2 sentences describing component purpose - inferred from feature names/descriptions]
+
+## Scope
+
+[What this component covers, boundaries with other components]
+
+## Features
+
+| ID | Title | Status | Description |
+|----|-------|--------|-------------|
+| feat-1 | [Feature Name] | [Status from feat-1-overview.md] | [Brief description] |
+| feat-2 | [Feature Name] | [Status] | [Brief description] |
+
+## Improvements
+
+| ID | Title | Status | Description |
+|----|-------|--------|-------------|
+| imp-1 | [Improvement Name] | [Status] | [Brief description] |
+
+## Dependencies
+
+**Depends on:**
+- [Other components this depends on, if any]
+
+**Used by:**
+- [Components that depend on this one, if any]
+
+## Technical Notes
+
+[Any component-level technical considerations]
+```
+
+**10.2: Update cross-references (Stage 2-specific)**
+
+Update all markdown references + component-specific paths:
+
+1. **Standard reference updates (same as Stage 1):**
+   - `spec-N` → `feat-N` (in links, mentions, etc.)
+   - `YYYY-MM-DD-name` → `feat-N-name` (if any date references remain)
+   - `.code-captain/` → `.junior/`
+   - `spec.md` → `feat-N-overview.md` (in .junior/ paths only!)
+   - Story file references: `spec-N-story` → `feat-N-story`, date-story → `feat-N-story`
+   - Story tracking references: `README.md` → `feat-N-stories.md`, etc.
+
+2. **Component-specific path updates:**
+   - Update cross-references: `feat-N` → `comp-M/feat-N` for features now in components
+   - Update: `.junior/features/feat-1-name` → `.junior/features/comp-1-name/feat-1-name`
+   - Process systematically for each component and its features
+
+**10.3: Verification after Phase 2**
+
+```bash
+# Search for old path references (should find none)
+grep -r ".junior/features/feat-" .junior --include="*.md" | grep -v "comp-"
+
+# Verify component overviews exist
+find .junior/features -name "comp-*-overview.md"
+
+# Check structure
+tree .junior/features -L 2
+```
+
+Show progress: "✅ Phase 2 complete: Created [M] component overviews, updated [N] cross-references"
+
+---
 
 ### Step 11: Verify All References Are Updated
 
@@ -553,20 +975,70 @@ Example failure:
 ❌ Cannot commit - fix these references first!
 ```
 
-### Step 12: Commit Reference Updates
+### Step 12: Commit Content Updates
 
-Stage and commit content changes:
+**CRITICAL: Add files explicitly, never use `git add -A`**
+
+**Branch based on target stage:**
+
+---
+
+**For Stage 1 Migration:**
+
+Stage and commit content/reference updates:
+
+```bash
+# Add modified files explicitly (reference updates in .junior/)
+git add .junior/
+git add README.md  # if project README was updated
+
+git commit -m "$(cat <<'EOF'
+Migrate Code Captain to Junior Stage 1: update cross-references
+
+- Updated all spec-N → feat-N references
+- Updated all date-prefix → feat-N-name references
+- Updated file references (spec.md → feat-N-overview.md, etc.)
+- Updated directory references (.code-captain/ → .junior/)
+- Updated story file references (spec-N-story → feat-N-story, etc.)
+
+Phase 2 of 2: Content updates and reference corrections
+
+All internal links now point to Junior Stage 1 structure.
+EOF
+)"
 ```
-Migrate Code Captain to Junior: update cross-references
 
-- Update all spec-N → feat-N references
-- Update all date-prefix → feat-N-name references
-- Update file references (spec.md → feat-N-overview.md, etc.)
-- Update directory references (.code-captain/ → .junior/)
-- Update story file references (spec-N-story → feat-N-story, etc.)
+---
 
-All internal links now point to new Junior structure.
+**For Stage 2 Migration (Phase 2 commit):**
+
+Stage and commit Phase 2 changes:
+
+```bash
+# Add component overviews explicitly
+git add .junior/features/comp-*/comp-*-overview.md
+
+# Add modified files (reference updates)
+git add .junior/
+git add README.md  # if project README was updated
+
+git commit -m "$(cat <<'EOF'
+Migrate Code Captain to Junior Stage 2: add component overviews and update references
+
+- Created comp-N-overview.md for [M] components
+- Updated all cross-references (feat-N → comp-M/feat-N)
+- Updated all spec-N → feat-N references
+- Updated file references (spec.md → feat-N-overview.md, etc.)
+- Verified no broken references remain
+
+Phase 2 of 2: Content updates and reference corrections
+
+Migration to Stage 2 complete!
+EOF
+)"
 ```
+
+---
 
 ### Step 13: Clean Up Outdated Docs
 
@@ -582,18 +1054,65 @@ If `.junior/docs/migration-guide.md` exists (Code Captain's spec→feat migratio
 
 **CRITICAL: DO NOT generate migration-guide.md, migration reports, or ANY documentation files!**
 
-Show concise terminal summary:
-```
-✅ Migration complete! (N commits)
+Show concise terminal summary based on target stage:
 
-✅ N features migrated
+---
+
+**For Stage 1 Migration:**
+
+```
+✅ Migration to Junior Stage 1 complete! (2 commits)
+
+✅ N features migrated to flat structure
 ✅ N experiments migrated
-✅ File renames completed
-✅ All references updated
+✅ File renames completed (commit 1)
+✅ All references updated (commit 2)
 ✅ All changes committed
+
+Structure:
+.junior/features/
+├── feat-1-[name]/
+├── feat-2-[name]/
+...
+└── feat-N-[name]/
+
+Done! Can reorganize later with /maintenance if patterns emerge.
+```
+
+---
+
+**For Stage 2 Migration:**
+
+```
+✅ Migration to Junior Stage 2 complete! (2 commits)
+
+✅ N features organized into M components
+✅ Component overviews created
+✅ All cross-references updated
+✅ Git history preserved
+
+Components:
+- comp-1-[name]: K features
+- comp-2-[name]: L features
+- comp-3-[name]: O features
+
+Structure:
+.junior/features/
+├── comp-1-[name]/
+│   ├── comp-1-overview.md
+│   ├── feat-1-[name]/
+│   └── feat-2-[name]/
+├── comp-2-[name]/
+│   ├── comp-2-overview.md
+│   └── feat-3-[name]/
+└── comp-3-[name]/
+    ├── comp-3-overview.md
+    └── feat-4-[name]/
 
 Done!
 ```
+
+---
 
 ### Step 15: Verification
 
