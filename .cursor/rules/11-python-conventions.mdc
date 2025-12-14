@@ -271,6 +271,53 @@ pytest tests/ --benchmark-save=baseline
 ✅ Known bottlenecks
 ✅ APIs with latency SLAs
 
+## CLI Applications
+
+### Use Modern Frameworks
+
+**CLI Parsing:**
+- ✅ Use `typer` for type-safe CLI applications
+- ❌ Avoid raw `argparse` (verbose, error-prone)
+
+**Console Output:**
+- ✅ Use `rich` for beautiful console output
+- ❌ Avoid manual string formatting and `print()`
+
+**Logging:**
+- ✅ Use `structlog` with concise timestamp format
+- ❌ Avoid verbose ISO timestamps in console
+
+**Example:**
+```python
+import typer
+from rich.console import Console
+from rich.progress import track
+
+app = typer.Typer()
+console = Console()
+
+@app.command()
+def main(debug: bool = False):
+    """CLI application."""
+    for item in track(items, description="Processing"):
+        process(item)
+
+if __name__ == "__main__":
+    app()
+```
+
+### Module Structure
+
+**Extract Utilities:**
+- `cli/logging.py` - Logging configuration
+- `cli/ui.py` - Console UI helpers (progress bars, formatters)
+- `cli/args.py` - Argument parsing (if complex)
+
+**Main Application:**
+- Keep focused on orchestration
+- Delegate to utilities
+- Target 30-50 lines for simple operations
+
 ## Summary Checklist
 
 - [ ] Use `from __future__ import annotations`
@@ -281,4 +328,7 @@ pytest tests/ --benchmark-save=baseline
 - [ ] No build system for standalone apps
 - [ ] Type hint fixtures and functions
 - [ ] Use pytest-benchmark for performance tests (not manual timing)
+- [ ] Use typer for CLI applications (not argparse)
+- [ ] Use rich for console output (not print)
+- [ ] Extract utilities (logging, UI, args)
 

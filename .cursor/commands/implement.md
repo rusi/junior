@@ -614,6 +614,53 @@ What would you like to do next?
 
 **Test:** Would this be clear in 2 years with no story/task context? If no, remove references.
 
+### ⚠️ CRITICAL: Follow Implementation Principles
+
+**ALWAYS apply principles from `13-software-implementation-principles.mdc`:**
+
+1. **Modularity & Encapsulation**
+   - Extract utilities (logging, CLI UI, formatting)
+   - Use established frameworks (typer, rich, click, etc.)
+   - Main application = orchestration only, not implementation
+
+2. **Conciseness**
+   - **Target: 10-50 lines for simple operations (scan, connect, read)**
+   - If main application > 100 lines, extract utilities
+   - Don't inline configuration, progress bars, or boilerplate
+
+3. **Single Responsibility**
+   - One concern per module/class/function
+   - No mixed responsibilities (e.g., validate AND save)
+
+4. **Use Modern Tools**
+   - See language-specific rules (e.g., `11-python-conventions.mdc`)
+   - Python: typer + rich, not argparse + print
+   - Don't reinvent solved problems
+
+5. **Clean Console Output**
+   - Concise timestamps (HH:MM:SS)
+   - Progress bars with elapsed/remaining time
+   - Visual indicators (✓, ✗, ℹ)
+
+6. **No Purposeless Output**
+   - **ZERO TOLERANCE for unnecessary documents**
+   - Don't create validation checklists, summaries, recaps
+   - Only create files explicitly required in story
+
+**Red flags during implementation:**
+- ❌ Main file approaching 200 lines
+- ❌ Inline logging configuration
+- ❌ Manual progress text (not visual progress bar)
+- ❌ argparse with 50 lines of setup
+- ❌ Repeated patterns not extracted
+- ❌ "Story X" or "Task Y" references in code
+
+**Action when red flags appear:**
+1. STOP implementation
+2. Extract utilities/frameworks
+3. Refactor to follow principles
+4. Continue with clean code
+
 **Reminder to user:**
 - Update specs if implementation differs from plan
 - Update related documentation

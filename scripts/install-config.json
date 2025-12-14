@@ -30,6 +30,10 @@
       "destination": ".cursor/rules/12-software-architecture-document-guide.mdc"
     },
     {
+      "source": ".cursor/rules/13-software-implementation-principles.mdc",
+      "destination": ".cursor/rules/13-software-implementation-principles.mdc"
+    },
+    {
       "source": ".cursor/rules/architecture-document-template.md",
       "destination": ".cursor/rules/architecture-document-template.md"
     },

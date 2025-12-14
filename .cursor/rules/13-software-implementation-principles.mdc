@@ -1,0 +1,230 @@
+---
+alwaysApply: true
+---
+
+# Software Implementation Principles
+
+## Context
+
+These principles apply to **all software implementation** across any language, framework, or domain.
+
+## Core Principles
+
+### 1. Modularity & Encapsulation
+
+**Principle:** Every piece of functionality should be in the right place, with clear boundaries.
+
+**Guidelines:**
+- **Configuration** → Extract to modules (logging, settings, etc.)
+- **UI/Display** → Separate module (progress bars, headers, formatters)
+- **Argument parsing** → Use established frameworks, not raw implementations
+- **Output** → Use formatting libraries, not manual string building
+- **Main application** → Orchestration only, delegate to modules
+
+**Anti-pattern:** Inline everything in main
+- Configuration setup
+- Display formatting
+- Progress indicators
+- Error handling boilerplate
+
+**Pattern:** Extract and delegate
+- Configuration → Utility modules
+- Display → UI modules
+- Main → Orchestration only
+
+### 2. Conciseness Without Sacrificing Clarity
+
+**Principle:** Code should be as short as possible while remaining clear.
+
+**Target:** Simple operations (scan, connect, read) should be **10-50 lines**, not 200.
+
+**Guidelines:**
+- **Extract repetition** → Functions, classes, utilities
+- **Use frameworks** → Don't reinvent solved problems
+- **Delegate complexity** → Helper modules handle boilerplate
+- **Focus on intent** → Main code shows WHAT, helpers show HOW
+
+**Anti-pattern Indicators:**
+- Main application > 100 lines for simple operations
+- Configuration/setup code dominates actual logic
+- Multiple levels of nested conditionals
+- Repeated patterns not extracted
+
+**Improvement Strategy:**
+1. Identify boilerplate (logging, parsing, formatting)
+2. Extract to utilities
+3. Use established frameworks
+4. Keep main focused on business logic
+
+### 3. Single Responsibility
+
+**Principle:** Each module, class, function does ONE thing well.
+
+**Guidelines:**
+- **Single concern per class** → One detection method, not multiple fallbacks
+- **Main application** → Orchestration, not implementation
+- **Utility modules** → Focused functionality (logging, CLI UI, formatting)
+
+**Anti-pattern (mixed concerns):**
+- Class that checks both primary identifier AND fallback identifier
+- Function that validates, transforms, AND saves data
+- Module that handles both business logic AND UI rendering
+
+**Pattern (single concern):**
+- Class checks one identifier type
+- Separate utility for alternative detection
+- Each function/class has one clear purpose
+
+### 4. Progressive Enhancement
+
+**Principle:** Start simple, add complexity only when needed.
+
+**Guidelines:**
+- **First implementation** → Minimal, working
+- **Future enhancements** → Add features incrementally
+- **Don't over-engineer** → YAGNI (You Aren't Gonna Need It)
+
+### 5. DRY (Don't Repeat Yourself) - Strictly Enforced
+
+**Principle:** NEVER duplicate code, configuration, or logic.
+
+**Examples:**
+- ❌ Logging configuration duplicated in multiple places
+- ❌ Progress bar logic copy-pasted
+- ❌ Error handling patterns repeated
+- ❌ Code examples duplicated in documentation
+
+**Solutions:**
+- ✅ Extract to utility functions/classes
+- ✅ Reference don't duplicate (documentation)
+- ✅ Configuration files for repeated values
+
+### 6. Use Modern, Robust Tools
+
+**Principle:** Don't reinvent solved problems.
+
+**General guidelines:**
+- **Use established frameworks** → Don't build from scratch
+- **Use modern libraries** → Leverage community solutions
+- **Use standard tools** → Follow language conventions
+
+**See language-specific rules for concrete recommendations** (e.g., `11-python-conventions.mdc`)
+
+### 7. Clean Console Output
+
+**Principle:** Console output should be readable, not cluttered.
+
+**Guidelines:**
+- **Timestamps:** Local time only, concise format (HH:MM:SS.mmm)
+- **Log levels:** Visual indicators (emoji, color), not verbose text
+- **Progress:** Visual progress bars showing time elapsed/remaining
+- **Headers:** Clear section separation
+- **Errors:** Highly visible (color, symbols)
+- **Details:** Only show essential information, hide verbose data
+
+**Anti-patterns:**
+- Full ISO timestamps with timezone
+- Verbose parameter dumps in every log line
+- Text-only progress updates
+- Cluttered output with debug info in production
+
+**Good patterns:**
+- Concise timestamps: `14:43:51`
+- Visual progress: `[████░░░░] 60% (145s / 420s)`
+- Clean success/error indicators: `✓ Connected` or `✗ Failed`
+- Essential info only: Device name, not full UUID dumps
+
+### 8. Documentation Principles
+
+**Documentation should be:**
+- **Concise** → Short READMEs, detailed docs separate
+- **Timeless** → No references to stories, tasks, implementation order
+- **DRY** → Reference external docs, don't duplicate
+- **Focused** → README = quick start, API docs = separate file
+
+**README structure:**
+1. What it does (2-3 sentences)
+2. Quick start (1-2 examples)
+3. Installation
+4. Links to detailed docs
+
+**Bad:**
+```markdown
+## Current Status: Story 1 - Foundation
+
+This library is currently part of the clearsky-sense project.
+
+## API Reference
+(40 lines of API documentation in README)
+
+## Architecture
+(50 lines of architecture in README)
+```
+
+**Good:**
+```markdown
+## What It Does
+
+Brief description (2-3 sentences max).
+
+## Quick Start
+
+[Minimal working example - 5-10 lines]
+
+## Documentation
+
+- API Reference: `docs/api.md`
+- Architecture: `docs/architecture/`
+- Protocols: `docs/protocols/`
+```
+
+### 9. Timeless Code & Comments
+
+**Principle:** Code should make sense 2 years from now without context.
+
+**NEVER reference in code/docs:**
+- ❌ Story numbers ("Story 1 version", "Story 2 will add...")
+- ❌ Task numbers ("Task 2.3 implementation")
+- ❌ Implementation order ("First version", "Future enhancement note")
+- ❌ Project structure ("This is part of clearsky-sense")
+
+**Good references:**
+- ✅ "Scan for devices via service UUID"
+- ✅ "Maintain connection state machine"
+- ✅ "Validates input data format"
+- ✅ "Platform-agnostic implementation"
+
+### 10. Measure & Improve
+
+**Metrics:**
+- **Lines of code** → Simple operations should be 10-50 lines
+- **Module size** → <300 lines per file (guideline)
+- **Test coverage** → 80%+ for business logic
+- **Documentation** → README <100 lines, full docs separate
+
+**When code seems too long:**
+1. Extract repeated patterns → functions
+2. Move boilerplate → utilities
+3. Use frameworks → replace custom code
+4. Simplify logic → question each line
+
+## Application to Implement Command
+
+**When implementing stories:**
+
+1. **Structure planning** → Think modular from start
+2. **Extract utilities early** → Don't inline boilerplate
+3. **Use frameworks** → typer, rich, established tools
+4. **Target conciseness** → 10-50 lines for simple operations
+5. **No story references** → Code is timeless
+6. **No unnecessary docs** → Only deliverables
+
+## Summary
+
+**The goal: Production-quality code that is concise, clear, modular, and timeless.**
+
+- Delegate to utilities
+- Use robust frameworks
+- Extract repetition
+- Keep main code focused
+- Make it readable 2 years from now
