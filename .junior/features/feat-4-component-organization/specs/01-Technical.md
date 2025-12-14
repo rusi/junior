@@ -28,7 +28,7 @@ This document details the technical approach for implementing progressive compon
 ┌─────────────────────────────────────────────────────────────┐
 │         Component Organization Logic                         │
 │  • Path resolution (feat-N → correct location)              │
-│  • Semantic clustering (keyword-based)                      │
+│  • Semantic clustering (LLM-based, domain-aware)            │
 │  • Reorganization workflows (git mv + content updates)      │
 └────────────┬────────────────────────────────────────────────┘
              │
@@ -129,12 +129,13 @@ Commands use stage detection to resolve correct paths dynamically.
 
 **Responsibility:** Analyze features and propose component groupings
 
-**Approach:** Keyword extraction from feature names/descriptions, simple grouping by shared keywords (no NLP/AI required).
+**Approach:** LLM-based semantic analysis that reads complete feature overviews, understands project domain, and identifies logical user-facing entities (widgets, services, screens).
 
 **Parameters:**
 - Minimum cluster size: 3-4 features
 - Threshold for recommendation: 4-6+ features per cluster
-- Stopwords: "feature", "system", "module" (common non-discriminative terms)
+- Grouping strategy: Domain/entity-centric (not technical layers)
+- Keep vertical slices together (frontend + backend for same entity in same component)
 
 ### Reorganization Module
 
@@ -208,22 +209,23 @@ git commit -m "Add component overviews and update references"
 
 **Trade-offs:** Commands must handle 3 structures. Accepted because each stage remains simple and detection is fast.
 
-### Decision 2: Semantic Clustering via Keywords
+### Decision 2: Semantic Clustering via LLM
 
 **Context:** Need to propose component groupings automatically for `/maintenance` and `/migrate`.
 
-**Decision:** Use keyword extraction and simple clustering, not NLP or AI.
+**Decision:** Use LLM-based semantic analysis that reads full feature overviews and understands domain context.
 
 **Rationale:**
-- Simple, fast, no external dependencies
-- Good enough accuracy for proposal (user reviews before applying)
-- Transparent reasoning (can explain why features grouped)
-- No training data or models needed
-- Agent knows how to implement this without detailed pseudo-code
+- High accuracy by understanding full feature context (not just keywords)
+- Domain-aware: Identifies logical user-facing entities (widgets, services, screens)
+- Keeps vertical slices together (frontend + backend for same widget)
+- Separates infrastructure, core systems, and domain features naturally
+- User reviews proposal before applying (safety net)
+- Agent has direct LLM access for semantic understanding
 
 **Alternatives Considered:**
 - Manual grouping only: Too much user burden, error-prone
-- AI/LLM-based analysis: Overkill, adds complexity and dependencies
+- Simple keyword matching: Too shallow, misses semantic relationships and domain structure
 - Code analysis (imports/dependencies): Requires code parsing, language-specific, slow
 
 **Trade-offs:** May miss subtle relationships. Acceptable because user reviews and can adjust grouping.

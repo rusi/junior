@@ -16,7 +16,7 @@
 **In Scope:**
 - Use `/new-command` to create maintenance command with comprehensive prompt
 - Command analyzes structure, proposes reorganization, executes with git discipline
-- Semantic clustering for Stage 1→2 (keyword-based, simple)
+- Semantic clustering for Stage 1→2 (LLM-based, domain-aware)
 - Size analysis for Stage 2→3 (item count, type mixing detection)
 - Git discipline: moves → commit → content → commit
 - User approval required before any changes
@@ -50,7 +50,7 @@ Create maintenance command for structure reorganization.
 
 1. Detect current stage using `detect_stage()` from 01-structure.mdc
 2. Analyze for reorganization opportunities:
-   - Stage 1→2: If 4-6+ features cluster semantically (keyword-based: extract keywords from feat names, find clusters of 3-4+)
+   - Stage 1→2: If 4-6+ features cluster semantically (LLM-based: read full overviews, understand domain, identify user-facing entities)
    - Stage 2→3: If component has >13 items OR has docs/specs directories (type mixing)
 3. If opportunity found: Present proposal with before/after trees and reasoning
 4. Wait for approval: yes | adjust | cancel
@@ -60,7 +60,7 @@ Create maintenance command for structure reorganization.
 6. Report success
 
 **Key points:**
-- Semantic clustering: simple keyword extraction and grouping, no NLP
+- Semantic clustering: LLM-based semantic analysis (domain-aware, reads full feature overviews)
 - Git discipline: TWO commits (moves first, content second) to preserve history
 - User can adjust groupings before approval
 - Verification after each phase (count files, search for old references)

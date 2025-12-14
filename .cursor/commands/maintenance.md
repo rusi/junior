@@ -64,23 +64,44 @@ ls -la .junior/features/comp-*/
 
 ### Step 3: Analyze for Reorganization Opportunities
 
-**Stage 1 → Stage 2 Analysis (Semantic Clustering):**
+**Stage 1 → Stage 2 Analysis (LLM-Based Semantic Clustering):**
 
 If currently Stage 1, check if features naturally cluster:
 
-1. **Extract feature names and descriptions:**
-   - Read each `feat-N-overview.md`
-   - Extract feature name and brief description
-   - Build list of features with metadata
+1. **Read all feature overviews completely:**
+   - Read each `feat-N-overview.md` in full (not just titles)
+   - Understand the feature's purpose, deliverable, and scope
+   - Note any integration points or dependencies mentioned
 
-2. **Keyword-based clustering:**
-   - Extract keywords from feature names (remove stopwords: "feature", "system", "module")
-   - Find features with shared keywords
-   - Identify clusters of 3-4+ features
+2. **Domain-Aware Semantic Analysis:**
+   - **Understand the project domain** from the features (e.g., dashboard with widgets, API platform, mobile app)
+   - **Identify logical user-facing entities:**
+     - For dashboards: Which widgets do features relate to?
+     - For APIs: Which domain entities or services?
+     - For apps: Which screens or user flows?
+   - **Recognize feature types:**
+     - Infrastructure features (OS, deployment, build systems)
+     - Widget/component-specific features (frontend + backend for one widget)
+     - Core system features (shared infrastructure like routing, scheduling, layout)
+     - Integration features (API clients, external services)
 
-3. **Clustering threshold:**
-   - **Recommend Stage 2 if:** 4-6+ features cluster into distinct groups
-   - **Example:** 8 features → 4 auth-related, 3 analytics-related, 1 standalone → Recommend 2 components
+3. **Intelligent Grouping Strategy:**
+   - **Primary grouping:** Around user-facing components/entities
+     - Example: Dashboard project → Group by widget (all features for Widget X together)
+     - Example: E-commerce → Group by domain (cart features, checkout features, product catalog)
+     - Example: Mobile app → Group by screen/flow (onboarding, profile, messaging)
+   - **Infrastructure grouping:** System-level features separate from user features
+     - Example: OS/deployment, build systems, CI/CD separate from application features
+   - **Core systems grouping:** Foundational shared code separate from domain features
+     - Example: Routing, state management, authentication framework
+   - **Keep related features together** even if they touch different technical layers
+     - Frontend + backend + database for same entity should be in same component
+
+4. **Clustering threshold:**
+   - **Recommend Stage 2 if:** 4-6+ features cluster into distinct logical components
+   - **Prefer domain/entity-based components** over technical layer groupings
+   - **Good grouping:** Features organized by user-facing entity (Widget A, Service B, Screen C)
+   - **Avoid:** Pure technical layers (all frontend together, all backend together, all database together)
 
 **Stage 2 → Stage 3 Analysis (Size/Type Triggers):**
 
@@ -499,13 +520,15 @@ New structure is ready to use!
 
 ## Key Implementation Notes
 
-**Semantic Clustering (Stage 1→2):**
-- Extract keywords from feature names and descriptions
-- Remove stopwords: "feature", "system", "module", "core", "main"
-- Find features sharing 2+ keywords
-- Group into clusters of 3-4+ features
-- Name components based on dominant shared keywords
-- Simple keyword matching, no NLP/AI required
+**LLM-Based Semantic Clustering (Stage 1→2):**
+- Read complete feature overviews (full context, not just keywords)
+- Understand project domain from feature descriptions
+- Identify logical user-facing entities (widgets, services, screens, flows)
+- Group features around those entities (keep related frontend+backend together)
+- Separate infrastructure, core systems, and domain features
+- Use LLM semantic understanding, not simple keyword matching
+- Prefer domain/entity-centric groupings over technical layer groupings
+- Keep vertical slices together (all layers for one entity in same component)
 
 **Git Discipline:**
 - **ALWAYS use git mv** for file moves (preserves history)
@@ -618,10 +641,13 @@ Recommend: Check git status, resolve conflicts, and retry.
 ## Best Practices
 
 **Analysis:**
-- Load all feature overviews to understand content
-- Look for natural groupings based on keywords
+- Load all feature overviews to understand full context
+- Understand project domain from feature descriptions
+- Look for natural groupings around user-facing entities (widgets, services, screens)
+- Keep related features together even across technical layers (frontend + backend for same widget)
 - Consider feature dependencies when grouping
-- Propose 2-4 components (not too many)
+- Separate infrastructure, core systems, and user features
+- Propose logical number of components (avoid over-splitting)
 
 **Proposal:**
 - Show clear before/after trees

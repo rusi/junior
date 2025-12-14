@@ -37,7 +37,7 @@
 - Start all new projects at Stage 1 (simplest)
 - Make Stage 2→3 optional (performance optimization, not requirement)
 - `/maintenance` shows "before/after" preview with clear reasoning
-- Semantic detection uses feature names + descriptions (simple keyword analysis)
+- Semantic detection uses LLM-based analysis (reads full feature overviews, understands domain context)
 
 ## Detailed Requirements
 
@@ -90,7 +90,7 @@ See [specs/01-Technical.md](./specs/01-Technical.md) for detailed technical appr
 
 High-level strategy:
 - Stage detection via directory structure analysis (fast filesystem checks)
-- Semantic clustering using feature names + descriptions (keyword-based)
+- Semantic clustering using LLM-based analysis (reads full overviews, domain-aware)
 - `/maintenance` command orchestrates reorganization with git discipline
 - Commands adapt behavior based on detected stage
 - TDD approach: Test stage detection, reorganization logic, command integration
