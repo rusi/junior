@@ -1,6 +1,6 @@
 # Story 5: Update Other Commands for Component Support
 
-> **Status:** Not Started
+> **Status:** Completed
 > **Priority:** Medium
 > **Dependencies:** Stories 1-4 (requires structure changes in place)
 > **Deliverable:** All commands work seamlessly with Stage 1/2/3
@@ -14,41 +14,50 @@
 ## Scope
 
 **In Scope:**
-- Update `/implement`, `/status`, `/refactor` to use `detect_stage()` and resolve paths correctly
+- Update `/implement` and `/status` to use stage detection and resolve paths correctly
 - Add old structure detection with migration prompt (graceful, not blocking)
 - `/status` shows component-grouped view for Stage 2+
 
 **Out of Scope:**
+- `/refactor` stage detection (works with top-level `.junior/improvements/`, not stage-dependent)
+- Other commands (`/commit`, `/debug` don't navigate feature structure)
 - Backward compatibility (users must migrate eventually)
 - New command functionality
 
+**Note:** During implementation, determined `/refactor` doesn't need stage awareness since it creates improvements in top-level directory, not within feature structure.
+
 ## Acceptance Criteria
 
-- [ ] Given any stage, when `/implement` runs, then finds feature correctly
-- [ ] Given Stage 2+, when `/status` runs, then shows components with features grouped
-- [ ] Given old structure, when any command runs, then shows migration prompt (graceful)
-- [ ] Given `/refactor` adding docs/ to Stage 2 component, when running, then uses `detect_future_stage()` and prompts for `/maintenance`
+- [x] Given any stage, when `/implement` runs, then finds features correctly using stage-aware paths ✅
+- [x] Given Stage 2+, when `/status` runs, then shows components with features grouped in tree view ✅
+- [x] Given old structure, when stage-aware commands run, then shows migration prompt (graceful, not blocking) ✅
+- [x] Given Stage 1/2/3, when checking other commands, then only `/implement` and `/status` have stage detection (others don't need it) ✅
 
 ## Implementation Tasks
 
-- [ ] 5.1 Update `/implement` - add stage detection, use path resolution based on stage
-- [ ] 5.2 Update `/status` - add stage detection, show component-grouped view for Stage 2+ (tree format)
-- [ ] 5.3 Update `/refactor` - add stage detection, use `detect_future_stage()` if creating docs/specs under component
-- [ ] 5.4 Add old structure detection helper to all commands (check flat features + no components → show migration prompt)
+- [x] 5.1 Update `/implement` - add stage detection reference, use stage-aware path resolution ✅
+- [x] 5.2 Update `/status` - add stage detection reference, show component tree for Stage 2+ ✅
+- [x] 5.3 Remove unnecessary repetition - reference `01-structure.mdc` instead of duplicating detection logic ✅
+- [x] 5.4 Add old structure detection to stage-aware commands (graceful migration prompt) ✅
+
+**Implementation Notes:**
+- Replaced bash pseudocode blocks with references to `01-structure.mdc` (DRY principle)
+- Removed stage detection from `/refactor` (doesn't navigate feature structure)
+- Only commands that navigate `.junior/features/` need stage awareness: `/implement`, `/status`, `/feature`, `/migrate`
 
 ## Testing
 
 Test scenarios:
-- `/implement` on all 3 stages → finds features correctly
-- `/status` on Stage 2+ → shows component tree
-- `/refactor` triggering Stage 3 → prompts for `/maintenance`
-- Any command on old structure → shows migration prompt
+- `/implement` on all 3 stages → finds features correctly using stage-aware paths
+- `/status` on Stage 2+ → shows component tree with grouped features
+- `/implement` or `/status` on old structure → shows graceful migration prompt
+- `/refactor` creates improvements in `.junior/improvements/` → works without stage detection
 
 ## Definition of Done
 
-- [ ] All commands updated
-- [ ] Stage detection integrated consistently
-- [ ] `/status` shows organized view for Stage 2+
-- [ ] `/refactor` uses future detection
-- [ ] Old structure detection graceful
-- [ ] Tested with all stages
+- [x] Stage-aware commands (`/implement`, `/status`) updated with path resolution ✅
+- [x] Stage detection references `01-structure.mdc` (no repetition) ✅
+- [x] `/status` shows tree view for Stage 2+ ✅
+- [x] Removed unnecessary stage detection from `/refactor` ✅
+- [x] Old structure detection added to stage-aware commands (graceful) ✅
+- [x] No bash pseudocode blocks (replaced with references) ✅

@@ -64,31 +64,28 @@ Create todos using `todo_write`:
 
 ### Step 2: Smart Story Discovery
 
+**Detect current stage:** Use stage detection logic from `01-structure.mdc` to determine which structure (Stage 1/2/3) the project uses. This determines feature path resolution.
+
 **Parse user input for explicit or implicit story selection:**
 
 **Input Patterns:**
 
 1. **Explicit story ID:** `/implement feat-1-story-2` or `/implement feat-1-story-2-auth`
    - Parse story identifier from input
-   - Validate story exists
+   - Validate story exists (using stage-aware path resolution)
    - **Confidence: 95%+** → Proceed directly
 
 2. **Vague/implicit:** `/implement` or `/implement next` or `/implement next story`
-   - Scan `.junior/features/` for all features
+   - Scan `.junior/features/` for all features (stage-aware)
    - Load `user-stories/feat-{N}-stories.md` for each feature
    - Identify next incomplete story based on progress
    - **Confidence: <95%** → Confirm with user before proceeding
 
-**Discovery Logic:**
+**Discovery Logic (Stage-Aware):**
 
-```bash
-# Scan for features
-find .junior/features -name "feat-*" -type d -maxdepth 1
+Use stage-appropriate paths to find features. See `01-structure.mdc` for stage detection and path resolution patterns.
 
-# For each feature, load feat-{N}-stories.md
-# Parse story status and progress
-# Identify first story with status "Not Started" or "In Progress"
-```
+For each feature found, load `user-stories/feat-{N}-stories.md`, parse task completion, and identify first story with status "Not Started" or "In Progress".
 
 **Confidence-Based Selection:**
 
@@ -173,13 +170,15 @@ Proceed anyway? [yes/no]
 
 **CRITICAL: Comprehensive context loading before implementation**
 
-**Load story and feature context:**
+**Load story and feature context (use stage-aware paths):**
 
-- Main story file: `.junior/features/feat-N-{name}/user-stories/feat-N-story-M-{name}.md`
-- Progress tracking: `.junior/features/feat-N-{name}/user-stories/feat-N-stories.md`
-- Feature spec: `.junior/features/feat-N-{name}/feat-N-overview.md`
-- Related specs: `.junior/features/feat-N-{name}/specs/*.md` (if exist)
+- Main story file: `{feature-path}/user-stories/feat-N-story-M-{name}.md`
+- Progress tracking: `{feature-path}/user-stories/feat-N-stories.md`
+- Feature spec: `{feature-path}/feat-N-overview.md`
+- Related specs: `{feature-path}/specs/*.md` (if exist)
 - Dependencies: Check other features referenced in story
+
+Where `{feature-path}` is resolved using stage detection (see `01-structure.mdc` for path patterns).
 
 **Parse story structure:**
 
@@ -629,15 +628,9 @@ What would you like to do next?
 git status --short           # Check for uncommitted changes
 ```
 
-**File operations:**
+**File operations (stage-aware):**
 
-```bash
-# Find features
-find .junior/features -name "feat-*" -type d -maxdepth 1
-
-# Find story files
-find .junior/features/feat-N-name/user-stories -name "feat-*-story-*.md"
-```
+Find features and story files using stage-appropriate paths (see `01-structure.mdc` for stage detection and path resolution).
 
 ## Progress Tracking
 
@@ -681,6 +674,24 @@ find .junior/features/feat-N-name/user-stories -name "feat-*-story-*.md"
 - Highlight follow-up work or technical debt
 
 ## Error Handling
+
+**Old structure detected (graceful migration prompt):**
+
+If flat features exist without the 3-stage structure:
+
+```
+⚠️ Old Junior structure detected
+
+Your project uses an older Junior structure.
+
+Run /migrate to update to the current 3-stage progressive structure.
+
+This is a one-time migration that preserves all your work.
+
+Continue anyway? [no | yes]
+```
+
+**Note:** This is graceful, not blocking. User can continue if needed.
 
 **No features found:**
 

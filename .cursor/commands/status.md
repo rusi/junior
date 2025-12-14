@@ -64,15 +64,13 @@ Uncommitted: 3 modified files
 
 ### Step 3: Active Work Detection
 
+**Detect current stage:** Use stage detection from `01-structure.mdc` to determine display format (flat vs component tree).
+
 **Scan `.junior/features/` for in-progress features:**
 
-```bash
-# Find all feature directories
-find .junior/features -name "feat-*" -type d -maxdepth 1
+Use stage-appropriate paths to find all features (see `01-structure.mdc` for path patterns).
 
-# For each feature, load user-stories/feat-N-stories.md
-# Parse task completion and identify features with progress > 0%
-```
+For each feature, load `user-stories/feat-N-stories.md`, parse task completion, and identify features with progress > 0% and < 100%.
 
 **Identify active work:**
 - Features with `Status: In Progress`
@@ -80,7 +78,7 @@ find .junior/features -name "feat-*" -type d -maxdepth 1
 - Show current story and next task for each
 - Highlight most recently modified feature
 
-**Output format:**
+**Output format (Stage 1 - Flat):**
 
 ```
 📋 ACTIVE WORK
@@ -95,27 +93,41 @@ find .junior/features -name "feat-*" -type d -maxdepth 1
    • Next: Task 1.3 - Create directory structure
 ```
 
+**Output format (Stage 2+ - Component Grouped):**
+
+```
+📋 ACTIVE WORK
+2 components with active features:
+
+comp-1-core-framework (2 features active):
+  1. feat-1-commands (Story 3/12, 15/98 tasks, 15%)
+     • Current: Story 3 - Implement /status Command (In Progress)
+     • Next: Task 3.2 - Create status.md command file
+
+comp-2-installation (1 feature active):
+  2. feat-5-installer (Story 1/5, 2/15 tasks, 13%)
+     • Current: Story 1 - Bootstrap script (In Progress)
+     • Next: Task 1.3 - Create directory structure
+```
+
 ### Step 4: All Features Summary
 
 **Comprehensive feature view:**
 
-```bash
-# List ALL features
-find .junior/features -name "feat-*" -type d -maxdepth 1 | sort
+Use stage-appropriate scanning (see `01-structure.mdc` for path patterns).
 
-# For each feature:
-# - Read feat-N-overview.md for status
-# - Read user-stories/feat-N-stories.md for task counts
-# - Calculate completion percentage
-# - Group by status: In Progress → Planning → Completed
-```
+For each feature:
+- Read `feat-N-overview.md` for status
+- Read `user-stories/feat-N-stories.md` for task counts
+- Calculate completion percentage
+- Group by status: In Progress → Planning → Completed
 
 **Status determination:**
 - **In Progress:** Task progress > 0% and < 100%
 - **Planning:** Task progress = 0%
 - **Completed:** Task progress = 100%
 
-**Output format:**
+**Output format (Stage 1 - Flat):**
 
 ```
 📊 ALL FEATURES
@@ -134,6 +146,29 @@ Planning (1):
 
 Completed (1):
 • feat-0-bootstrap (8/8 tasks) ✅
+```
+
+**Output format (Stage 2+ - Component Tree):**
+
+```
+📊 ALL FEATURES
+Total: 3 components | 4 features | 35/98 tasks complete (36%)
+
+comp-1-core-framework (2 features, 17/113 tasks - 15%):
+  In Progress (2):
+  • feat-1-commands (15/98 tasks - 15%)
+    → Next: Story 3 - Implement /status Command
+  • feat-4-refactor (2/15 tasks - 13%)
+    → Next: Story 1 - Initialize command
+
+comp-2-installation (1 feature, 0/22 tasks):
+  Planning (1):
+  • feat-3-installer (0/22 tasks)
+    → Start with: Story 1 - Bootstrap script
+
+comp-3-integrations (1 feature, 8/8 tasks - 100%):
+  Completed (1):
+  • feat-0-bootstrap (8/8 tasks) ✅
 ```
 
 ### Step 5: Research & Experiments
@@ -320,6 +355,24 @@ Priority 3: Planning
 8. **No section dividers within categories** - Use simple "In Progress (X):" headers
 
 ## Error Handling
+
+**Old structure detected (graceful migration prompt):**
+
+If flat features exist without the 3-stage structure:
+
+```
+⚠️ Old Junior structure detected
+
+Your project uses an older Junior structure.
+
+Run /migrate to update to the current 3-stage progressive structure.
+
+This is a one-time migration that preserves all your work.
+
+Continuing with status report...
+```
+
+**Note:** Status report continues - this is informational, not blocking.
 
 **Not a git repository:**
 
