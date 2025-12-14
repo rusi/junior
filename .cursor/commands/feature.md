@@ -78,11 +78,33 @@ Only proceed if git working directory is clean.
 
 ### Step 3: Context Scan & Feature Analysis
 
+**3.0: Detect current stage**
+
+First, detect which stage the project is in (see `01-structure.mdc` for detection logic):
+
+```bash
+# Stage detection (filesystem checks)
+# Stage 1: No comp-*/ directories under .junior/features/
+# Stage 2: comp-*/ directories exist, no features/ subdirectory within
+# Stage 3: comp-*/ directories with features/ subdirectories
+```
+
+**Detection logic:**
+- Check for `comp-*/` directories under `.junior/features/`
+- If none: **Stage 1** (flat structure)
+- If exist: Check for `features/` subdirectory within components
+  - If no `features/` subdirectory: **Stage 2** (component organization)
+  - If `features/` subdirectory exists: **Stage 3** (grouped structure)
+
+Store detected stage for use in later steps (component proposal, path resolution).
+
 **3.1: Scan & build comprehensive context**
 
 Scan all `.junior/` working memory to understand existing work:
 
-- `list_dir` `.junior/features/` → existing features
+- `list_dir` `.junior/features/` → existing features and components
+  - **Stage 1:** Read `feat-N-overview.md` files directly under features/
+  - **Stage 2+:** Read `comp-N-overview.md` files to understand components, then read features within
   - `read_file` each `feat-N-overview.md` to understand feature scope and status
   - `read_file` each `feat-N-stories.md` to see current story breakdown
 - `list_dir` `.junior/research/` → technical investigations
@@ -95,6 +117,8 @@ Scan all `.junior/` working memory to understand existing work:
 - Identify next feature/story numbers
 
 **Build mental model:**
+- **Current stage** (1, 2, or 3) and what it means for feature placement
+- **Existing components** (Stage 2+): What components exist, their purposes, what features they contain
 - What features exist and their scopes
 - What's in progress vs planned vs backlog
 - What research/experiments relate to this request
@@ -157,7 +181,63 @@ Does this placement make sense, or should we discuss? [yes | discuss | suggest: 
 
 Wait for user confirmation before proceeding to clarification.
 
-**3.3: Set working mode**
+**3.3: Component Proposal (Stage 2+ only)**
+
+**If Stage 2 or Stage 3 detected AND creating new feature:**
+
+After user confirms new feature placement, propose component assignment:
+
+**Semantic Matching Process:**
+
+1. **Extract keywords from feature description** (use feature name + user description)
+2. **Compare with existing components:**
+   - Read `comp-N-overview.md` files to understand component purposes
+   - Match keywords between feature and components
+   - Calculate semantic similarity (shared keywords, related terms)
+3. **Decision:**
+   - **Good match found** (>60% keyword overlap or clear domain alignment): Propose existing component
+   - **No good match** (domain mismatch or no shared keywords): Propose new component
+
+**Present component proposal:**
+
+```
+🏗️ Component Assignment (Stage {2|3})
+
+Based on your feature description, I recommend:
+
+**Option 1 (Recommended): Add to existing component**
+- Component: comp-{M}-{name}
+- Purpose: [Component purpose from comp-M-overview.md]
+- Reasoning: [Why this feature fits - shared keywords, domain alignment]
+- Current features: {X} features
+- Path: .junior/features/comp-{M}/feat-{N}/  [Stage 2]
+        .junior/features/comp-{M}/features/feat-{N}/  [Stage 3]
+
+**Option 2: Create new component**
+- Component: comp-{M+1}-{suggested-name}
+- Purpose: [Inferred from feature description]
+- Reasoning: [Why separate component makes sense]
+- Path: .junior/features/comp-{M+1}/feat-{N}/  [Stage 2]
+        .junior/features/comp-{M+1}/features/feat-{N}/  [Stage 3]
+
+Which option? [1 | 2 | suggest: {alternative-name}]
+```
+
+**If user chooses Option 1:**
+- Feature will be added to existing component
+- Component overview will be auto-updated (add feature row to table)
+
+**If user chooses Option 2:**
+- New component will be created
+- Component overview will be generated using template from `01-structure.mdc`
+
+**Store component assignment for use in Step 6 (directory creation).**
+
+**If Stage 1 detected:**
+- Skip component proposal (flat structure)
+- Feature will be created directly under `.junior/features/`
+
+**3.4: Set working mode**
 
 Based on decision and user confirmation:
 - **New Feature mode:** Full feature specification (contract + stories + specs)
@@ -420,10 +500,12 @@ Wait for user approval.
 
 **For New Feature:**
 
-Per `01-structure.mdc`:
+**Path resolution based on detected stage:**
+
+**Stage 1 (Flat structure):**
 ```
 .junior/features/feat-{N}-{name}/
-├── feat-N-overview.md
+├── feat-{N}-overview.md
 ├── user-stories/
 │   ├── feat-{N}-stories.md
 │   └── feat-{N}-story-{M}-{name}.md
@@ -433,6 +515,62 @@ Per `01-structure.mdc`:
     ├── 03-Database.md
     └── 04-UI-Wireframes.md
 ```
+
+**Stage 2 (Component organization, flat within component):**
+```
+.junior/features/comp-{M}-{name}/
+├── comp-{M}-overview.md                    ← Auto-update or create
+├── feat-{N}-{name}/                        ← New feature here
+│   ├── feat-{N}-overview.md
+│   ├── user-stories/
+│   │   ├── feat-{N}-stories.md
+│   │   └── feat-{N}-story-{M}-{name}.md
+│   └── specs/ (only if needed)
+│       └── 01-Technical.md
+└── [other features/improvements in component]
+```
+
+**Stage 3 (Grouped structure, type-based organization):**
+```
+.junior/features/comp-{M}-{name}/
+├── comp-{M}-overview.md                    ← Auto-update
+├── features/                               ← Features grouped by type
+│   └── feat-{N}-{name}/                    ← New feature here
+│       ├── feat-{N}-overview.md
+│       ├── user-stories/
+│       │   ├── feat-{N}-stories.md
+│       │   └── feat-{N}-story-{M}-{name}.md
+│       └── specs/ (only if needed)
+│           └── 01-Technical.md
+├── improvements/ (if exist)
+├── docs/ (component-level, if exist)
+└── specs/ (component-level, if exist)
+```
+
+**Directory creation process:**
+
+Determine correct path based on detected stage and component assignment from Step 3:
+
+- **Stage 1:** Create at `.junior/features/feat-N-name/`
+- **Stage 2:** Create at `.junior/features/comp-M-name/feat-N-name/`
+  - If new component: Create component directory + `comp-M-overview.md`
+  - If existing component: Update `comp-M-overview.md` (add feature row)
+- **Stage 3:** Create at `.junior/features/comp-M-name/features/feat-N-name/`
+  - Update `comp-M-overview.md` (add feature row)
+
+Create feature subdirectories:
+- `user-stories/` (always)
+- `specs/` (only if technical specs needed)
+
+**Component overview auto-update (Stage 2+):**
+
+When adding feature to existing component, append row to Features table in `comp-M-overview.md`:
+
+```markdown
+| feat-N | [Feature Title] | Planning | [Brief description from feature contract] |
+```
+
+Update "Last Updated" timestamp in component overview.
 
 **For Add Story:**
 
@@ -925,7 +1063,8 @@ Update todos:
     {"id": "verify-contract", "content": "Verify contract matches all docs", "status": "in_progress"},
     {"id": "check-stories", "content": "Check story consistency and dependencies", "status": "pending"},
     {"id": "validate-specs", "content": "Validate spec cross-references", "status": "pending"},
-    {"id": "check-tdd", "content": "Ensure TDD approach in all stories", "status": "pending"}
+    {"id": "check-tdd", "content": "Ensure TDD approach in all stories", "status": "pending"},
+    {"id": "check-stage", "content": "Check if project has outgrown current stage", "status": "pending"}
   ]
 }
 ```
@@ -966,6 +1105,40 @@ If user confirms or provides minor feedback, proceed to automated consistency ch
 - Read all specs (if exist)
 - Verify cross-references work
 - Check alignment and consistency
+
+**Stage Growth Check (performed after all other checks):**
+
+After completing consistency checks, evaluate if the project has outgrown its current stage:
+
+**Stage 1 → Stage 2 evaluation:**
+- Count total features in `.junior/features/`
+- If 6+ features, check for natural clustering (shared keywords, related domains)
+- If clear clustering exists: Recommend `/maintenance` to reorganize
+
+**Stage 2 → Stage 3 evaluation:**
+- Check each component in `.junior/features/`
+- Count items in component (features + improvements + bugs + enhancements)
+- If component has 13+ items OR would benefit from `docs/` or `specs/` directories at component level: Recommend `/maintenance`
+
+**If stage growth detected, present recommendation:**
+
+```
+💡 Structure Recommendation
+
+Your project may benefit from reorganization:
+
+**Current:** Stage {1|2}
+**Recommended:** Stage {2|3}
+
+**Reasoning:** [Brief explanation - e.g., "8 features now cluster into 3 distinct components" or "Component has 14 items, would benefit from type grouping"]
+
+**Next step:** Run `/maintenance` to analyze and reorganize structure
+
+This is optional - you can continue with current structure if you prefer.
+```
+
+**If no stage growth detected or user declines:**
+- Proceed with completion
 
 **Present review results:**
 
