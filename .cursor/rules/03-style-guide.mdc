@@ -2,7 +2,7 @@
 alwaysApply: true
 ---
 
-# Rule 03: Style Guide
+# Junior Rule 03: Style Guide
 
 ## Code
 - Prefer clarity AND brevity
@@ -85,6 +85,8 @@ function cluster_features(features):
 2. **Technical specs** = Reference structure, add architecture/decisions specific to feature
 3. **User stories** = Reference both, focus on implementation tasks
 4. **Commands** = Use functions from structure rules, don't redefine
+
+**Note:** See **04-meta-rules.mdc** for documentation modes and writing guidelines.
 
 ## Task Tracking
 - Use `- [ ]` for incomplete items

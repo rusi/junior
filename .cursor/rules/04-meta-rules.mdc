@@ -1,0 +1,150 @@
+---
+alwaysApply: true
+---
+
+# Junior Rule 04: Meta-Rules - Writing Documentation for Junior
+
+## Three Modes of Documentation
+
+### Mode A: Junior → Junior (Internal Rules)
+**Audience:** AI (me)
+**Purpose:** Triggers, reminders, context
+
+**What to include:**
+- ✅ Triggers (when to think about X)
+- ✅ Project-specific decisions
+- ✅ Real examples from THIS codebase
+- ✅ Measurable results
+
+**What to exclude:**
+- ❌ Pattern definitions (I know them)
+- ❌ How concepts work (I know them)
+- ❌ Generic examples (not helpful)
+- ❌ Universal knowledge (textbook stuff)
+
+**Example:**
+```markdown
+## Pattern Triggers
+Manual setup/cleanup pairs → Context Manager
+- Example: exchange_context() saved 45 lines/usage
+```
+
+### Mode B: Junior → Junior + User (Specs/Decisions)
+**Audience:** AI + Human review
+**Purpose:** Technical decisions with context
+
+**What to include:**
+- ✅ Triggers and reminders for Junior
+- ✅ Enough context for user to understand
+- ✅ Rationale for decisions
+- ✅ Trade-offs considered
+
+**What to exclude:**
+- ❌ Over-explaining to Junior (you know it)
+- ❌ Over-explaining to expert user (they know it)
+- ❌ Patterns the user already understands
+
+**Example:**
+```markdown
+## Decision: Context Manager for Stream Exchange
+
+**Problem:** Manual buffer management repeated in 3 protocols
+**Solution:** extract_context() context manager
+**Why:** Guarantees cleanup, exception-safe, reduces duplication
+**Result:** 45 lines → 3 lines per usage
+```
+
+### Mode C: Junior → User (Documentation)
+**Audience:** End users, developers using the code
+**Purpose:** Teach and explain
+
+**What to include:**
+- ✅ What patterns are (they may not know)
+- ✅ How things work (step by step)
+- ✅ Examples with explanation
+- ✅ Why we chose this approach
+- ✅ How to use the code
+
+**What to exclude:**
+- ❌ Implementation details (unless needed)
+- ❌ Junior-specific triggers
+
+**Example:**
+```markdown
+## Stream Exchange Pattern
+
+The library uses context managers for stream operations:
+
+```python
+async with stream.exchange_context():
+    data = await stream.wait_for_data(size=100)
+```
+
+This pattern ensures:
+- Buffer is prepared before receiving
+- Cleanup happens automatically
+- Exception-safe operation
+```
+
+## Documentation Test
+
+**Before writing, ask:**
+
+1. **"Who is the primary audience?"**
+   - Me only → Mode A (triggers)
+   - Me + User review → Mode B (context)
+   - End user → Mode C (teach)
+
+2. **"What does the audience already know?"**
+   - Me → Everything technical
+   - Expert user → Domain patterns
+   - End user → May need explanations
+
+3. **"What's the purpose?"**
+   - Trigger behavior → Mode A
+   - Document decision → Mode B
+   - Teach usage → Mode C
+
+## What Junior Already Knows
+
+**Universal knowledge (don't document for Junior):**
+- Design patterns (Strategy, Factory, Observer, RAII, Context Manager, etc.)
+- Programming concepts (DRY, SOLID, coupling, cohesion, etc.)
+- Language syntax and standard libraries
+- Common algorithms and data structures
+- Industry best practices and conventions
+
+**If Wikipedia or a textbook has it, Junior doesn't need it.**
+
+## What Junior Learns
+
+**Project-specific knowledge (DO document for Junior):**
+- When to apply patterns in THIS codebase
+- "We tried X, didn't work, use Y instead"
+- User's specific preferences and decisions
+- Codebase-specific architectural choices
+- Real examples where patterns helped HERE
+
+## CRITICAL: No Project Leakage into Generic "Junior" Documents
+
+**Documents with "Junior" in the title must remain portable across projects.**
+
+**Project-specific documents (no "Junior" in title) CAN and SHOULD include project details:**
+- Feature/improvement/debugging docs in `.junior/`
+- Project-specific architectural decisions
+- Code examples from current codebase
+- "In this project we..." language is APPROPRIATE
+
+**Test:** If Junior moved to a completely different project tomorrow, would this "Junior" document still be useful without modification?
+- YES → Good generic Junior document
+- NO → Contains project leakage, needs cleanup or isn't a Junior document
+
+## Summary
+
+**Mode A (Junior only):** Triggers, decisions, real examples. No explanations of what I know.
+
+**Mode B (Junior + User):** Decisions with enough context. Balance between triggering Junior and informing user.
+
+**Mode C (User only):** Full explanations, examples, how-to. Assume user may not know patterns.
+
+**Golden rule:** Match detail level to audience knowledge.

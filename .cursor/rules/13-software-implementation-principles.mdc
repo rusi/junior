@@ -10,21 +10,36 @@ These principles apply to **all software implementation** across any language, f
 
 ## Core Principles
 
-### 1. Keep It Simple
+### 1. Recognize Architectural Patterns Proactively
+
+**Triggers to stop and think:**
+- Manual setup/cleanup pairs → Context Manager needed
+- If/else chains on type/mode → Strategy Pattern needed
+- Repeated flow with variations → Template Method needed
+- Same code twice → Abstract immediately
+- Unclear resource ownership → Extract dedicated class
+
+**Process:**
+1. See trigger → Pause
+2. Ask "Which pattern?" → You know them all
+3. Apply immediately → Don't defer refactoring
+
+### 2. Keep It Simple
 
 - **Implement solutions in the fewest lines possible** - Complexity is the enemy of maintainability
 - **Avoid over-engineering** - Choose straightforward approaches over clever ones
 - **Prefer explicit over implicit** - Make intent clear in code
 - **Question every abstraction** - Only abstract when you have concrete duplication
+- **BUT: Apply patterns when they simplify** - Context managers, strategy patterns can dramatically reduce complexity
 
-### 2. Optimize for Readability
+### 3. Optimize for Readability
 
 - **Prioritize code clarity over micro-optimizations** - Code is read far more than written
 - **Write self-documenting code** - Clear variable and function names explain intent
 - **Add comments for "why" not "what"** - Explain reasoning, not implementation
 - **Consistent formatting and style** - Follow language conventions and team standards
 
-### 3. Modularity & Clean Architecture
+### 4. Modularity & Clean Architecture
 
 **Principle:** Every piece of functionality should be in the right place, with clear boundaries.
 
@@ -50,7 +65,7 @@ These principles apply to **all software implementation** across any language, f
 - Display → UI modules
 - Main → Orchestration only
 
-### 4. Single Responsibility
+### 5. Single Responsibility
 
 **Principle:** Each module, class, function does ONE thing well.
 
@@ -70,7 +85,7 @@ These principles apply to **all software implementation** across any language, f
 - Separate utility for alternative detection
 - Each function/class has one clear purpose
 
-### 5. Conciseness Without Sacrificing Clarity
+### 6. Conciseness Without Sacrificing Clarity
 
 **Principle:** Code should be as short as possible while remaining clear.
 
@@ -94,7 +109,7 @@ These principles apply to **all software implementation** across any language, f
 3. Use established frameworks
 4. Keep main focused on business logic
 
-### 6. DRY (Don't Repeat Yourself) - ZERO TOLERANCE
+### 7. DRY (Don't Repeat Yourself) - ZERO TOLERANCE
 
 **Principle:** NEVER duplicate code, configuration, or logic. **If it appears twice, it's a bug.**
 
@@ -103,74 +118,16 @@ These principles apply to **all software implementation** across any language, f
 **What counts as duplication (with thresholds):**
 - ❌ **3+ lines of code** repeated in 2+ places → Extract to function immediately
 - ❌ **Validation/parsing logic** repeated → Create `_validate_*()`, `_parse_*()`  helpers
-- ❌ **Crypto operations** repeated (sign, verify, load keys) → Create reusable crypto utilities
+- ❌ **Repeated operations** → Create reusable utilities
 - ❌ **Send-wait patterns** repeated → Create `_send_command()`, `exchange()` abstractions
 - ❌ **Documentation** repeated across files → Write once, cross-reference everywhere
 - ❌ **Configuration values** hardcoded in multiple places → Extract to config module/file
-
-**Real examples from code reviews:**
-
-**❌ Violation 1: Repeated cryptographic pattern**
-```python
-# Appeared in 2 places:
-private_key_der = load_private_key_part_c()
-loaded_key = load_der_private_key(private_key_der, ...)
-private_key = cast(ec.EllipticCurvePrivateKey, loaded_key)
-signature_der = private_key.sign(challenge, ec.ECDSA(crypto_hashes.SHA256()))
-r, s = decode_dss_signature(signature_der)
-signature_rs = r.to_bytes(32, "big") + s.to_bytes(32, "big")
-```
-
-**✅ Fix: Extract to utilities**
-```python
-def get_private_key() -> ec.EllipticCurvePrivateKey: ...
-def sign_challenge(challenge: bytes) -> bytes: ...
-
-# Usage (was 6 lines, now 1):
-signature = sign_challenge(sensor_challenge)
-```
-
-**❌ Violation 2: Repeated validation pattern**
-```python
-# Appeared in 3 places:
-await asyncio.wait_for(self.response_event.wait(), timeout=5.0)
-if self.response_data is None or len(self.response_data) < 2:
-    raise RuntimeError(...)
-if self.response_data[0] != opcode or self.response_data[1] != status:
-    raise RuntimeError(...)
-```
-
-**✅ Fix: Extract validation helper**
-```python
-async def _wait_for_ack(self, opcode: int, expected_status: int, timeout: float): ...
-
-# Usage (was 6 lines, now 1):
-await self._wait_for_ack(0x07, 0x00)
-```
-
-**❌ Violation 3: Repeated send-wait pattern**
-```python
-# Appeared in 2 places:
-self.dispatcher.register(opcode, handler)
-self.response_event.clear()
-await self.client.write_gatt_char(char, command)
-await self._wait_for_ack(opcode, expected_status)
-```
-
-**✅ Fix: Extract command sender**
-```python
-async def _send_command(self, command: bytes, expected_status: int): ...
-
-# Usage (was 4 lines, now 1):
-await self._send_command(bytes([0x07]), expected_status=0x00)
-```
 
 **Enforcement checklist (before every commit):**
 1. ☑️ Search for patterns appearing 2+ times
 2. ☑️ Check if validation/parsing logic is duplicated
 3. ☑️ Look for copy-pasted code with minor modifications
-4. ☑️ Verify crypto operations use shared utilities
-5. ☑️ Ensure documentation references, not duplicates
+4. ☑️ Ensure documentation references, not duplicates
 
 **Language-specific applications:**
 - **Python**: Use decorators, context managers, helper modules
@@ -181,7 +138,7 @@ await self._send_command(bytes([0x07]), expected_status=0x00)
 
 **When in doubt:** If changing this logic would require editing 2+ files, you have duplication.
 
-### 7. Fail Fast & Error Handling
+### 8. Fail Fast & Error Handling
 
 **Principle:** Validate inputs early and fail with clear messages. Don't be defensive.
 
@@ -202,7 +159,7 @@ await self._send_command(bytes([0x07]), expected_status=0x00)
 - **Go**: Multiple return values with error as second return
 - **Bash**: Exit codes and proper error output to stderr
 
-### 8. Progressive Enhancement
+### 9. Progressive Enhancement
 
 **Principle:** Start simple, add complexity only when needed.
 
@@ -211,7 +168,7 @@ await self._send_command(bytes([0x07]), expected_status=0x00)
 - **Future enhancements** → Add features incrementally
 - **Don't over-engineer** → YAGNI (You Aren't Gonna Need It)
 
-### 9. Configuration Management
+### 10. Configuration Management
 
 - **Externalize configuration** - Never hardcode environment-specific values
 - **Use configuration files or environment variables** - JSON, YAML, .env files, etc.
@@ -219,7 +176,7 @@ await self._send_command(bytes([0x07]), expected_status=0x00)
 - **Provide sensible defaults** - But require explicit values for critical settings
 - **Document all configuration options** - Make it clear what each setting does
 
-### 10. Function-Based Design
+### 11. Function-Based Design
 
 - **Single purpose functions** - Each function should do one thing well
 - **Clear input/output contracts** - Document parameters, return types, exceptions
@@ -227,7 +184,7 @@ await self._send_command(bytes([0x07]), expected_status=0x00)
 - **Proper parameter validation** - Check inputs at function boundaries
 - **Meaningful names** - Function names should clearly describe what they do
 
-### 11. Use Modern, Robust Tools
+### 12. Use Modern, Robust Tools
 
 **Principle:** Don't reinvent solved problems.
 
@@ -239,7 +196,7 @@ await self._send_command(bytes([0x07]), expected_status=0x00)
 
 **See language-specific rules for concrete recommendations** (e.g., `11-python-conventions.mdc`)
 
-### 12. Clean Console Output
+### 13. Clean Console Output
 
 **Principle:** Console output should be readable, not cluttered.
 
@@ -263,7 +220,7 @@ await self._send_command(bytes([0x07]), expected_status=0x00)
 - Clean success/error indicators: `✓ Connected` or `✗ Failed`
 - Essential info only: Device name, not full UUID dumps
 
-### 13. Documentation Principles
+### 14. Documentation Principles
 
 **Documentation should be:**
 - **Concise** → Short READMEs, detailed docs separate
@@ -307,7 +264,7 @@ Brief description (2-3 sentences max).
 - Protocols: `docs/protocols/`
 ```
 
-### 14. Timeless Code & Comments
+### 15. Timeless Code & Comments
 
 **Principle:** Code should make sense 2 years from now without context.
 
@@ -315,7 +272,7 @@ Brief description (2-3 sentences max).
 - ❌ Story numbers ("Story 1 version", "Story 2 will add...")
 - ❌ Task numbers ("Task 2.3 implementation")
 - ❌ Implementation order ("First version", "Future enhancement note")
-- ❌ Project structure ("This is part of clearsky-sense")
+- ❌ Project-specific references in generic code
 
 **Good references:**
 - ✅ "Scan for devices via service UUID"
@@ -323,7 +280,7 @@ Brief description (2-3 sentences max).
 - ✅ "Validates input data format"
 - ✅ "Platform-agnostic implementation"
 
-### 15. Measure & Improve
+### 16. Measure & Improve
 
 **Metrics:**
 - **Lines of code** → Simple operations should be 10-50 lines
@@ -403,23 +360,35 @@ When adding third-party dependencies:
 
 ## Application to Implementation
 
-**When implementing stories:**
+**When implementing:**
 
-1. **Structure planning** → Think modular from start
-2. **Extract utilities early** → Don't inline boilerplate
-3. **Use frameworks** → typer, rich, established tools
-4. **Target conciseness** → 10-50 lines for simple operations
-5. **No story references** → Code is timeless
-6. **No unnecessary docs** → Only deliverables
-7. **Challenge complexity** → Question every abstraction
-8. **Fail fast** → Clear error messages, no defensive coding
+1. **Think architecturally first** → Recognize patterns, apply design solutions
+2. **Structure planning** → Think modular from start
+3. **Extract utilities early** → Don't inline boilerplate
+4. **Use frameworks** → Established tools over custom solutions
+5. **Target conciseness** → 10-50 lines for simple operations
+6. **No story references** → Code is timeless
+7. **No unnecessary docs** → Only deliverables
+8. **Challenge complexity** → Question every abstraction
+9. **Fail fast** → Clear error messages, no defensive coding
+10. **Apply patterns proactively** → Context managers, strategies, template methods
+
+**Before writing code, ask:**
+
+1. **"Have I seen this pattern before?"** → Consider abstraction
+2. **"Is there manual setup/cleanup?"** → Context Manager (RAII)
+3. **"Are there if/else chains?"** → Strategy Pattern
+4. **"Is the same flow repeated?"** → Template Method
+5. **"Does this smell?"** → Consult pattern catalog
 
 ## Summary
 
-**The goal: Production-quality code that is concise, clear, modular, and timeless.**
+**The goal: Production-quality code that is concise, clear, modular, timeless, and architecturally sound.**
 
+- Think architecturally first
 - Keep it simple
 - Prioritize readability
+- Apply proven patterns
 - Delegate to utilities
 - Use robust frameworks
 - Extract repetition (DRY)
