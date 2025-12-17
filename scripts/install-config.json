@@ -64,8 +64,10 @@
       "Open your project in Cursor",
       "Try running: /feature for your first feature",
       "Use /implement to execute feature stories",
-      "Use /commit for intelligent git commits"
+      "Use /commit for intelligent git commits",
+      "Use /status to view project progress",
+      "Use /maintenance to reorganize your .junior structure"
     ],
-    "availableCommands": "/feature, /implement, /commit, /debug, /new-command"
+    "availableCommands": "/feature, /implement, /commit, /debug, /maintenance, /migrate, /refactor, /status, /new-command"
   }
 }
