@@ -10,7 +10,21 @@ These principles apply to **all software implementation** across any language, f
 
 ## Core Principles
 
-### 1. Modularity & Encapsulation
+### 1. Keep It Simple
+
+- **Implement solutions in the fewest lines possible** - Complexity is the enemy of maintainability
+- **Avoid over-engineering** - Choose straightforward approaches over clever ones
+- **Prefer explicit over implicit** - Make intent clear in code
+- **Question every abstraction** - Only abstract when you have concrete duplication
+
+### 2. Optimize for Readability
+
+- **Prioritize code clarity over micro-optimizations** - Code is read far more than written
+- **Write self-documenting code** - Clear variable and function names explain intent
+- **Add comments for "why" not "what"** - Explain reasoning, not implementation
+- **Consistent formatting and style** - Follow language conventions and team standards
+
+### 3. Modularity & Clean Architecture
 
 **Principle:** Every piece of functionality should be in the right place, with clear boundaries.
 
@@ -20,6 +34,10 @@ These principles apply to **all software implementation** across any language, f
 - **Argument parsing** → Use established frameworks, not raw implementations
 - **Output** → Use formatting libraries, not manual string building
 - **Main application** → Orchestration only, delegate to modules
+- **Group related functionality together** - Modules, packages, namespaces, directories
+- **Separate concerns clearly** - Business logic ≠ presentation ≠ data access ≠ configuration
+- **Use consistent naming conventions** - Follow language/framework standards
+- **Dependency direction** - High-level modules shouldn't depend on low-level details
 
 **Anti-pattern:** Inline everything in main
 - Configuration setup
@@ -32,7 +50,27 @@ These principles apply to **all software implementation** across any language, f
 - Display → UI modules
 - Main → Orchestration only
 
-### 2. Conciseness Without Sacrificing Clarity
+### 4. Single Responsibility
+
+**Principle:** Each module, class, function does ONE thing well.
+
+**Guidelines:**
+- **Single concern per class** → One detection method, not multiple fallbacks
+- **Single purpose functions** - Each function should do one thing well
+- **Main application** → Orchestration, not implementation
+- **Utility modules** → Focused functionality (logging, CLI UI, formatting)
+
+**Anti-pattern (mixed concerns):**
+- Class that checks both primary identifier AND fallback identifier
+- Function that validates, transforms, AND saves data
+- Module that handles both business logic AND UI rendering
+
+**Pattern (single concern):**
+- Class checks one identifier type
+- Separate utility for alternative detection
+- Each function/class has one clear purpose
+
+### 5. Conciseness Without Sacrificing Clarity
 
 **Principle:** Code should be as short as possible while remaining clear.
 
@@ -56,26 +94,115 @@ These principles apply to **all software implementation** across any language, f
 3. Use established frameworks
 4. Keep main focused on business logic
 
-### 3. Single Responsibility
+### 6. DRY (Don't Repeat Yourself) - ZERO TOLERANCE
 
-**Principle:** Each module, class, function does ONE thing well.
+**Principle:** NEVER duplicate code, configuration, or logic. **If it appears twice, it's a bug.**
 
-**Guidelines:**
-- **Single concern per class** → One detection method, not multiple fallbacks
-- **Main application** → Orchestration, not implementation
-- **Utility modules** → Focused functionality (logging, CLI UI, formatting)
+**Detection pattern:** Writing similar code for the 2nd time? STOP. Extract it NOW.
 
-**Anti-pattern (mixed concerns):**
-- Class that checks both primary identifier AND fallback identifier
-- Function that validates, transforms, AND saves data
-- Module that handles both business logic AND UI rendering
+**What counts as duplication (with thresholds):**
+- ❌ **3+ lines of code** repeated in 2+ places → Extract to function immediately
+- ❌ **Validation/parsing logic** repeated → Create `_validate_*()`, `_parse_*()`  helpers
+- ❌ **Crypto operations** repeated (sign, verify, load keys) → Create reusable crypto utilities
+- ❌ **Send-wait patterns** repeated → Create `_send_command()`, `exchange()` abstractions
+- ❌ **Documentation** repeated across files → Write once, cross-reference everywhere
+- ❌ **Configuration values** hardcoded in multiple places → Extract to config module/file
 
-**Pattern (single concern):**
-- Class checks one identifier type
-- Separate utility for alternative detection
-- Each function/class has one clear purpose
+**Real examples from code reviews:**
 
-### 4. Progressive Enhancement
+**❌ Violation 1: Repeated cryptographic pattern**
+```python
+# Appeared in 2 places:
+private_key_der = load_private_key_part_c()
+loaded_key = load_der_private_key(private_key_der, ...)
+private_key = cast(ec.EllipticCurvePrivateKey, loaded_key)
+signature_der = private_key.sign(challenge, ec.ECDSA(crypto_hashes.SHA256()))
+r, s = decode_dss_signature(signature_der)
+signature_rs = r.to_bytes(32, "big") + s.to_bytes(32, "big")
+```
+
+**✅ Fix: Extract to utilities**
+```python
+def get_private_key() -> ec.EllipticCurvePrivateKey: ...
+def sign_challenge(challenge: bytes) -> bytes: ...
+
+# Usage (was 6 lines, now 1):
+signature = sign_challenge(sensor_challenge)
+```
+
+**❌ Violation 2: Repeated validation pattern**
+```python
+# Appeared in 3 places:
+await asyncio.wait_for(self.response_event.wait(), timeout=5.0)
+if self.response_data is None or len(self.response_data) < 2:
+    raise RuntimeError(...)
+if self.response_data[0] != opcode or self.response_data[1] != status:
+    raise RuntimeError(...)
+```
+
+**✅ Fix: Extract validation helper**
+```python
+async def _wait_for_ack(self, opcode: int, expected_status: int, timeout: float): ...
+
+# Usage (was 6 lines, now 1):
+await self._wait_for_ack(0x07, 0x00)
+```
+
+**❌ Violation 3: Repeated send-wait pattern**
+```python
+# Appeared in 2 places:
+self.dispatcher.register(opcode, handler)
+self.response_event.clear()
+await self.client.write_gatt_char(char, command)
+await self._wait_for_ack(opcode, expected_status)
+```
+
+**✅ Fix: Extract command sender**
+```python
+async def _send_command(self, command: bytes, expected_status: int): ...
+
+# Usage (was 4 lines, now 1):
+await self._send_command(bytes([0x07]), expected_status=0x00)
+```
+
+**Enforcement checklist (before every commit):**
+1. ☑️ Search for patterns appearing 2+ times
+2. ☑️ Check if validation/parsing logic is duplicated
+3. ☑️ Look for copy-pasted code with minor modifications
+4. ☑️ Verify crypto operations use shared utilities
+5. ☑️ Ensure documentation references, not duplicates
+
+**Language-specific applications:**
+- **Python**: Use decorators, context managers, helper modules
+- **JavaScript**: Extract to functions, modules, and use higher-order functions
+- **C++**: Templates, functions, and header files for shared code
+- **Bash**: Functions and sourced script libraries
+- **CSS**: Variables, mixins, and component classes
+
+**When in doubt:** If changing this logic would require editing 2+ files, you have duplication.
+
+### 7. Fail Fast & Error Handling
+
+**Principle:** Validate inputs early and fail with clear messages. Don't be defensive.
+
+**Core philosophy (see 00-junior.mdc for full details):**
+- **Validate inputs early** - Check preconditions at function/method entry points
+- **Use proper error handling** - Throw exceptions, return error types, or use language-appropriate mechanisms
+- **Avoid silent failures** - Don't swallow errors or return success when operations fail
+- **Make errors actionable** - Provide clear error messages that help users/developers fix issues
+- **Distinguish error types** - Separate user errors from system errors from programming errors
+- **DON'T handle error conditions unless resolution is clear** - If you don't know how to properly handle an error, just crash with a clear message and let humans decide
+
+**Language-appropriate error handling:**
+
+- **Python**: Exceptions for exceptional conditions, return None/Optional for expected missing values
+- **JavaScript**: Throw errors for unexpected conditions, return null/undefined for missing data
+- **C++**: Exceptions or error codes, RAII for resource management
+- **Rust**: Result types for recoverable errors, panic for programming errors
+- **Go**: Multiple return values with error as second return
+- **Bash**: Exit codes and proper error output to stderr
+
+### 8. Progressive Enhancement
 
 **Principle:** Start simple, add complexity only when needed.
 
@@ -84,22 +211,23 @@ These principles apply to **all software implementation** across any language, f
 - **Future enhancements** → Add features incrementally
 - **Don't over-engineer** → YAGNI (You Aren't Gonna Need It)
 
-### 5. DRY (Don't Repeat Yourself) - Strictly Enforced
+### 9. Configuration Management
 
-**Principle:** NEVER duplicate code, configuration, or logic.
+- **Externalize configuration** - Never hardcode environment-specific values
+- **Use configuration files or environment variables** - JSON, YAML, .env files, etc.
+- **Validate configuration on startup** - Fail fast if required config is missing
+- **Provide sensible defaults** - But require explicit values for critical settings
+- **Document all configuration options** - Make it clear what each setting does
 
-**Examples:**
-- ❌ Logging configuration duplicated in multiple places
-- ❌ Progress bar logic copy-pasted
-- ❌ Error handling patterns repeated
-- ❌ Code examples duplicated in documentation
+### 10. Function-Based Design
 
-**Solutions:**
-- ✅ Extract to utility functions/classes
-- ✅ Reference don't duplicate (documentation)
-- ✅ Configuration files for repeated values
+- **Single purpose functions** - Each function should do one thing well
+- **Clear input/output contracts** - Document parameters, return types, exceptions
+- **Avoid side effects when possible** - Pure functions are easier to test and reason about
+- **Proper parameter validation** - Check inputs at function boundaries
+- **Meaningful names** - Function names should clearly describe what they do
 
-### 6. Use Modern, Robust Tools
+### 11. Use Modern, Robust Tools
 
 **Principle:** Don't reinvent solved problems.
 
@@ -107,10 +235,11 @@ These principles apply to **all software implementation** across any language, f
 - **Use established frameworks** → Don't build from scratch
 - **Use modern libraries** → Leverage community solutions
 - **Use standard tools** → Follow language conventions
+- **Choose libraries wisely** (see Dependencies section below)
 
 **See language-specific rules for concrete recommendations** (e.g., `11-python-conventions.mdc`)
 
-### 7. Clean Console Output
+### 12. Clean Console Output
 
 **Principle:** Console output should be readable, not cluttered.
 
@@ -134,7 +263,7 @@ These principles apply to **all software implementation** across any language, f
 - Clean success/error indicators: `✓ Connected` or `✗ Failed`
 - Essential info only: Device name, not full UUID dumps
 
-### 8. Documentation Principles
+### 13. Documentation Principles
 
 **Documentation should be:**
 - **Concise** → Short READMEs, detailed docs separate
@@ -178,7 +307,7 @@ Brief description (2-3 sentences max).
 - Protocols: `docs/protocols/`
 ```
 
-### 9. Timeless Code & Comments
+### 14. Timeless Code & Comments
 
 **Principle:** Code should make sense 2 years from now without context.
 
@@ -194,7 +323,7 @@ Brief description (2-3 sentences max).
 - ✅ "Validates input data format"
 - ✅ "Platform-agnostic implementation"
 
-### 10. Measure & Improve
+### 15. Measure & Improve
 
 **Metrics:**
 - **Lines of code** → Simple operations should be 10-50 lines
@@ -208,7 +337,71 @@ Brief description (2-3 sentences max).
 3. Use frameworks → replace custom code
 4. Simplify logic → question each line
 
-## Application to Implement Command
+## Language-Specific Guidelines
+
+### Script and Automation (Bash, PowerShell, etc.)
+
+- **Use strict mode** - `set -euo pipefail` in Bash, `Set-StrictMode` in PowerShell
+- **Validate all inputs** - Check arguments and environment variables exist
+- **Use functions for repeated operations** - Don't copy-paste command sequences
+- **Proper logging and output** - Structured output, clear error messages
+- **Template external files** - Never inline configuration content in scripts
+
+### Application Code (Python, JavaScript, C++, etc.)
+
+- **Use language-appropriate error handling** - Exceptions, error types, return codes
+- **Proper resource management** - Close files, connections, free memory appropriately
+- **Input validation at boundaries** - API endpoints, function entry points
+- **Unit tests for critical functionality** - Test error conditions, not just happy paths
+- **Use language idioms** - Follow established patterns and conventions
+
+### Build and Infrastructure
+
+- **Reproducible builds** - Same inputs always produce same outputs
+- **Environment isolation** - Use containers, virtual environments, or sandboxes
+- **Clear dependency management** - Explicit version pinning, lock files
+- **Automated verification** - Tests, linting, security scanning
+- **Documentation as code** - Keep docs close to implementation
+
+## Critical Thinking and Decision Making
+
+### Challenge Ideas and Assumptions
+
+- Question the "why" behind every technical decision
+- Identify unstated assumptions in requirements and designs
+- Ask "What could go wrong?" for proposed solutions
+- Consider edge cases and failure scenarios
+
+### Provide Constructive Pushback
+
+- Disagree when you have evidence-based concerns
+- Offer alternative approaches with clear reasoning
+- Challenge overly complex solutions in favor of simpler ones
+- Point out potential security, performance, or maintainability issues
+
+### Focus on Evidence Over Agreement
+
+- Base decisions on data, benchmarks, and measurable outcomes
+- Cite specific examples when discussing trade-offs
+- Reference industry standards and established patterns
+- Avoid "yes, and..." responses when "no, because..." is more appropriate
+
+## Dependencies Management
+
+### Choose Libraries Wisely
+
+When adding third-party dependencies:
+
+- **Select the most popular and actively maintained option**
+- **Check the library's repository for:**
+  - Recent commits (within last 6 months)
+  - Active issue resolution
+  - Number of stars/downloads
+  - Clear documentation
+- **Consider the long-term maintenance burden**
+- **Evaluate if the problem can be solved with standard library features**
+
+## Application to Implementation
 
 **When implementing stories:**
 
@@ -218,13 +411,18 @@ Brief description (2-3 sentences max).
 4. **Target conciseness** → 10-50 lines for simple operations
 5. **No story references** → Code is timeless
 6. **No unnecessary docs** → Only deliverables
+7. **Challenge complexity** → Question every abstraction
+8. **Fail fast** → Clear error messages, no defensive coding
 
 ## Summary
 
 **The goal: Production-quality code that is concise, clear, modular, and timeless.**
 
+- Keep it simple
+- Prioritize readability
 - Delegate to utilities
 - Use robust frameworks
-- Extract repetition
-- Keep main code focused
+- Extract repetition (DRY)
+- Fail fast with clear errors
 - Make it readable 2 years from now
+- Challenge complexity at every step

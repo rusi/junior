@@ -146,17 +146,66 @@ def test_user_cannot_access_admin_page_without_permission():
 
 ### Imports
 
+**Order:** future, stdlib, third-party, local
+
+**Clarity convention - Classes vs Functions:**
+
+**RULE:** Third-party **classes** OK to import directly (capitalized, clear). Third-party **functions** need module prefix.
+
 ```python
-# Order: future, stdlib, third-party, local
-from __future__ import annotations
+# ✅ CLASSES - Import directly (capitalized = clear)
+from bleak import BleakClient, BleakScanner
+from bleak.backends.device import BLEDevice
 
-import os
-import sys
+# Usage
+client = BleakClient(device)  # Clear it's a class from bleak
+scanner = BleakScanner()
 
-import pytest
-from PySide6.QtCore import QObject
+# ✅ MODULES - Import with clear alias for functions
+from cryptography.hazmat import backends as crypto_backends
+from cryptography.hazmat.primitives import ciphers as crypto_ciphers
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec, utils as crypto_utils
 
-from app.models import User
+# Usage - Functions prefixed, classes/constants OK
+backend = crypto_backends.default_backend()  # Function - needs prefix
+cipher = crypto_ciphers.Cipher(...)  # Function - needs prefix
+algo = hashes.SHA256()  # Function - but hashes. prefix makes it clear
+key = ec.EllipticCurvePrivateKey  # Class - clear even without prefix
+r, s = crypto_utils.decode_dss_signature(...)  # Function - needs prefix
+```
+
+**Why this matters:**
+
+```python
+# ❌ BAD - Functions look like our code
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
+
+backend = default_backend()  # Whose function is this?
+r, s = decode_dss_signature(sig)  # Decode what? From where?
+
+# ✅ GOOD - Clear origin
+from cryptography.hazmat import backends as crypto_backends
+from cryptography.hazmat.primitives.asymmetric import utils as crypto_utils
+
+backend = crypto_backends.default_backend()  # Crypto's backend
+r, s = crypto_utils.decode_dss_signature(sig)  # Crypto's decoder
+```
+
+**Quick reference:**
+
+| Type | Import Style | Example |
+|------|-------------|---------|
+| **Classes** (capitalized) | Direct import | `from bleak import BleakClient` |
+| **Functions** (lowercase) | Module prefix | `from cryptography.hazmat import backends as crypto_backends` |
+| **Our own code** | Always direct | `from app.models import User` |
+| **Standard library** | Direct OK | `from typing import cast` |
+
+**Exceptions:**
+- Standard library: Always OK to import directly
+- Our own code: Always OK to import classes/functions
+- Very common patterns: OK if idiomatic (`import asyncio`, `import json`)
 ```
 
 ### String Formatting
