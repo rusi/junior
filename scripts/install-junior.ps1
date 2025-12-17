@@ -301,7 +301,10 @@ function Get-FileChecksum {
 # Function to check file conflict type
 # Returns: 0=no conflict, 1=user modified (preserve), 2=uncontrolled file (abort)
 function Test-FileConflict {
-    param([string]$DestFile)
+    param(
+        [string]$DestFile,
+        [string]$SourceFile
+    )
 
     # File doesn't exist - no conflict
     if (-not (Test-Path $DestFile -PathType Leaf)) {
@@ -309,18 +312,33 @@ function Test-FileConflict {
     }
 
     # File exists - determine conflict type
+    # Helper: Check if file matches what we're installing
+    $matchesSource = $false
+    $sourcePath = Join-Path $script:RepoRoot $SourceFile
+    if (Test-Path $sourcePath -PathType Leaf) {
+        $newSourceChecksum = Get-FileChecksum -FilePath $sourcePath
+        $currentChecksum = Get-FileChecksum -FilePath $DestFile
+        $matchesSource = ($currentChecksum -eq $newSourceChecksum)
+    }
+
     # First check: is this an upgrade (Junior was previously installed)?
     if (-not $script:IsUpgrade) {
-        # Fresh install + file exists = uncontrolled file
-        return 2
+        # Fresh install + file exists
+        if ($matchesSource) {
+            return 0  # Identical to source - no conflict
+        }
+        return 2  # Different from source - uncontrolled file
     }
 
     # This is an upgrade - check if file was installed by Junior
     $originalChecksum = if ($script:ExistingMetadata.files.$DestFile) { $script:ExistingMetadata.files.$DestFile.sha256 } else { $null }
 
     if (-not $originalChecksum) {
-        # Upgrade but file NOT in metadata = uncontrolled file
-        return 2
+        # Upgrade but file NOT in metadata
+        if ($matchesSource) {
+            return 0  # Identical to source - no conflict
+        }
+        return 2  # Different from source - uncontrolled file
     }
 
     # File was installed by Junior - check if user modified it
@@ -343,7 +361,7 @@ function Install-SingleFile {
     $fileExisted = Test-Path $Dest -PathType Leaf
 
     # Check for file conflicts
-    $conflictType = Test-FileConflict -DestFile $Dest
+    $conflictType = Test-FileConflict -DestFile $Dest -SourceFile $Source
 
     if ($conflictType -eq 1) {
         # User modified Junior file - preserve

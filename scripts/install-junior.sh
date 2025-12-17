@@ -80,20 +80,32 @@ check_file_conflict() {
     fi
 
     # File exists - determine conflict type
+    # Helper function to check if file matches what we're installing
+    local matches_source=false
+    if [ -f "$REPO_ROOT/$source_file" ]; then
+        local new_source_checksum=$(calculate_checksum "$REPO_ROOT/$source_file")
+        local current_checksum=$(calculate_checksum "$dest_file")
+        [ "$current_checksum" = "$new_source_checksum" ] && matches_source=true
+    fi
+
     # First check: is this an upgrade (Junior was previously installed)?
     if [ "$IS_UPGRADE" != true ]; then
-        # Fresh install + file exists = uncontrolled file
-        return 2
+        # Fresh install + file exists
+        if [ "$matches_source" = true ]; then
+            return 0  # Identical to source - no conflict
+        fi
+        return 2  # Different from source - uncontrolled file
     fi
 
     # This is an upgrade - check if file was installed by Junior
     local original_checksum=$(echo "$EXISTING_METADATA" | jq -r ".files[\"$dest_file\"].sha256 // \"\"")
 
     if [ -z "$original_checksum" ]; then
-        # Upgrade but file NOT in metadata = uncontrolled file
-        # File exists on disk but Junior didn't install it
-        # User must have created this file or copied it manually
-        return 2
+        # Upgrade but file NOT in metadata
+        if [ "$matches_source" = true ]; then
+            return 0  # Identical to source - no conflict
+        fi
+        return 2  # Different from source - uncontrolled file
     fi
 
     # File was installed by Junior - check if user modified it
