@@ -15,6 +15,26 @@ Contract-style (clarification → contract → approval → generation)
 - Want to document debugging process for future reference
 - Issue is complex enough that guessing won't work
 
+## Execution Pattern
+
+**Simple investigations** (execute immediately):
+- Read logs, check configs, grep patterns
+- Run diagnostic commands
+- Compare known-good vs broken states
+- Example: "Why is service crashing?" → Check logs, verify config, test
+
+**Complex investigations** (use `/implement` for execution):
+- Build test applications
+- Hardware testing (flash, collect data)
+- Try alternative frameworks/stacks
+- Multi-step experiments requiring code changes
+- Example: "ESP32 notifications not working" → Build minimal test app, flash, compare with working implementation
+
+**This command:**
+1. Always creates investigation plan (hypotheses, steps, expected evidence)
+2. Executes immediately if simple (Steps 1-8)
+3. Stops after planning if complex → User runs `/implement` to execute steps
+
 ## 🔴 CRITICAL: Evidence-Based Investigation
 
 **This command enforces rigorous evidence-based debugging:**
@@ -146,7 +166,7 @@ Rank hypotheses by:
 1. **[Hypothesis 1]** (High likelihood)
    - Explains: [symptoms it accounts for]
    - Test: [how to verify]
-   
+
 2. **[Hypothesis 2]** (Medium likelihood)
    - Explains: [symptoms it accounts for]
    - Test: [how to verify]
@@ -169,6 +189,8 @@ Options: yes | edit: [changes] | add-hypothesis
 ```
 
 Wait for user approval.
+
+**Note:** If investigation requires complex implementation (building apps, hardware testing, etc.), plan will stop after generation. User will use `/implement` to execute steps.
 
 ### Step 7: Generate Debug Package
 
@@ -257,15 +279,37 @@ See [investigation/dbg-{N}-steps.md](./investigation/dbg-{N}-steps.md) for hypot
 | 1 | [Hypothesis being tested] | 🔵 In Progress | - |
 | 2 | [Next hypothesis] | ⚪ Pending | - |
 
+## Decision Tree
+
+[Optional: Add decision tree if multi-step investigation with fallbacks]
+
+```
+Step 1: [First test]
+    ✅ Works → [What this means]
+    ❌ Fails → Step 2
+
+Step 2: [Fallback test]
+    ✅ Works → [What this means]
+    ❌ Fails → Step 3
+```
+
 ## Quick Links
 
-- [Step 1: {name}](./dbg-{N}-step-1-{name}.md)
-- [Step 2: {name}](./dbg-{N}-step-2-{name}.md)
+- [Step 1: {name}](./dbg-{N}-step-1-{name}.md) ⭐ START HERE
+- [Step 2: {name}](./dbg-{N}-step-2-{name}.md) (if Step 1 fails)
+- [Step 3: {name}](./dbg-{N}-step-3-{name}.md) (if Step 1 & 2 fail)
 ```
 
 #### 7.4: Generate Individual Step Files
 
-**dbg-{N}-step-{M}-{name}.md:**
+**🔴 CRITICAL: Create skeleton files for ALL planned steps upfront**
+
+- **Step 1:** Detailed file with complete test procedure (actively being worked on)
+- **Steps 2-N:** Skeleton files with template (ready to fill when needed)
+
+**Why:** Complete investigation plan from the start, not "figure it out later"
+
+**dbg-{N}-step-{M}-{name}.md template:**
 
 ```markdown
 # Step {M}: [Hypothesis Name]
@@ -277,7 +321,7 @@ See [investigation/dbg-{N}-steps.md](./investigation/dbg-{N}-steps.md) for hypot
 
 **Hypothesis:** [Clear statement of what we think might be wrong]
 
-**This would explain:** 
+**This would explain:**
 - [Symptom 1 this accounts for]
 - [Symptom 2 this accounts for]
 
@@ -334,10 +378,107 @@ See [investigation/dbg-{N}-steps.md](./investigation/dbg-{N}-steps.md) for hypot
 
 ## Next Steps
 
-[What should happen next based on findings?]
+**If this step succeeds/fails:**
+- [Action A]
+- [Action B]
+
+**If inconclusive:**
+- [What additional data needed]
+- [Alternative approaches]
+```
+
+**🔴 For Step 2+ (skeleton files):**
+
+Create skeleton with same template structure but mark sections clearly:
+
+- **Test Procedure:** Brief description or "To be determined based on Step 1 results"
+- **Steps to Test:** High-level outline (can be refined when reached)
+- **Expected Evidence:** General expectations
+- **Findings:** Empty (will fill when executing this step)
+- **Conclusion:** Not Started
+
+**Example skeleton for Step 2:**
+
+```markdown
+# Step 2: Test Alternative Device
+
+> **Status:** Not Started (Fallback if Step 1 fails)
+> **Hypothesis:** [Brief hypothesis]
+
+## What We're Testing
+
+**Hypothesis:** [One sentence theory]
+
+**This would explain:**
+- [Key symptom]
+
+**This would NOT explain:**
+- [Gap]
+
+## Test Procedure
+
+### Steps to Test
+
+1. [ ] [High-level step 1 - details to be determined]
+2. [ ] [High-level step 2]
+3. [ ] [High-level step 3]
+
+### Expected Evidence
+
+**If hypothesis is TRUE:**
+- [General expectation]
+
+**If hypothesis is FALSE:**
+- [General expectation]
+
+## Findings
+
+[To be filled when executing this step]
+
+## Conclusion
+
+> **Status:** Not Started
+
+[To be filled when executing this step]
+
+## Next Steps
+
+[To be filled based on results]
+```
+
+
+### Step 7.5: Decide Execution Strategy
+
+**After generating debug package, assess complexity:**
+
+**Simple Investigation (execute immediately):**
+- ✅ Checking configuration values
+- ✅ Reading log files
+- ✅ Grepping for patterns
+- ✅ Running diagnostic commands
+- ✅ Comparing file contents
+- ✅ Verifying environment variables
+
+**Complex Investigation (STOP and use `/implement`):**
+- ❌ Building test applications
+- ❌ Writing new code/components
+- ❌ Flashing hardware
+- ❌ Testing across multiple devices
+- ❌ Trying alternative frameworks/stacks
+- ❌ Multi-hour investigations
+
+**Decision:**
+```
+if (steps require building/flashing/complex testing):
+    STOP after Step 7
+    Present: "Investigation plan created. Use /implement to execute steps."
+else:
+    Continue to Step 8 (execute immediately)
 ```
 
 ### Step 8: Investigation Execution
+
+**⚠️ Only proceed if investigation is simple (no implementation required)**
 
 **For each step, Junior must:**
 
@@ -441,7 +582,7 @@ Create `dbg-{N}-resolution.md`:
 > Status: Resolved
 ```
 
-**Present completion:**
+**Present completion (for simple investigations executed immediately):**
 
 ```
 ✅ Investigation Complete!
@@ -459,6 +600,27 @@ Create `dbg-{N}-resolution.md`:
 3. Test the fix thoroughly
 
 What would you like to do next?
+```
+
+**Present completion (for complex investigations requiring /implement):**
+
+```
+✅ Investigation Plan Created!
+
+**Issue:** [Issue name]
+**Steps:** [Number] investigation steps planned
+**Strategy:** [Brief description of approach]
+
+📁 Investigation plan documented at:
+   .junior/debugging/dbg-{N}-{name}/
+
+🎯 Next Steps:
+1. Review investigation plan: .junior/debugging/dbg-{N}-{name}/investigation/dbg-{N}-steps.md
+2. Execute Step 1: Use `/implement` and reference "dbg-{N}-step-1-{name}"
+3. Document findings in step file
+4. Proceed based on results (decision tree in steps.md)
+
+Ready to start? Run `/implement` to execute the first investigation step.
 ```
 
 ## Tool Integration
@@ -526,6 +688,56 @@ Evidence suggests this issue has multiple causes:
 
 Recommend addressing in order of impact.
 Continue to resolution? [yes/no]
+```
+
+---
+
+## Using /implement with Debug Steps
+
+**For complex investigations requiring implementation:**
+
+After `/debug` creates the investigation plan, use `/implement` to execute steps:
+
+```bash
+# User runs:
+/implement
+
+# Junior asks: "What would you like to implement?"
+# User responds: "Execute debug step 1 from dbg-1-esp32-ble-notifications"
+
+# Junior:
+# 1. Reads dbg-1-step-1-minimal-stelo-app.md
+# 2. Generates implementation plan (build test app, flash, collect logs)
+# 3. Executes systematically
+# 4. Updates step file with findings
+# 5. Updates dbg-1-steps.md progress
+```
+
+**Benefits:**
+- Systematic execution with progress tracking
+- Clear separation: `/debug` = planning, `/implement` = execution
+- User controls when investigation starts
+- Can pause/resume investigation work
+- Full implementation tracking (same as feature development)
+
+**Completion message for complex investigations:**
+
+```
+✅ Investigation Plan Created!
+
+**Issue:** [Issue name]
+**Steps:** [Number] investigation steps planned
+**Strategy:** [Brief description]
+
+📁 Investigation plan documented at:
+   .junior/debugging/dbg-{N}-{name}/
+
+🎯 Next Steps:
+1. Review the investigation plan in dbg-{N}-steps.md
+2. Use /implement to execute Step 1: [step name]
+3. Document findings and proceed to next steps
+
+Ready to start? Run `/implement` and reference this debug session.
 ```
 
 ---

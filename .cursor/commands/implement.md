@@ -410,6 +410,15 @@ If ANY tests fail or coverage is incomplete:
 - Re-run test suite until 100% pass rate AND 100% coverage achieved
 - Only then proceed to mark story as complete
 
+**⚠️ NEVER SKIP TYPE CHECKING OR FAILING TESTS TO "MOVE FORWARD" ⚠️**
+
+- ❌ **FORBIDDEN:** Ignoring type checking errors to continue implementation
+- ❌ **FORBIDDEN:** Commenting out failing tests to reach completion
+- ❌ **FORBIDDEN:** Using `# type: ignore` or `@ts-ignore` without fixing root cause
+- ✅ **REQUIRED:** Fix type errors immediately when they appear
+- ✅ **REQUIRED:** Fix failing tests immediately - work is incomplete until tests pass
+- **Exception:** User explicitly requests to skip OR you ask and they approve
+
 **For non-coding projects:**
 
 - Verify all tasks completed
@@ -809,10 +818,15 @@ Update story notes section to document the blocking issue.
 
 **Resolution strategies:**
 
-1. **Try alternative implementation approach** - Is there another way to achieve the same goal?
-2. **Research solution** - Use `/research` command for technical investigation
-3. **Break down into smaller components** - Can this be split into manageable pieces?
-4. **Maximum 3 attempts** - After 3 failed attempts, escalate or document as blocked
+1. **Evidence-based debugging** - Collect concrete evidence (logs, tests, measurements) before diagnosing
+2. **Verify root cause** - Form hypothesis based on evidence, test it, confirm before fixing
+3. **Check scope** - If feature doesn't work, check task scope or ask user before skipping
+4. **Try alternative approach** - Is there another way to achieve the same goal?
+5. **Research solution** - Use `/research` command for technical investigation
+6. **Break down into smaller components** - Can this be split into manageable pieces?
+7. **Maximum 3 attempts** - After 3 failed attempts, escalate or document as blocked
+
+**⚠️ CRITICAL: NO speculation or assumptions. See `13-software-implementation-principles.mdc` section 9 for evidence-based debugging process.**
 
 **Document blocked tasks:**
 - Mark task with ⚠️ and blocking issue description
@@ -844,6 +858,8 @@ Update story notes section to document the blocking issue.
 - Guide test-first approach for new functionality
 - Ensure tests pass and coverage is 100% before marking implementation complete
 - Remind about 100% test pass rate and 100% coverage requirements
+- **NEVER skip type checking errors or failing tests to "move forward"**
+- Fix quality issues immediately - don't defer or ignore them
 
 **Progress tracking:**
 

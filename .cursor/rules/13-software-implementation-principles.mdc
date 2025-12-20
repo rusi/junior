@@ -4,6 +4,35 @@ alwaysApply: true
 
 # Software Implementation Principles
 
+## ⚠️ TIMELESS CODE REMINDER ⚠️
+
+**BEFORE EVERY file write/edit, ask: "Would this make sense in 2 years?"**
+
+**NEVER reference in ANY deliverable:**
+- ❌ Story numbers ("Story 1", "Story 2", etc.)
+- ❌ Task numbers ("Task 2.3", etc.)
+- ❌ Implementation order ("First version", "After Task X")
+- ❌ Sprint/iteration references
+
+**This applies to:**
+- Code (source files, comments)
+- Documentation (README, guides, specs)
+- Log messages (console output)
+- Configuration files
+- Test names and descriptions
+
+**Test:** If a new developer reads this in 2 years with NO context, would they understand what it does and why?
+
+**Examples:**
+- ❌ `// Story X: Add feature`
+- ✅ `// Scan for nearby devices`
+- ❌ `"Story X: Feature Name"`
+- ✅ `"Feature Active"`
+- ❌ `test_story_N_feature()`
+- ✅ `test_device_discovery()`
+
+---
+
 ## Context
 
 These principles apply to **all software implementation** across any language, framework, or domain.
@@ -140,7 +169,7 @@ These principles apply to **all software implementation** across any language, f
 
 ### 8. Fail Fast & Error Handling
 
-**Principle:** Validate inputs early and fail with clear messages. Don't be defensive.
+**Principle:** Validate inputs early and fail with clear messages. Don't be defensive. Never skip errors to "move forward".
 
 **Core philosophy (see 00-junior.mdc for full details):**
 - **Validate inputs early** - Check preconditions at function/method entry points
@@ -149,6 +178,33 @@ These principles apply to **all software implementation** across any language, f
 - **Make errors actionable** - Provide clear error messages that help users/developers fix issues
 - **Distinguish error types** - Separate user errors from system errors from programming errors
 - **DON'T handle error conditions unless resolution is clear** - If you don't know how to properly handle an error, just crash with a clear message and let humans decide
+
+**CRITICAL: Never Skip Quality Checks**
+
+- ❌ **FORBIDDEN:** Skipping type checking errors to "move forward"
+- ❌ **FORBIDDEN:** Ignoring failing tests to "make progress"
+- ❌ **FORBIDDEN:** Commenting out type checks that fail
+- ❌ **FORBIDDEN:** Disabling linter rules that catch real issues
+- ❌ **FORBIDDEN:** Using `# type: ignore` or `@ts-ignore` without understanding root cause
+- ✅ **REQUIRED:** Fix type errors immediately when they appear
+- ✅ **REQUIRED:** Fix failing tests immediately - work is NOT complete until tests pass
+- ✅ **REQUIRED:** Address linter errors, don't suppress them
+- ✅ **REQUIRED:** Understand WHY the check is failing before any suppression
+- **Exception:** User explicitly asks to skip checks OR you ask and they approve
+
+**Why this matters:**
+- Type errors indicate mismatched assumptions about data structures
+- Failing tests indicate broken functionality or incorrect test expectations
+- Linter errors catch real bugs and code smells
+- Skipping these checks hides problems that will surface later (often in production)
+- The cost to fix issues grows exponentially with time (dev → staging → production)
+
+**When you encounter errors:**
+1. **STOP** - Don't continue implementing until error is resolved
+2. **INVESTIGATE** - Understand why the error is occurring (evidence-based)
+3. **FIX ROOT CAUSE** - Don't just suppress the error
+4. **VERIFY FIX** - Confirm the error is truly resolved
+5. **Only then CONTINUE** - Resume work with confidence
 
 **Language-appropriate error handling:**
 
@@ -159,7 +215,154 @@ These principles apply to **all software implementation** across any language, f
 - **Go**: Multiple return values with error as second return
 - **Bash**: Exit codes and proper error output to stderr
 
-### 9. Progressive Enhancement
+### 9. Evidence-Based Debugging - ZERO TOLERANCE
+
+**Principle:** Root cause analysis MUST be evidence-based. NO speculation, NO assumptions, NO skipping broken features.
+
+**Core Requirements:**
+
+- ❌ **FORBIDDEN:** Speculation ("maybe it's...", "could be...", "probably...")
+- ❌ **FORBIDDEN:** Assumptions about root cause without verification
+- ❌ **FORBIDDEN:** Skipping non-working features assuming "out of scope"
+- ❌ **FORBIDDEN:** Fixing symptoms without understanding root cause
+- ✅ **REQUIRED:** Collect concrete evidence before diagnosing
+- ✅ **REQUIRED:** Verify hypothesis with reproducible tests
+- ✅ **REQUIRED:** Check task/story scope or ask user before skipping ANYTHING
+- ✅ **REQUIRED:** Measure before and after to confirm fix
+
+**Evidence-Based Process:**
+
+1. **Observe** - What exactly is failing? What are the symptoms?
+2. **Measure** - Collect data: logs, stack traces, test output, measurements
+3. **Hypothesize** - Form theory based on evidence (not guesses)
+4. **Test Hypothesis** - Create reproducible test that validates/invalidates theory
+5. **Verify Root Cause** - Confirm the actual cause with evidence
+6. **Fix** - Implement fix targeting the verified root cause
+7. **Confirm Fix** - Measure again to prove the fix works
+
+**Evidence Sources:**
+
+- **Logs**: Error messages, stack traces, debug output
+- **Tests**: Failing test cases, reproducible scenarios
+- **Measurements**: Performance metrics, timing data, resource usage
+- **Code Analysis**: Static analysis, type checking, linter errors
+- **System State**: Variable values, object state, database state
+- **Network Analysis**: Request/response logs, packet captures
+
+**Anti-Patterns (Never Do This):**
+
+```markdown
+❌ "The connection is probably timing out, let me increase the timeout."
+   → NO EVIDENCE. What's the actual timeout value? What does the log say?
+
+❌ "This feature doesn't work, but it's probably not in scope, skip it."
+   → NEVER skip without checking task or asking user.
+
+❌ "It might be a race condition, let me add sleep()."
+   → Speculation without proof. Find the actual race.
+
+❌ "Could be a memory issue, let me add caching."
+   → Measure memory first. Prove it's the issue.
+```
+
+**Good Patterns (Always Do This):**
+
+```markdown
+✅ "Test fails with 'Connection refused'. Log shows port 8080 closed.
+    Evidence: Port scanner confirms nothing listening on 8080.
+    Root cause: Service not running.
+    Fix: Start service before test."
+
+✅ "Feature X fails validation. Task says 'implement X validation'.
+    Evidence: Task explicitly requires this feature.
+    Root cause: Incomplete implementation.
+    Fix: Complete the validation logic."
+
+✅ "Performance test times out at 200ms. Target is 100ms.
+    Evidence: Profiler shows 180ms in database query.
+    Root cause: Missing database index.
+    Fix: Add index on frequently queried column."
+
+✅ "Feature Y doesn't work. Task scope unclear.
+    Action: Ask user 'Is implementing Y part of current scope?'
+    Wait for answer before skipping or implementing."
+```
+
+**Scope Verification:**
+
+Before skipping ANY non-working feature:
+
+1. **Check task definition** - Is this feature explicitly required?
+2. **Check acceptance criteria** - Is this feature in DoD?
+3. **Check story scope** - Is this feature part of story objectives?
+4. **If unclear:** ASK USER - "Is feature X in scope for this task?"
+
+**NEVER assume something is out of scope just because it doesn't work.**
+
+**CRITICAL: When User Says "This Works in X" - INVESTIGATE IMMEDIATELY**
+
+When user says **"this has never happened with [working implementation]"** or **"X always works immediately"**:
+
+❌ **FORBIDDEN:** Assuming external factors (sensor timing, network conditions, hardware issues)
+❌ **FORBIDDEN:** Speculating about environmental differences
+❌ **FORBIDDEN:** Suggesting user wait or retry without investigation
+✅ **REQUIRED:** STOP and compare your implementation with working one
+✅ **REQUIRED:** Find concrete differences in code/configuration
+✅ **REQUIRED:** Assume YOUR implementation has a bug until proven otherwise
+
+**Process when user challenges your assumptions:**
+
+1. **STOP and check evidence FIRST** - Don't assume anything without verifying
+2. **Acknowledge:** "You're right, if Python connects immediately, this is a bug in my implementation."
+3. **Compare:** Read the working implementation to understand what it does
+4. **Identify differences:** What is different in my implementation?
+5. **Verify bug:** Find concrete evidence (wrong parameters, missing logic, incorrect state)
+6. **Fix:** Correct the actual bug
+7. **Verify fix:** Confirm behavior now matches working implementation
+
+**Before saying "X isn't running":**
+- Check for evidence in logs (e.g., `[ESP32]` prefix proves Python pass-through is active)
+- Check for evidence in process list
+- Check for evidence in network connections
+- **NEVER assume based on symptoms alone**
+
+**Real Example from this project:**
+
+```markdown
+❌ BAD RESPONSE:
+"The sensor has strict power management - wake every 5 minutes, stay awake 30 seconds.
+ Connection timeout is normal. Wait for next wake cycle."
+
+✅ GOOD RESPONSE:
+"You're right - if Python connects immediately, this is definitely a bug.
+ Let me compare... Found it: I'm hardcoding BLE_ADDR_PUBLIC but scan captures
+ actual address type. The sensor uses BLE_ADDR_RANDOM. That's why it times out.
+ Fixing by passing actual addr_type from scan to connect()."
+```
+
+**Key insight:** If something "always works" elsewhere but fails in your implementation → YOU HAVE A BUG. Don't blame external factors.
+
+**When Debugging:**
+
+- Start with facts, not theories
+- Collect evidence systematically
+- Test one variable at a time
+- Measure before and after
+- Document findings with evidence
+- Confirm fix resolves root cause, not just symptoms
+- **If user says "X works fine elsewhere" → INVESTIGATE YOUR CODE IMMEDIATELY**
+
+**When Stuck:**
+
+- Gather more evidence (add logging, add tests, add measurements)
+- Compare with working implementation (if one exists)
+- Ask user for clarification on scope
+- Research similar issues with evidence
+- Break problem into smaller testable pieces
+- NEVER proceed with speculation or assumptions
+- NEVER blame external factors when working implementation exists
+
+### 10. Progressive Enhancement
 
 **Principle:** Start simple, add complexity only when needed.
 
@@ -168,7 +371,7 @@ These principles apply to **all software implementation** across any language, f
 - **Future enhancements** → Add features incrementally
 - **Don't over-engineer** → YAGNI (You Aren't Gonna Need It)
 
-### 10. Configuration Management
+### 11. Configuration Management
 
 - **Externalize configuration** - Never hardcode environment-specific values
 - **Use configuration files or environment variables** - JSON, YAML, .env files, etc.
@@ -176,7 +379,7 @@ These principles apply to **all software implementation** across any language, f
 - **Provide sensible defaults** - But require explicit values for critical settings
 - **Document all configuration options** - Make it clear what each setting does
 
-### 11. Function-Based Design
+### 12. Function-Based Design
 
 - **Single purpose functions** - Each function should do one thing well
 - **Clear input/output contracts** - Document parameters, return types, exceptions
@@ -184,7 +387,7 @@ These principles apply to **all software implementation** across any language, f
 - **Proper parameter validation** - Check inputs at function boundaries
 - **Meaningful names** - Function names should clearly describe what they do
 
-### 12. Use Modern, Robust Tools
+### 13. Use Modern, Robust Tools
 
 **Principle:** Don't reinvent solved problems.
 
@@ -196,7 +399,7 @@ These principles apply to **all software implementation** across any language, f
 
 **See language-specific rules for concrete recommendations** (e.g., `11-python-conventions.mdc`)
 
-### 13. Clean Console Output
+### 14. Clean Console Output
 
 **Principle:** Console output should be readable, not cluttered.
 
@@ -220,7 +423,7 @@ These principles apply to **all software implementation** across any language, f
 - Clean success/error indicators: `✓ Connected` or `✗ Failed`
 - Essential info only: Device name, not full UUID dumps
 
-### 14. Documentation Principles
+### 15. Documentation Principles
 
 **Documentation should be:**
 - **Concise** → Short READMEs, detailed docs separate
@@ -264,7 +467,7 @@ Brief description (2-3 sentences max).
 - Protocols: `docs/protocols/`
 ```
 
-### 15. Timeless Code & Comments
+### 16. Timeless Code & Comments
 
 **Principle:** Code should make sense 2 years from now without context.
 
@@ -280,7 +483,26 @@ Brief description (2-3 sentences max).
 - ✅ "Validates input data format"
 - ✅ "Platform-agnostic implementation"
 
-### 16. Measure & Improve
+**Verification (MANDATORY before marking work complete):**
+
+Before ANY completion:
+1. **Grep check all modified files:**
+   ```bash
+   grep -rn "(Story|story|Task|task) [0-9]" <modified_files>
+   ```
+2. **If matches found:** Remove ALL story/task references
+3. **Re-check:** Verify clean grep output
+4. **Only then:** Mark work as complete
+
+**This applies to:**
+- Source code files
+- Documentation (README, guides, specs)
+- Log messages and console output
+- Configuration files
+- Test files and test names
+- Comments and docstrings
+
+### 17. Measure & Improve
 
 **Metrics:**
 - **Lines of code** → Simple operations should be 10-50 lines
@@ -372,6 +594,8 @@ When adding third-party dependencies:
 8. **Challenge complexity** → Question every abstraction
 9. **Fail fast** → Clear error messages, no defensive coding
 10. **Apply patterns proactively** → Context managers, strategies, template methods
+11. **Evidence-based debugging** → No speculation, verify root cause, never skip broken features
+12. **"Works elsewhere" = YOUR BUG** → If working implementation exists and yours doesn't work, compare and fix YOUR code first
 
 **Before writing code, ask:**
 
@@ -393,5 +617,9 @@ When adding third-party dependencies:
 - Use robust frameworks
 - Extract repetition (DRY)
 - Fail fast with clear errors
+- Debug with evidence, not speculation
+- **When "it works elsewhere" → investigate YOUR code first**
+- Compare with working implementations before assuming external factors
+- Verify root cause before fixing
 - Make it readable 2 years from now
 - Challenge complexity at every step

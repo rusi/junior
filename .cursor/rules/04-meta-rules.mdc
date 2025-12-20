@@ -135,9 +135,17 @@ This pattern ensures:
 - Code examples from current codebase
 - "In this project we..." language is APPROPRIATE
 
+**⚠️ WHEN WRITING/UPDATING JUNIOR RULES:**
+1. **Use generic placeholders:** "Story X", "Task N", "Feature Y" - NOT "Story 2", "Task 1.3"
+2. **Use abstract examples:** "add authentication" NOT "add BLE scanning"
+3. **Check before saving:** Would this example make sense in ANY project?
+4. **Grep check:** Search for specific story/task numbers in the rule file itself
+
 **Test:** If Junior moved to a completely different project tomorrow, would this "Junior" document still be useful without modification?
 - YES → Good generic Junior document
 - NO → Contains project leakage, needs cleanup or isn't a Junior document
+
+**Enforcement:** Before modifying ANY file in `.cursor/rules/`, verify examples are generic, not project-specific.
 
 ## Summary
 
