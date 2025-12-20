@@ -21,12 +21,33 @@ alwaysApply: true
 - ❌ How concepts work (I know them)
 - ❌ Generic examples (not helpful)
 - ❌ Universal knowledge (textbook stuff)
+- ❌ **Implementation code** (bash scripts, code snippets I can write myself)
 
-**Example:**
+**Good example:**
 ```markdown
 ## Pattern Triggers
 Manual setup/cleanup pairs → Context Manager
 - Example: exchange_context() saved 45 lines/usage
+```
+
+**Bad example (includes code I already know):**
+```markdown
+## Stage Detection
+
+Check for comp-*/ directories:
+```bash
+if ! ls .junior/features/comp-* 1>/dev/null 2>&1; then
+  echo "stage1"
+fi
+```
+
+**Why bad:** I (the AI) already know how to check for directories and conditionals. Just describe WHAT to detect, not HOW to write the bash code.
+
+**Better:**
+```markdown
+## Stage Detection
+
+**Process:** Check for comp-*/ directories under .junior/features/. If none exist → stage1. If exist, check for features/ subdirectory within. Returns: stage1, stage2, or stage3.
 ```
 
 ### Mode B: Junior → Junior + User (Specs/Decisions)
