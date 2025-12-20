@@ -228,7 +228,8 @@ Use `list_dir` to scan `.junior/improvements/` and find next number (`imp-N`).
 - **Story 1:** [Minimal working improvement, end-to-end]
 - **Story 2:** [Expand improvement, building on Story 1]
 - **Story {N}:** [Continue building incrementally]
-- **Story {N+1}:** Future Improvements (out-of-scope items, follow-up work)
+
+**Note:** Future improvements captured separately in `imp-{N}-story-future-improvements.md` (not numbered, allows adding more stories)
 
 **Timeline estimate:** [Rough estimate based on complexity]
 
@@ -256,7 +257,7 @@ Create structure:
 └── user-stories/
     ├── imp-{N}-stories.md
     ├── imp-{N}-story-*.md (individual stories)
-    └── imp-{N}-story-{M+1}-future-improvements.md (final story)
+    └── imp-{N}-story-future-improvements.md (not numbered, sorts last)
 ```
 
 **4B.4: Generate `imp-{N}-overview.md`:**
@@ -307,7 +308,7 @@ Create structure:
 - Nice-to-haves deferred
 - Follow-up refactoring opportunities]
 
-Captured in: `user-stories/imp-{N}-story-{M+1}-future-improvements.md`
+Captured in: `user-stories/imp-{N}-story-future-improvements.md` (not numbered, sorts last)
 ```
 
 **4B.5: Generate `user-stories/imp-{N}-stories.md`:**
@@ -323,7 +324,8 @@ Captured in: `user-stories/imp-{N}-story-{M+1}-future-improvements.md`
 - [ ] [Story 1: {title}](imp-{N}-story-1-{name}.md) - {brief description}
 - [ ] [Story 2: {title}](imp-{N}-story-2-{name}.md) - {brief description}
 - [ ] [Story {M}: {title}](imp-{N}-story-{M}-{name}.md) - {brief description}
-- [ ] [Story {M+1}: Future Improvements](imp-{N}-story-{M+1}-future-improvements.md) - Out-of-scope work captured
+
+**Future Improvements:** See [imp-{N}-story-future-improvements.md](imp-{N}-story-future-improvements.md) (not numbered, sorts last)
 
 ## Dependencies
 
@@ -457,19 +459,26 @@ Each story uses this template:
 - [ ] **Refactoring delivers measurable code quality improvement with zero behavior change**
 ```
 
-**4B.7: Generate final story - Future Improvements:**
+**4B.7: Generate final document - Future Improvements (NOT a numbered story):**
+
+**CRITICAL: This is NOT a numbered story. It does NOT take a story number. This allows adding more numbered stories later without conflicts.**
+
+**Filename:** `imp-{N}-story-future-improvements.md` (NOT `imp-{N}-story-{M}-...`)
+
+**Why this naming:** Uses `story-future` prefix so it sorts AFTER all numbered stories (imp-1-story-1, imp-1-story-2, imp-1-story-future)
 
 ```markdown
-# Story {M+1}: Future Improvements
+# Future Improvements
 
-> **Status:** Not Started
-> **Priority:** Low (captured for future)
-> **Dependencies:** All previous stories in Improvement {N}
-> **Deliverable:** Planning document for future refactoring work
+> **Type:** Backlog / Documentation
+> **Priority:** Low
+> **Status:** For Future Consideration
 
 ## Purpose
 
-Capture out-of-scope improvements identified during Improvement {N} but deferred to maintain focus.
+This document captures out-of-scope improvements identified during Improvement {N} but deferred to maintain focus. These items should be reviewed and potentially implemented in future iterations.
+
+**Note:** This is a backlog document, NOT a numbered story. It does not interfere with adding new numbered stories to this improvement.
 
 ## Future Refactoring Opportunities
 
@@ -494,6 +503,15 @@ Capture out-of-scope improvements identified during Improvement {N} but deferred
 ## Notes
 
 [Any additional context or considerations for future work]
+
+## How to Use This Document
+
+When ready to implement items from this backlog:
+1. Review and prioritize items
+2. Create new numbered stories (e.g., Story 3, Story 4) for selected items
+3. Follow normal story workflow (contract → approval → implementation)
+
+**File sorts last:** This file uses `story-future` naming so it appears after all numbered stories in directory listings.
 ```
 
 **4B.8: Present result:**
@@ -507,7 +525,7 @@ Capture out-of-scope improvements identified during Improvement {N} but deferred
        ├── imp-{N}-stories.md
        ├── imp-{N}-story-1-{name}.md
        ├── imp-{N}-story-2-{name}.md
-       └── imp-{N}-story-{M+1}-future-improvements.md
+       └── imp-{N}-story-future-improvements.md
 
 **Next steps:**
 1. Use `/commit` to commit this specification

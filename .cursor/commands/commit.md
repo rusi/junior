@@ -243,12 +243,8 @@ For completed work, mark EVERY checkbox:
 
 When checking if "all stories complete" for feature status:
 - ✅ **Count ONLY deliverable stories** (Story 1, 2, 3, etc. with actual tasks)
-- ❌ **Exclude backlog/future stories** (marked as "Backlog", "Future Enhancements", "Not Started" with "-" tasks)
-- **Pattern to detect backlog stories:**
-  - Story title contains "Future", "Backlog", "Enhancements"
-  - Tasks column shows "-" instead of numbers
-  - Progress column shows "Backlog" instead of percentages
-  - Status is "Not Started" AND explicitly noted as future work
+- ❌ **Exclude future enhancements backlog** (NOT in story table, separate document)
+- **Future enhancements:** Captured in `feat-N-story-future-enhancements.md` (not numbered, not in story table)
 
 **Example:**
 ```
@@ -257,9 +253,12 @@ When checking if "all stories complete" for feature status:
 | 1 | User Auth | Completed ✅ | 5 | 5/5 ✅ |
 | 2 | Dashboard | Completed ✅ | 4 | 4/4 ✅ |
 | 3 | Reports | Completed ✅ | 6 | 6/6 ✅ |
-| 4 | Future Enhancements | Not Started | - | Backlog |
 
-Status: Completed ✅  ← Stories 1-3 all done, Story 4 is backlog
+**Total:** 15/15 tasks (100%)
+
+**Note:** Future enhancements backlog captured in feat-N-story-future-enhancements.md
+
+Status: Completed ✅  ← All numbered stories done
 ```
 
 **If all deliverable stories complete:**

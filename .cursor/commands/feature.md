@@ -705,15 +705,14 @@ High-level strategy:
 |-------|-------|--------|-------|----------|
 | 1 | [Title] | Not Started | 5 | 0/5 |
 | 2 | [Title] | Not Started | 4 | 0/4 |
-| {N+1} | Future Enhancements & Follow-up Work | Not Started | - | Backlog |
+**Total:** 0/9 tasks (0%)
 
-**Total:** 0/9 tasks (0%) + Future work in backlog
+**Note:** Future enhancements backlog captured in `feat-{N}-story-future-enhancements.md` (not numbered, allows adding more stories)
 
 ## Story Dependencies
 
 - Story 2 depends on Story 1 completion
 - Story 3 can run parallel to Story 2
-- Story {N+1} (Future Work) depends on all previous stories
 
 ## Implementation Order
 
@@ -722,13 +721,13 @@ Follow stories sequentially. Each story must be:
 - User-testable with working output
 - Built using TDD (test first, implement, verify)
 
-Story {N+1} captures out-of-scope items and future enhancements for later consideration.
+Future enhancements are captured separately for later consideration.
 
 ## Quick Links
 
 - [Story 1](./feat-{N}-story-1-{name}.md)
 - [Story 2](./feat-{N}-story-2-{name}.md)
-- [Story {N+1}: Future Work](./feat-{N}-story-{N+1}-future-enhancements.md)
+- [Future Enhancements](./feat-{N}-story-future-enhancements.md)
 ```
 
 **user-stories/feat-{N}-story-{M}-{name}.md:**
@@ -802,21 +801,28 @@ See [specs/01-Technical.md](../specs/01-Technical.md) for detailed technical app
 - [ ] Deployed and verified
 ```
 
-**Generate final story: Future Enhancements & Follow-up Work**
+**Generate final document: Future Enhancements (NOT a numbered story)**
 
-After generating all planned implementation stories, automatically create one final story to capture future work:
+After generating all planned implementation stories, automatically create a future enhancements backlog document:
+
+**CRITICAL: This is NOT a numbered story. It does NOT take a story number. This allows adding more numbered stories later without conflicts.**
+
+**Filename:** `feat-{N}-story-future-enhancements.md` (NOT `feat-{N}-story-{M}-...`)
+
+**Why this naming:** Uses `story-future` prefix so it sorts AFTER all numbered stories (feat-1-story-1, feat-1-story-2, feat-1-story-future)
 
 ```markdown
-# Story {N+1}: Future Enhancements & Follow-up Work
+# Future Enhancements & Follow-up Work
 
-> **Status:** Not Started
-> **Priority:** Low (Backlog)
-> **Dependencies:** All previous stories completed
-> **Deliverable:** Captured future work items for consideration in later iterations
+> **Type:** Backlog / Documentation
+> **Priority:** Low
+> **Status:** For Future Consideration
 
 ## Purpose
 
-This story captures features, enhancements, and technical considerations that were identified during feature planning but intentionally excluded from the initial scope. These items should be reviewed and potentially implemented in future iterations once the core feature is stable.
+This document captures features, enhancements, and technical considerations that were identified during feature planning but intentionally excluded from the initial scope. These items should be reviewed and potentially implemented in future iterations once the core feature is stable.
+
+**Note:** This is a backlog document, NOT a numbered story. It does not interfere with adding new numbered stories to this feature.
 
 ## Out-of-Scope Features
 
@@ -842,6 +848,15 @@ This story captures features, enhancements, and technical considerations that we
 - Integration opportunities with other features
 - Analytics or monitoring additions
 - Documentation expansions
+
+## How to Use This Document
+
+When ready to implement items from this backlog:
+1. Review and prioritize items
+2. Create new numbered stories (e.g., Story 3, Story 4) for selected items
+3. Follow normal story workflow (contract → approval → implementation)
+
+**File sorts last:** This file uses `story-future` naming so it appears after all numbered stories in directory listings.
 ```
 
 **🔴 CRITICAL STORY RULES (NON-NEGOTIABLE):**
@@ -864,7 +879,7 @@ This story captures features, enhancements, and technical considerations that we
 
 5. **MAX 5-7 TASKS** - Split if more (keeps stories focused)
 
-6. **FINAL FUTURE WORK STORY** - Always generate Story N+1 for backlog items
+6. **FINAL FUTURE WORK DOCUMENT** - Always generate unnumbered future enhancements backlog
 
 **USER MUST SEE WORKING OUTPUT AFTER EACH STORY**
 
