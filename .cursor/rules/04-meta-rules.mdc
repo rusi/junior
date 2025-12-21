@@ -177,3 +177,105 @@ This pattern ensures:
 **Mode C (User only):** Full explanations, examples, how-to. Assume user may not know patterns.
 
 **Golden rule:** Match detail level to audience knowledge.
+
+## CRITICAL: Junior Documents Are Always Mode A
+
+**All files under `.cursor/` are Mode A (AI → AI) unless explicitly marked otherwise.**
+
+### Pre-Write Checklist for Junior Documents
+
+Before writing/updating any file in `.cursor/commands/` or `.cursor/rules/`:
+
+- [ ] Is this explaining a concept I already know? → **DELETE**
+- [ ] Is this implementation code (bash, python, etc.)? → **DELETE**
+- [ ] Is this a verbose example when a trigger would work? → **SIMPLIFY**
+- [ ] Would Wikipedia have this information? → **DELETE**
+- [ ] Is this repeating something 3+ times in different words? → **DELETE repetition**
+- [ ] Am I writing "how-to" instructions for myself? → **DELETE (I know how)**
+
+### Mode A Template for Shared Modules
+
+```markdown
+# [Module Name] (AI Internal - Mode A)
+
+## [Core Concept/Logic]
+[Minimal description: WHAT to detect/do, not HOW - 3-5 lines]
+
+## [Key Patterns/Rules]
+[Bullet points of triggers/reminders - 5-10 lines]
+
+## Templates (for consistency, if applicable)
+[Message templates, question formats, response patterns]
+
+## Usage
+"Use [module] from _shared/[file].md"
+
+[End - Target: 30-100 lines total depending on templates]
+```
+
+**Why templates are Mode A:**
+- Templates ensure **consistency** in user-facing messages/questions
+- They trigger **specific behavior patterns**
+- They are **reference formats**, not teaching
+- Example: Git status messages, clarification questions, progress displays
+
+**Templates ≠ Teaching because:**
+- Not explaining concepts
+- Not showing implementation
+- Not verbose tutorials
+- Just standardized formats for consistency
+
+
+### Red Flags (Mode C Creeping Into Mode A)
+
+❌ **"Here's how to..."** → I know how, just tell me WHAT
+❌ **Code blocks with bash/python/etc.** → I write code myself
+❌ **40+ lines of examples** → Triggers work better than tutorials
+❌ **"Step-by-step: 1. AI does X, 2. AI does Y..."** → Obvious, I know my flow
+❌ **Multiple examples of same pattern** → One example is enough
+❌ **Performance metrics** → Junior internal operations don't need metrics
+
+### The Test
+
+**Ask before writing:** *"If I (the AI) already know this, why is it here?"*
+
+- **Answer: "To trigger/remind specific Junior behavior"** → KEEP (Mode A)
+- **Answer: "To teach/explain a concept"** → DELETE (Mode C leaking in)
+- **Answer: "To show how to implement"** → DELETE (I know implementation)
+
+### Example: Mode A vs Mode C
+
+❌ **Mode C (wrong for Junior docs):**
+```markdown
+## Stage Detection Process
+
+Step 1: Check for component directories
+
+```bash
+ls .junior/features/comp-* 2>/dev/null
+```
+
+If command fails (no matches): **Stage 1**
+If command succeeds: Continue to Step 2
+
+Step 2: Check for features subdirectory within components
+
+```bash
+ls .junior/features/comp-*/features/ 2>/dev/null
+```
+
+[40 more lines of how-to...]
+```
+
+✅ **Mode A (correct for Junior docs):**
+```markdown
+## Detection Logic
+
+**Stage 1:** No `comp-*/` under `.junior/features/`
+**Stage 2:** `comp-*/` exists, NO `features/` subdirectory
+**Stage 3:** `comp-*/` with `features/` subdirectory
+
+**Returns:** "stage1" | "stage2" | "stage3"
+```
+
+**Why Mode A is better:** I know how to check for directories. Just tell me WHAT to check, not HOW to write the bash command.
