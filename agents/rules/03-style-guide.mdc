@@ -1,0 +1,150 @@
+---
+alwaysApply: true
+---
+
+# Junior Rule 03: Style Guide
+
+## Code
+- Prefer clarity AND brevity
+- Follow established project conventions
+- Write self-documenting functions
+- **CONCISE docstrings**: 1-3 lines for simple functions, not 20+ lines
+- **Minimal logging**: Debug logging only when needed for troubleshooting
+- **No verbose documentation**: Code should speak for itself
+
+### Emoji & Unicode Usage
+
+**Production code and user-facing interfaces:** ❌ **NO emojis or decorative unicode**
+
+**Development tools and scripts:** ✅ **Emojis encouraged for better DX**
+
+**Rule:** Keep product professional and clean. Make developer tools pleasant and visual.
+
+**❌ NEVER use emojis in:**
+- User-facing UI (web pages, mobile apps, customer interfaces)
+- API responses (JSON, XML, GraphQL)
+- Production logs (error messages, info logs, warnings)
+- Customer-facing error messages
+- Database content
+- Email templates to customers
+- Public documentation
+- Git commit messages (keep commits professional and parseable)
+
+**✅ USE emojis freely in:**
+- Development scripts (seed data, migrations, setup scripts)
+- Build tools (Makefile, package scripts, CI/CD output)
+- CLI development tools (local dev commands, debug utilities)
+- Internal developer logs (local development mode only)
+- Developer documentation (README for developers, not users)
+- Code comments (sparingly, when it adds clarity)
+
+**Why this matters:**
+- **Product:** Professional appearance builds trust with customers
+- **Development:** Visual feedback improves developer experience and makes logs scannable
+- **Logs:** Production logs should be parseable by monitoring tools without unicode issues
+- **Consistency:** Clear boundary between customer-facing and developer-facing code
+
+## Communication
+- Be concise and technical
+- Avoid filler language
+- Ask one focused question at a time
+- **Code ratio**: Docstrings should be shorter than the actual code
+  - 7 lines of code → 2-3 lines of docstring MAX
+  - NOT 20 lines of docstring!
+
+## Documentation
+- Use Markdown headers
+- Keep sections short and scannable
+- Use repository-relative paths in docs/specs (`.junior/...`, `docs/...`), never absolute filesystem paths
+
+### Documentation Principles
+
+**Thorough ≠ Verbose**
+
+- **Thorough:** Covers all design decisions, rationale, trade-offs, architecture
+- **Verbose:** Repeats information, includes obvious details, pseudo-code for known patterns
+
+**Good Example (Thorough but Concise):**
+
+```markdown
+### Decision: Semantic Clustering via Keywords
+
+**Context:** Need to propose component groupings automatically.
+
+**Decision:** Use keyword extraction and simple clustering, not NLP or AI.
+
+**Rationale:**
+- Simple, fast, no external dependencies
+- Good enough for proposal (user reviews)
+- Transparent reasoning
+- Agent knows how to implement
+
+**Alternatives:** Manual only (too much burden), AI-based (overkill, dependencies)
+
+**Trade-offs:** May miss subtle relationships. Acceptable because user reviews.
+```
+
+**Bad Example (Verbose with Unnecessary Implementation):**
+
+```python
+# Pseudo-code for semantic clustering
+function cluster_features(features):
+  keywords_map = {}
+  for feature in features:
+    words = extract_keywords(feature.name)
+    for word in words:
+      if word not in stopwords:
+        keywords_map[word] = keywords_map.get(word, []) + [feature]
+  # ... 50 more lines of implementation details
+```
+
+**DRY Cross-Reference Pattern:**
+
+✅ **Good (Reference):**
+- First mention: "See 01-structure.mdc for 3-stage progressive structure"
+- Later mentions: "Stage 2 structure (see 01-structure.mdc)"
+- Function usage: "Use `detect_stage()` from 01-structure.mdc"
+- Template: "Component overview template defined in 01-structure.mdc"
+
+❌ **Bad (Duplication):**
+- Copying entire structure definition again
+- Redefining function implementation
+- Duplicating template content
+- Repeating same explanation with different words
+
+**Structure Reference Hierarchy:**
+
+1. **01-structure.mdc** = Single source of truth for `.junior/` structure
+2. **Technical specs** = Reference structure, add architecture/decisions specific to feature
+3. **User stories** = Reference both, focus on implementation tasks
+4. **Commands** = Use functions from structure rules, don't redefine
+
+**Note:** See **04-meta-rules.mdc** for documentation modes and writing guidelines.
+
+## Task Tracking
+
+**Checkbox Format:**
+- **Incomplete items:** `- [ ] Task description`
+- **Completed items:** `- ✅ Task description` (emoji only, NO `[x]` checkbox)
+- Visual green checkmarks are clearer than checkbox syntax
+
+**Examples:**
+```markdown
+## Implementation Tasks
+
+- ✅ 1.1 Write tests (TDD: test first)
+- [ ] 1.2 Implement feature X
+- [ ] 1.3 Add error handling
+- [ ] 1.4 Visual verification
+
+## Definition of Done
+
+- ✅ All tasks completed
+- ✅ All acceptance criteria met
+- [ ] Manual validation pending
+- ✅ Code follows DRY principles
+```
+
+**NEVER use:**
+- ❌ `- [x] Task description` (use `- ✅` instead)
+- ❌ `- [x] Task description ✅` (redundant, just `- ✅`)

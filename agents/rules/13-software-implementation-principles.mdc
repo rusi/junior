@@ -1,0 +1,628 @@
+---
+alwaysApply: true
+---
+
+# Software Implementation Principles
+
+## ⚠️ TIMELESS CODE REMINDER ⚠️
+
+**BEFORE EVERY file write/edit, ask: "Would this make sense in 2 years?"**
+
+**NEVER reference in ANY deliverable:**
+- ❌ Story numbers ("Story 1", "Story 2", etc.)
+- ❌ Task numbers ("Task 2.3", etc.)
+- ❌ Implementation order ("First version", "After Task X")
+- ❌ Sprint/iteration references
+
+**This applies to:**
+- Code (source files, comments)
+- Documentation (README, guides, specs)
+- Log messages (console output)
+- Configuration files
+- Test names and descriptions
+
+**Test:** If a new developer reads this in 2 years with NO context, would they understand what it does and why?
+
+**Examples:**
+- ❌ `// Story X: Add feature`
+- ✅ `// Scan for nearby devices`
+- ❌ `"Story X: Feature Name"`
+- ✅ `"Feature Active"`
+- ❌ `test_story_N_feature()`
+- ✅ `test_device_discovery()`
+
+---
+
+## Context
+
+These principles apply to **all software implementation** across any language, framework, or domain.
+
+## Core Principles
+
+### 1. Recognize Architectural Patterns Proactively
+
+**Triggers to stop and think:**
+- Manual setup/cleanup pairs → Context Manager needed
+- If/else chains on type/mode → Strategy Pattern needed
+- Repeated flow with variations → Template Method needed
+- Same code twice → Abstract immediately
+- Unclear resource ownership → Extract dedicated class
+
+**Process:**
+1. See trigger → Pause
+2. Ask "Which pattern?" → You know them all
+3. Apply immediately → Don't defer refactoring
+
+### 2. Keep It Simple
+
+- **Implement solutions in the fewest lines possible** - Complexity is the enemy of maintainability
+- **Avoid over-engineering** - Choose straightforward approaches over clever ones
+- **Prefer explicit over implicit** - Make intent clear in code
+- **Question every abstraction** - Only abstract when you have concrete duplication
+- **BUT: Apply patterns when they simplify** - Context managers, strategy patterns can dramatically reduce complexity
+
+### 3. Optimize for Readability
+
+- **Prioritize code clarity over micro-optimizations** - Code is read far more than written
+- **Write self-documenting code** - Clear variable and function names explain intent
+- **Add comments for "why" not "what"** - Explain reasoning, not implementation
+- **Consistent formatting and style** - Follow language conventions and team standards
+
+### 4. Modularity & Clean Architecture
+
+**Principle:** Every piece of functionality should be in the right place, with clear boundaries.
+
+**Guidelines:**
+- **Configuration** → Extract to modules (logging, settings, etc.)
+- **UI/Display** → Separate module (progress bars, headers, formatters)
+- **Argument parsing** → Use established frameworks, not raw implementations
+- **Output** → Use formatting libraries, not manual string building
+- **Main application** → Orchestration only, delegate to modules
+- **Group related functionality together** - Modules, packages, namespaces, directories
+- **Separate concerns clearly** - Business logic ≠ presentation ≠ data access ≠ configuration
+- **Use consistent naming conventions** - Follow language/framework standards
+- **Dependency direction** - High-level modules shouldn't depend on low-level details
+
+**Anti-pattern:** Inline everything in main
+- Configuration setup
+- Display formatting
+- Progress indicators
+- Error handling boilerplate
+
+**Pattern:** Extract and delegate
+- Configuration → Utility modules
+- Display → UI modules
+- Main → Orchestration only
+
+### 5. Single Responsibility
+
+**Principle:** Each module, class, function does ONE thing well.
+
+**Guidelines:**
+- **Single concern per class** → One detection method, not multiple fallbacks
+- **Single purpose functions** - Each function should do one thing well
+- **Main application** → Orchestration, not implementation
+- **Utility modules** → Focused functionality (logging, CLI UI, formatting)
+
+**Anti-pattern (mixed concerns):**
+- Class that checks both primary identifier AND fallback identifier
+- Function that validates, transforms, AND saves data
+- Module that handles both business logic AND UI rendering
+
+**Pattern (single concern):**
+- Class checks one identifier type
+- Separate utility for alternative detection
+- Each function/class has one clear purpose
+
+### 6. Conciseness Without Sacrificing Clarity
+
+**Principle:** Code should be as short as possible while remaining clear.
+
+**Target:** Simple operations (scan, connect, read) should be **10-50 lines**, not 200.
+
+**Guidelines:**
+- **Extract repetition** → Functions, classes, utilities
+- **Use frameworks** → Don't reinvent solved problems
+- **Delegate complexity** → Helper modules handle boilerplate
+- **Focus on intent** → Main code shows WHAT, helpers show HOW
+
+**Anti-pattern Indicators:**
+- Main application > 100 lines for simple operations
+- Configuration/setup code dominates actual logic
+- Multiple levels of nested conditionals
+- Repeated patterns not extracted
+
+**Improvement Strategy:**
+1. Identify boilerplate (logging, parsing, formatting)
+2. Extract to utilities
+3. Use established frameworks
+4. Keep main focused on business logic
+
+### 7. DRY (Don't Repeat Yourself) - ZERO TOLERANCE
+
+**Principle:** NEVER duplicate code, configuration, or logic. **If it appears twice, it's a bug.**
+
+**Detection pattern:** Writing similar code for the 2nd time? STOP. Extract it NOW.
+
+**What counts as duplication (with thresholds):**
+- ❌ **3+ lines of code** repeated in 2+ places → Extract to function immediately
+- ❌ **Validation/parsing logic** repeated → Create `_validate_*()`, `_parse_*()`  helpers
+- ❌ **Repeated operations** → Create reusable utilities
+- ❌ **Send-wait patterns** repeated → Create `_send_command()`, `exchange()` abstractions
+- ❌ **Documentation** repeated across files → Write once, cross-reference everywhere
+- ❌ **Configuration values** hardcoded in multiple places → Extract to config module/file
+
+**Enforcement checklist (before every commit):**
+1. ☑️ Search for patterns appearing 2+ times
+2. ☑️ Check if validation/parsing logic is duplicated
+3. ☑️ Look for copy-pasted code with minor modifications
+4. ☑️ Ensure documentation references, not duplicates
+
+**Language-specific applications:**
+- **Python**: Use decorators, context managers, helper modules
+- **JavaScript**: Extract to functions, modules, and use higher-order functions
+- **C++**: Templates, functions, and header files for shared code
+- **Bash**: Functions and sourced script libraries
+- **CSS**: Variables, mixins, and component classes
+
+**When in doubt:** If changing this logic would require editing 2+ files, you have duplication.
+
+### 8. Fail Fast & Error Handling
+
+**Principle:** Validate inputs early and fail with clear messages. Don't be defensive. Never skip errors to "move forward".
+
+**Core philosophy (see 00-junior.mdc for full details):**
+- **Validate inputs early** - Check preconditions at function/method entry points
+- **Use proper error handling** - Throw exceptions, return error types, or use language-appropriate mechanisms
+- **Avoid silent failures** - Don't swallow errors or return success when operations fail
+- **Make errors actionable** - Provide clear error messages that help users/developers fix issues
+- **Distinguish error types** - Separate user errors from system errors from programming errors
+- **DON'T handle error conditions unless resolution is clear** - If you don't know how to properly handle an error, just crash with a clear message and let humans decide
+
+**CRITICAL: Never Skip Quality Checks**
+
+- ❌ **FORBIDDEN:** Skipping type checking errors to "move forward"
+- ❌ **FORBIDDEN:** Ignoring failing tests to "make progress"
+- ❌ **FORBIDDEN:** Commenting out type checks that fail
+- ❌ **FORBIDDEN:** Disabling linter rules that catch real issues
+- ❌ **FORBIDDEN:** Using `# type: ignore` or `@ts-ignore` without understanding root cause
+- ❌ **FORBIDDEN:** Try-catch wrapping everything with logging instead of fixing
+- ❌ **FORBIDDEN:** Logging errors instead of taking action
+- ✅ **REQUIRED:** Fix type errors immediately when they appear
+- ✅ **REQUIRED:** Fix failing tests immediately - work is NOT complete until tests pass
+- ✅ **REQUIRED:** Address linter errors, don't suppress them
+- ✅ **REQUIRED:** Understand WHY the check is failing before any suppression
+- ✅ **REQUIRED:** Signal handlers MUST take action, not just log
+- **Exception:** User explicitly asks to skip checks OR you ask and they approve
+
+**Why this matters:**
+- Type errors indicate mismatched assumptions about data structures
+- Failing tests indicate broken functionality or incorrect test expectations
+- Linter errors catch real bugs and code smells
+- Skipping these checks hides problems that will surface later (often in production)
+- The cost to fix issues grows exponentially with time (dev → staging → production)
+
+**When you encounter errors:**
+1. **STOP** - Don't continue implementing until error is resolved
+2. **INVESTIGATE** - Understand why the error is occurring (evidence-based)
+3. **FIX ROOT CAUSE** - Don't just suppress the error
+4. **VERIFY FIX** - Confirm the error is truly resolved
+5. **Only then CONTINUE** - Resume work with confidence
+
+**Language-appropriate error handling:**
+
+- **Python**: Exceptions for exceptional conditions, return None/Optional for expected missing values
+- **JavaScript**: Throw errors for unexpected conditions, return null/undefined for missing data
+- **C++**: Exceptions or error codes, RAII for resource management
+- **Rust**: Result types for recoverable errors, panic for programming errors
+- **Go**: Multiple return values with error as second return
+- **Bash**: Exit codes and proper error output to stderr
+
+### 9. Evidence-Based Debugging - ZERO TOLERANCE
+
+**Principle:** Root cause analysis MUST be evidence-based. NO speculation, NO assumptions, NO skipping broken features.
+
+**Core Requirements:**
+
+- ❌ **FORBIDDEN:** Speculation ("maybe it's...", "could be...", "probably...")
+- ❌ **FORBIDDEN:** Assumptions about root cause without verification
+- ❌ **FORBIDDEN:** Skipping non-working features assuming "out of scope"
+- ❌ **FORBIDDEN:** Fixing symptoms without understanding root cause
+- ✅ **REQUIRED:** Collect concrete evidence before diagnosing
+- ✅ **REQUIRED:** Verify hypothesis with reproducible tests
+- ✅ **REQUIRED:** Check task/story scope or ask user before skipping ANYTHING
+- ✅ **REQUIRED:** Measure before and after to confirm fix
+
+**Evidence-Based Process:**
+
+1. **Observe** - What exactly is failing? What are the symptoms?
+2. **Measure** - Collect data: logs, stack traces, test output, measurements
+3. **Hypothesize** - Form theory based on evidence (not guesses)
+4. **Test Hypothesis** - Create reproducible test that validates/invalidates theory
+5. **Verify Root Cause** - Confirm the actual cause with evidence
+6. **Fix** - Implement fix targeting the verified root cause
+7. **Confirm Fix** - Measure again to prove the fix works
+
+**Evidence Sources:**
+
+- **Logs**: Error messages, stack traces, debug output
+- **Tests**: Failing test cases, reproducible scenarios
+- **Measurements**: Performance metrics, timing data, resource usage
+- **Code Analysis**: Static analysis, type checking, linter errors
+- **System State**: Variable values, object state, database state
+- **Network Analysis**: Request/response logs, packet captures
+
+**Anti-Patterns (Never Do This):**
+
+```markdown
+❌ "The connection is probably timing out, let me increase the timeout."
+   → NO EVIDENCE. What's the actual timeout value? What does the log say?
+
+❌ "This feature doesn't work, but it's probably not in scope, skip it."
+   → NEVER skip without checking task or asking user.
+
+❌ "It might be a race condition, let me add sleep()."
+   → Speculation without proof. Find the actual race.
+
+❌ "Could be a memory issue, let me add caching."
+   → Measure memory first. Prove it's the issue.
+```
+
+**Good Patterns (Always Do This):**
+
+```markdown
+✅ "Test fails with 'Connection refused'. Log shows port 8080 closed.
+    Evidence: Port scanner confirms nothing listening on 8080.
+    Root cause: Service not running.
+    Fix: Start service before test."
+
+✅ "Feature X fails validation. Task says 'implement X validation'.
+    Evidence: Task explicitly requires this feature.
+    Root cause: Incomplete implementation.
+    Fix: Complete the validation logic."
+
+✅ "Performance test times out at 200ms. Target is 100ms.
+    Evidence: Profiler shows 180ms in database query.
+    Root cause: Missing database index.
+    Fix: Add index on frequently queried column."
+
+✅ "Feature Y doesn't work. Task scope unclear.
+    Action: Ask user 'Is implementing Y part of current scope?'
+    Wait for answer before skipping or implementing."
+```
+
+**Scope Verification:**
+
+Before skipping ANY non-working feature:
+
+1. **Check task definition** - Is this feature explicitly required?
+2. **Check acceptance criteria** - Is this feature in DoD?
+3. **Check story scope** - Is this feature part of story objectives?
+4. **If unclear:** ASK USER - "Is feature X in scope for this task?"
+
+**NEVER assume something is out of scope just because it doesn't work.**
+
+**CRITICAL: When User Says "This Works in X" - INVESTIGATE IMMEDIATELY**
+
+When user says **"this has never happened with [working implementation]"** or **"X always works immediately"**:
+
+❌ **FORBIDDEN:** Assuming external factors (sensor timing, network conditions, hardware issues)
+❌ **FORBIDDEN:** Speculating about environmental differences
+❌ **FORBIDDEN:** Suggesting user wait or retry without investigation
+✅ **REQUIRED:** STOP and compare your implementation with working one
+✅ **REQUIRED:** Find concrete differences in code/configuration
+✅ **REQUIRED:** Assume YOUR implementation has a bug until proven otherwise
+
+**Process when user challenges your assumptions:**
+
+1. **STOP and check evidence FIRST** - Don't assume anything without verifying
+2. **Acknowledge:** "You're right, if Python connects immediately, this is a bug in my implementation."
+3. **Compare:** Read the working implementation to understand what it does
+4. **Identify differences:** What is different in my implementation?
+5. **Verify bug:** Find concrete evidence (wrong parameters, missing logic, incorrect state)
+6. **Fix:** Correct the actual bug
+7. **Verify fix:** Confirm behavior now matches working implementation
+
+**Before saying "X isn't running":**
+- Check for evidence in logs (process indicators, service markers, connection states)
+- Check for evidence in process list
+- Check for evidence in network connections
+- **NEVER assume based on symptoms alone**
+
+**Example of evidence-based debugging:**
+
+```markdown
+❌ BAD RESPONSE (speculation):
+"The service has intermittent availability - it may be rate-limited.
+ Connection timeout is normal. Wait and retry later."
+
+✅ GOOD RESPONSE (evidence-based):
+"You're right - if the reference implementation connects immediately, this is a bug.
+ Let me compare... Found it: I'm using the default connection parameters, but the
+ working implementation passes custom timeout values from the config file.
+ That's why it times out. Fixing by reading the correct config parameters."
+```
+
+**Key insight:** If something "always works" elsewhere but fails in your implementation → YOU HAVE A BUG. Don't blame external factors.
+
+**When Debugging:**
+
+- Start with facts, not theories
+- Collect evidence systematically
+- Test one variable at a time
+- Measure before and after
+- Document findings with evidence
+- Confirm fix resolves root cause, not just symptoms
+- **If user says "X works fine elsewhere" → INVESTIGATE YOUR CODE IMMEDIATELY**
+
+**When Stuck:**
+
+- Gather more evidence (add logging, add tests, add measurements)
+- Compare with working implementation (if one exists)
+- Ask user for clarification on scope
+- Research similar issues with evidence
+- Break problem into smaller testable pieces
+- NEVER proceed with speculation or assumptions
+- NEVER blame external factors when working implementation exists
+
+### 10. Progressive Enhancement
+
+**Principle:** Start simple, add complexity only when needed.
+
+**Guidelines:**
+- **First implementation** → Minimal, working
+- **Future enhancements** → Add features incrementally
+- **Don't over-engineer** → YAGNI (You Aren't Gonna Need It)
+
+### 11. Configuration Management
+
+- **Externalize configuration** - Never hardcode environment-specific values
+- **Use configuration files or environment variables** - JSON, YAML, .env files, etc.
+- **Validate configuration on startup** - Fail fast if required config is missing
+- **Provide sensible defaults** - But require explicit values for critical settings
+- **Document all configuration options** - Make it clear what each setting does
+
+### 12. Function-Based Design
+
+- **Single purpose functions** - Each function should do one thing well
+- **Clear input/output contracts** - Document parameters, return types, exceptions
+- **Avoid side effects when possible** - Pure functions are easier to test and reason about
+- **Proper parameter validation** - Check inputs at function boundaries
+- **Meaningful names** - Function names should clearly describe what they do
+
+### 13. Use Modern, Robust Tools
+
+**Principle:** Don't reinvent solved problems.
+
+**General guidelines:**
+- **Use established frameworks** → Don't build from scratch
+- **Use modern libraries** → Leverage community solutions
+- **Use standard tools** → Follow language conventions
+- **Choose libraries wisely** (see Dependencies section below)
+
+**See language-specific rules for concrete recommendations** (e.g., `11-python-conventions.mdc`)
+
+### 14. Clean Console Output
+
+**Principle:** Console output should be readable, not cluttered.
+
+**Guidelines:**
+- **Timestamps:** Local time only, concise format (HH:MM:SS.mmm)
+- **Log levels:** Visual indicators (emoji, color), not verbose text
+- **Progress:** Visual progress bars showing time elapsed/remaining
+- **Headers:** Clear section separation
+- **Errors:** Highly visible (color, symbols)
+- **Details:** Only show essential information, hide verbose data
+
+**Anti-patterns:**
+- Full ISO timestamps with timezone
+- Verbose parameter dumps in every log line
+- Text-only progress updates
+- Cluttered output with debug info in production
+
+**Good patterns:**
+- Concise timestamps: `14:43:51`
+- Visual progress: `[████░░░░] 60% (145s / 420s)`
+- Clean success/error indicators: `✓ Connected` or `✗ Failed`
+- Essential info only: Device name, not full UUID dumps
+
+### 15. Documentation Principles
+
+**Documentation should be:**
+- **Concise** → Short READMEs, detailed docs separate
+- **Timeless** → No references to stories, tasks, implementation order
+- **DRY** → Reference external docs, don't duplicate
+- **Focused** → README = quick start, API docs = separate file
+
+**README structure:**
+1. What it does (2-3 sentences)
+2. Quick start (1-2 examples)
+3. Installation
+4. Links to detailed docs
+
+**Bad:**
+```markdown
+## Current Status: Story 1 - Foundation
+
+This library is in active development.
+
+## API Reference
+(40 lines of API documentation in README)
+
+## Architecture
+(50 lines of architecture in README)
+```
+
+**Good:**
+```markdown
+## What It Does
+
+Brief description (2-3 sentences max).
+
+## Quick Start
+
+[Minimal working example - 5-10 lines]
+
+## Documentation
+
+- API Reference: `docs/api.md`
+- Architecture: `docs/architecture/`
+- Protocols: `docs/protocols/`
+```
+
+### 16. Timeless Code & Comments
+
+**Principle:** Code should make sense 2 years from now without context.
+
+**NEVER reference in code/docs:**
+- ❌ Story numbers ("Story 1 version", "Story 2 will add...")
+- ❌ Task numbers ("Task 2.3 implementation")
+- ❌ Implementation order ("First version", "Future enhancement note")
+- ❌ Project-specific references in generic code
+
+**Good references:**
+- ✅ "Scan for devices via service UUID"
+- ✅ "Maintain connection state machine"
+- ✅ "Validates input data format"
+- ✅ "Platform-agnostic implementation"
+
+**Verification (MANDATORY before marking work complete):**
+
+Before ANY completion:
+1. **Grep check all modified files:**
+   ```bash
+   grep -rn "(Story|story|Task|task) [0-9]" <modified_files>
+   ```
+2. **If matches found:** Remove ALL story/task references
+3. **Re-check:** Verify clean grep output
+4. **Only then:** Mark work as complete
+
+**This applies to:**
+- Source code files
+- Documentation (README, guides, specs)
+- Log messages and console output
+- Configuration files
+- Test files and test names
+- Comments and docstrings
+
+### 17. Measure & Improve
+
+**Metrics:**
+- **Lines of code** → Simple operations should be 10-50 lines
+- **Module size** → <300 lines per file (guideline)
+- **Test coverage** → 80%+ for business logic
+- **Documentation** → README <100 lines, full docs separate
+
+**When code seems too long:**
+1. Extract repeated patterns → functions
+2. Move boilerplate → utilities
+3. Use frameworks → replace custom code
+4. Simplify logic → question each line
+
+## Language-Specific Guidelines
+
+### Script and Automation (Bash, PowerShell, etc.)
+
+- **Use strict mode** - `set -euo pipefail` in Bash, `Set-StrictMode` in PowerShell
+- **Validate all inputs** - Check arguments and environment variables exist
+- **Use functions for repeated operations** - Don't copy-paste command sequences
+- **Proper logging and output** - Structured output, clear error messages
+- **Template external files** - Never inline configuration content in scripts
+
+### Application Code (Python, JavaScript, C++, etc.)
+
+- **Use language-appropriate error handling** - Exceptions, error types, return codes
+- **Proper resource management** - Close files, connections, free memory appropriately
+- **Input validation at boundaries** - API endpoints, function entry points
+- **Unit tests for critical functionality** - Test error conditions, not just happy paths
+- **Use language idioms** - Follow established patterns and conventions
+
+### Build and Infrastructure
+
+- **Reproducible builds** - Same inputs always produce same outputs
+- **Environment isolation** - Use containers, virtual environments, or sandboxes
+- **Clear dependency management** - Explicit version pinning, lock files
+- **Automated verification** - Tests, linting, security scanning
+- **Documentation as code** - Keep docs close to implementation
+
+## Critical Thinking and Decision Making
+
+### Challenge Ideas and Assumptions
+
+- Question the "why" behind every technical decision
+- Identify unstated assumptions in requirements and designs
+- Ask "What could go wrong?" for proposed solutions
+- Consider edge cases and failure scenarios
+
+### Provide Constructive Pushback
+
+- Disagree when you have evidence-based concerns
+- Offer alternative approaches with clear reasoning
+- Challenge overly complex solutions in favor of simpler ones
+- Point out potential security, performance, or maintainability issues
+
+### Focus on Evidence Over Agreement
+
+- Base decisions on data, benchmarks, and measurable outcomes
+- Cite specific examples when discussing trade-offs
+- Reference industry standards and established patterns
+- Avoid "yes, and..." responses when "no, because..." is more appropriate
+
+## Dependencies Management
+
+### Choose Libraries Wisely
+
+When adding third-party dependencies:
+
+- **Select the most popular and actively maintained option**
+- **Check the library's repository for:**
+  - Recent commits (within last 6 months)
+  - Active issue resolution
+  - Number of stars/downloads
+  - Clear documentation
+- **Consider the long-term maintenance burden**
+- **Evaluate if the problem can be solved with standard library features**
+
+## Application to Implementation
+
+**When implementing:**
+
+1. **Think architecturally first** → Recognize patterns, apply design solutions
+2. **Structure planning** → Think modular from start
+3. **Extract utilities early** → Don't inline boilerplate
+4. **Use frameworks** → Established tools over custom solutions
+5. **Target conciseness** → 10-50 lines for simple operations
+6. **No story references** → Code is timeless
+7. **No unnecessary docs** → Only deliverables
+8. **Challenge complexity** → Question every abstraction
+9. **Fail fast** → Clear error messages, no defensive coding
+10. **Apply patterns proactively** → Context managers, strategies, template methods
+11. **Evidence-based debugging** → No speculation, verify root cause, never skip broken features
+12. **"Works elsewhere" = YOUR BUG** → If working implementation exists and yours doesn't work, compare and fix YOUR code first
+
+**Before writing code, ask:**
+
+1. **"Have I seen this pattern before?"** → Consider abstraction
+2. **"Is there manual setup/cleanup?"** → Context Manager (RAII)
+3. **"Are there if/else chains?"** → Strategy Pattern
+4. **"Is the same flow repeated?"** → Template Method
+5. **"Does this smell?"** → Consult pattern catalog
+
+## Summary
+
+**The goal: Production-quality code that is concise, clear, modular, timeless, and architecturally sound.**
+
+- Think architecturally first
+- Keep it simple
+- Prioritize readability
+- Apply proven patterns
+- Delegate to utilities
+- Use robust frameworks
+- Extract repetition (DRY)
+- Fail fast with clear errors
+- Debug with evidence, not speculation
+- **When "it works elsewhere" → investigate YOUR code first**
+- Compare with working implementations before assuming external factors
+- Verify root cause before fixing
+- Make it readable 2 years from now
+- Challenge complexity at every step

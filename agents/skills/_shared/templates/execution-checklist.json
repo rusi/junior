@@ -1,0 +1,10 @@
+{
+  "checklist": [
+    {"id": "scope", "item": "Confirm scope and dependencies", "status": "pending"},
+    {"id": "plan", "item": "Create execution plan", "status": "pending"},
+    {"id": "implement", "item": "Execute changes incrementally", "status": "pending"},
+    {"id": "verify", "item": "Run validation checks", "status": "pending"},
+    {"id": "docs", "item": "Update docs/checklists with evidence", "status": "pending"},
+    {"id": "handoff", "item": "Summarize results and risks", "status": "pending"}
+  ]
+}

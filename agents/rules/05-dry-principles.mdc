@@ -1,0 +1,54 @@
+---
+alwaysApply: true
+---
+
+# DRY - ZERO TOLERANCE
+
+## Triggers (STOP immediately)
+
+- ❌ Writing similar code for the 2nd time
+- ❌ Copy-pasting with minor changes
+- ❌ Same logic/pattern in 2+ files
+- ❌ Bug fix would require editing 2+ files
+
+## Where to Check (ALWAYS scan before writing)
+
+**Backend/API:**
+- Service methods, validators, parsers, formatters
+- Database setup, connection handling
+- Error handling patterns
+
+**Frontend/UI:**
+- Components, handlers (form, click, etc.)
+- CSS classes, styles, layouts
+- API calls, data fetching patterns
+
+**Tests:**
+- Fixtures, setup/teardown
+- Mock data, test utilities
+- Shared test configurations
+
+**Config:**
+- Environment setup
+- Build/deployment scripts
+- Connection strings, credentials
+
+## Rules
+
+1. **Extract at #2** → Second occurrence = extract to shared location immediately
+2. **ONE source of truth** → Changing logic = edit one file only
+3. **NO "later"** → Extract NOW, not after commit
+4. **Check existing code FIRST** → Before writing, grep/search for similar patterns
+
+## Pre-Commit Check
+
+**Ask before committing:**
+1. Did I copy-paste anything? → Extract it
+2. Does similar code exist elsewhere? → Find and consolidate
+3. Would changing this require editing 2+ files? → Wrong, extract first
+
+## Detection Pattern
+
+**If you think:** "This is similar to X but slightly different" → STOP, find abstraction
+
+**Red flag:** Fixing a bug requires updating multiple files → DRY violation exists

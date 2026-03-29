@@ -1,0 +1,43 @@
+{
+  "directories": [
+    "~/.cursor/rules",
+    "~/.codex",
+    "~/.codex/rules",
+    "~/.codex/skills"
+  ],
+  "files": [
+    {
+      "source": "cursor/rules/JUNIOR.mdc",
+      "destination": "~/.cursor/rules/JUNIOR.mdc"
+    },
+    {
+      "source": "AGENTS.md",
+      "destination": "~/.codex/AGENTS.md"
+    },
+    {
+      "source": "agents/rules/",
+      "destination": "~/.codex/rules/",
+      "isDirectory": true
+    },
+    {
+      "source": "agents/skills/",
+      "destination": "~/.codex/skills/",
+      "isDirectory": true
+    },
+    {
+      "source": "README.md",
+      "destination": "~/.codex/skills/jr/references/junior-readme.md"
+    }
+  ],
+  "messages": {
+    "welcome": "Installing Junior global assets...",
+    "success": "Junior global installation complete!",
+    "nextSteps": [
+      "Verify ~/.codex/AGENTS.md is loaded by your assistant runtime",
+      "Verify ~/.cursor/rules/JUNIOR.mdc exists for Cursor global rules",
+      "Use jr-init to establish project foundation",
+      "Use /jr update for framework updates"
+    ],
+    "availableCommands": "Global skills under ~/.codex/skills: jr, jr-init, jr-roadmap, jr-feature, jr-add-story, jr-implement, jr-test, jr-commit, jr-code-review, jr-debug, jr-refactor, jr-status, jr-next, jr-new-command"
+  }
+}

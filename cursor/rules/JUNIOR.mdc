@@ -1,0 +1,17 @@
+---
+alwaysApply: true
+---
+
+# Junior Bootstrap Rule
+
+Load `~/.codex/AGENTS.md` as the primary operating contract.
+
+Global `~/.codex/AGENTS.md` defines:
+- Junior identity and operating model
+- Core rules under `~/.codex/rules/`
+- Skill routing under `~/.codex/skills/`
+- Context loading order and conditional rule expansion
+
+If `~/.codex/AGENTS.md` is missing, stop and ask the user how to proceed.
+
+Always treat `~/.codex/rules/` and `~/.codex/skills/` as the canonical Junior source-of-truth.
