@@ -24,12 +24,14 @@ Default sync direction:
 Global installed paths:
 - `~/.codex/rules/`
 - `~/.codex/skills/`
-- `~/.cursor/rules/JUNIOR.mdc`
+- `~/.cursor/rules/`
+- `~/.cursor/commands/`
+- `~/.cursor/commands/_shared/`
 
 Junior source paths (this repository):
 - `agents/rules/`
 - `agents/skills/`
-- `cursor/rules/JUNIOR.mdc`
+- `cursor/rules/`
 
 ## Process
 
@@ -68,10 +70,13 @@ If either check fails:
 Check whether global install roots exist:
 - `~/.codex/rules/`
 - `~/.codex/skills/`
-- `~/.cursor/rules/JUNIOR.mdc`
+- `~/.cursor/rules/`
+- `~/.cursor/commands/`
+- `~/.cursor/commands/_shared/`
 
 Then check metadata:
 - `~/.codex/.junior-install.json`
+- `~/.cursor/.junior-install.json`
 
 If global files are missing, stop and explain that no sync source is available.
 
@@ -96,7 +101,10 @@ If `sync-back` cannot operate due to missing or invalid metadata, run manual map
 1. Build mapping by relative path:
 - `~/.codex/rules/**` <-> `agents/rules/**`
 - `~/.codex/skills/**` <-> `agents/skills/**`
-- `~/.cursor/rules/JUNIOR.mdc` <-> `cursor/rules/JUNIOR.mdc`
+- `~/.cursor/rules/**` <-> `agents/rules/**` or `cursor/rules/**`
+- `~/.cursor/commands/*.md` <-> `agents/skills/*/SKILL.md`
+- `~/.cursor/commands/_shared/<skill>/**` <-> `agents/skills/<skill>/**`
+- `~/.cursor/commands/_shared/**` (shared refs/templates) <-> `agents/skills/_shared/**`
 
 2. Compare checksum/content and classify each path:
 - `different`

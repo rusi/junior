@@ -1,15 +1,10 @@
 {
   "directories": [
-    "~/.cursor/rules",
     "~/.codex",
     "~/.codex/rules",
     "~/.codex/skills"
   ],
   "files": [
-    {
-      "source": "cursor/rules/JUNIOR.mdc",
-      "destination": "~/.cursor/rules/JUNIOR.mdc"
-    },
     {
       "source": "AGENTS.md",
       "destination": "~/.codex/AGENTS.md"
@@ -34,10 +29,54 @@
     "success": "Junior global installation complete!",
     "nextSteps": [
       "Verify ~/.codex/AGENTS.md is loaded by your assistant runtime",
-      "Verify ~/.cursor/rules/JUNIOR.mdc exists for Cursor global rules",
       "Use jr-init to establish project foundation",
       "Use /jr update for framework updates"
     ],
     "availableCommands": "Global skills under ~/.codex/skills: jr, jr-init, jr-roadmap, jr-feature, jr-add-story, jr-implement, jr-test, jr-commit, jr-code-review, jr-debug, jr-refactor, jr-status, jr-next, jr-new-command"
+  },
+  "targets": {
+    "cursor": {
+      "directories": [
+        "~/.cursor/rules",
+        "~/.cursor/commands",
+        "~/.cursor/commands/_shared"
+      ],
+      "files": [
+        {
+          "source": "agents/rules/",
+          "destination": "~/.cursor/rules/",
+          "isDirectory": true
+        },
+        {
+          "source": "cursor/rules/",
+          "destination": "~/.cursor/rules/",
+          "isDirectory": true
+        },
+        {
+          "source": "agents/skills/",
+          "destination": "~/.cursor/commands/",
+          "mode": "skill_markdown_commands"
+        },
+        {
+          "source": "agents/skills/",
+          "destination": "~/.cursor/commands/_shared/",
+          "mode": "skill_support_tree"
+        },
+        {
+          "source": "README.md",
+          "destination": "~/.cursor/commands/_shared/junior-readme.md"
+        }
+      ],
+      "messages": {
+        "success": "Junior global Cursor installation complete!",
+        "nextSteps": [
+          "Verify Cursor exposes /jr and /jr-* workflows",
+          "Verify Junior rules are available to Cursor",
+          "Use /jr-init to establish project foundation",
+          "Use /jr update --target cursor for framework updates"
+        ],
+        "availableCommands": "Global commands under ~/.cursor/commands: jr, jr-init, jr-roadmap, jr-feature, jr-add-story, jr-implement, jr-test, jr-commit, jr-code-review, jr-debug, jr-refactor, jr-status, jr-next, jr-new-command"
+      }
+    }
   }
 }

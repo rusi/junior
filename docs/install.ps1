@@ -4,7 +4,7 @@
 
 param(
     [Parameter(Mandatory = $false)]
-    [string]$Target = "codex"
+    [string]$Target = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,8 +33,15 @@ if (-not $Python) {
     exit 1
 }
 
+if (-not $Target) {
+    Write-Err "Missing required -Target. Use one of: claude, codex, cursor, gemini, all, or a csv list."
+    exit 1
+}
+
 if ($Target -eq "codex") {
-    Write-Info "Installing Junior global assets (~/.codex, ~/.cursor/rules)"
+    Write-Info "Installing Junior global assets (~/.codex)"
+} elseif ($Target -eq "cursor") {
+    Write-Info "Installing Junior global assets (~/.cursor)"
 } elseif ($Target -eq "gemini") {
     Write-Info "Installing Junior global assets (~/.gemini)"
 } elseif ($Target -eq "claude") {

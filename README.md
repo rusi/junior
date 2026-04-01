@@ -51,24 +51,45 @@ Install Junior with a single command — no repository clone needed:
 
 **macOS / Linux:**
 ```bash
-curl -LsSf https://rusi.github.io/junior/install.sh | sh
+curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target codex
 ```
 
 **Windows (PowerShell):**
 ```powershell
-irm https://rusi.github.io/junior/install.ps1 | iex
+& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target codex
 ```
 
 **Note:** If you encounter execution policy errors, use:
 ```powershell
-powershell -ExecutionPolicy Bypass -Command "irm https://rusi.github.io/junior/install.ps1 | iex"
+powershell -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target codex"
 ```
 
 The bootstrap script will:
 - ✅ Download the latest Junior release
-- ✅ Install global assets to `~/.codex/` and `~/.cursor/rules/`
-- ✅ Install `AGENTS.md`, rules, and skills for Codex/Cursor workflows
+- ✅ Install global assets for the requested target (`~/.codex/`, `~/.cursor/`, `~/.claude/`, or `~/.gemini/`)
+- ✅ Install rules and workflow assets for the selected assistant runtime
 - ✅ Generate global version tracking metadata
+
+**Target examples:**
+```bash
+# Claude
+curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target claude
+
+# Codex
+curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target codex
+
+# Cursor
+curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor
+
+# Gemini
+curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target gemini
+
+# Cursor + Codex
+curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor,codex
+
+# All supported runtimes
+curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target all
+```
 
 **Alternative: Install from Repository**
 
@@ -98,10 +119,10 @@ git clone https://github.com/rusi/junior.git
 
 ```bash
 # macOS / Linux
-curl -LsSf https://rusi.github.io/junior/install.sh | sh
+curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target codex
 
 # Windows (PowerShell)
-irm https://rusi.github.io/junior/install.ps1 | iex
+& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target codex
 ```
 
 The bootstrap update flow will:
@@ -153,7 +174,7 @@ The installer will detect and preserve any user-modified files automatically.
 - Try alternative method: Clone repository and run install script
 
 **"Installation failed" or "Permission denied"**
-- Ensure you have write permissions in `~/.codex` and `~/.cursor/rules`
+- Ensure you have write permissions in the target runtime directory (`~/.codex`, `~/.cursor`, `~/.claude`, or `~/.gemini`)
 - Try running from a normal user shell (not restricted environments)
 - Check disk space: `df -h` (Unix) or `Get-PSDrive` (PowerShell)
 
@@ -369,14 +390,15 @@ User: /jr-feature add payment processing
 ## ⚙️ Structure
 
 ```text
-.cursor/
-  rules/
-    JUNIOR.mdc          # Bootstrap rule that loads ~/.codex/AGENTS.md
-
 ~/.codex/
   AGENTS.md             # Global Junior operating contract
   rules/                # Global Junior rule set
   skills/               # Global Junior skills (jr + jr-*)
+
+.cursor/
+  commands/             # Global Cursor slash commands (jr + jr-*)
+    _shared/            # Shared references/templates used by Cursor commands
+  rules/                # Global Junior rule set for Cursor
 
 .junior/                # Junior's working memory (created as needed)
   features/             # Feature specifications

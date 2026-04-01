@@ -8,7 +8,7 @@
 # Options:
 #   -v, --verbose
 #   -s, --sync-back
-#   -t, --target <codex|gemini|claude|all|csv>
+#   -t, --target <claude|codex|cursor|gemini|all|csv>   required for install/update
 #   -i, --ignore-dirty
 #   -f, --force        (skip prompts and overwrite tracked user-modified files)
 
@@ -46,7 +46,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     -t|--target)
       if [[ $# -lt 2 ]]; then
-        echo "[ERROR] --target requires a value: codex, gemini, claude, all, or csv list" >&2
+        echo "[ERROR] --target requires a value: codex, cursor, gemini, claude, all, or csv list" >&2
         exit 1
       fi
       ARGS+=("--target" "$2")
@@ -58,6 +58,11 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+if [[ "$MODE" == "install" && ! " ${ARGS[*]} " =~ " --target " ]]; then
+  echo "[ERROR] Missing required --target: claude, codex, cursor, gemini, all, or csv list" >&2
+  exit 1
+fi
 
 if [[ ${#ARGS[@]} -gt 0 ]]; then
   exec "$PYTHON_BIN" "$PY_SCRIPT" "$MODE" "${ARGS[@]}"

@@ -81,6 +81,31 @@
             font-weight: 500;
         }
 
+        .command-panel {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .command-panel h3 {
+            font-size: 0.95em;
+            color: #f8fafc;
+            margin-bottom: 8px;
+        }
+
+        .command-panel p,
+        .command-panel ul {
+            color: #94a3b8;
+            font-size: 0.88em;
+            margin-bottom: 10px;
+        }
+
+        .command-panel ul {
+            padding-left: 18px;
+        }
+
         .code-wrapper {
             position: relative;
             background: #1e293b;
@@ -217,7 +242,7 @@
     <div class="container">
         <header>
             <h1>Junior</h1>
-            <p class="tagline">Your expert AI developer for Codex, Cursor, and Claude workflows</p>
+            <p class="tagline">Your expert AI developer for Codex, Cursor, Claude, and Gemini workflows</p>
         </header>
 
         <div class="description">
@@ -228,25 +253,113 @@
         <div class="install-section">
             <h2>How to Install</h2>
 
-            <div class="platform">
-                <div class="platform-label">macOS / Linux:</div>
-                <div class="code-wrapper">
-                    <button class="copy-btn" onclick="copyToClipboard(this, 'bash')">Copy</button>
-                    <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh</code></pre>
+            <div class="command-panel">
+                <h3>Targets</h3>
+                <p>Target is required on every install. Supported targets, in order:</p>
+                <ul>
+                    <li><code>claude</code></li>
+                    <li><code>codex</code></li>
+                    <li><code>cursor</code></li>
+                    <li><code>gemini</code></li>
+                </ul>
+            </div>
+
+            <div class="command-panel">
+                <h3>macOS / Linux</h3>
+
+                <div class="platform">
+                    <div class="platform-label">Claude</div>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-claude')">Copy</button>
+                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target claude</code></pre>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <div class="platform-label">Codex</div>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-codex')">Copy</button>
+                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target codex</code></pre>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <div class="platform-label">Cursor</div>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-cursor')">Copy</button>
+                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor</code></pre>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <div class="platform-label">Gemini</div>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-gemini')">Copy</button>
+                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target gemini</code></pre>
+                    </div>
                 </div>
             </div>
 
-            <div class="platform">
-                <div class="platform-label">Windows (PowerShell):</div>
-                <div class="code-wrapper">
-                    <button class="copy-btn" onclick="copyToClipboard(this, 'powershell')">Copy</button>
-                    <pre><code>irm https://rusi.github.io/junior/install.ps1 | iex</code></pre>
+            <div class="command-panel">
+                <h3>Windows (PowerShell)</h3>
+
+                <div class="platform">
+                    <div class="platform-label">Claude</div>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyToClipboard(this, 'powershell-claude')">Copy</button>
+                        <pre><code>&amp; ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target claude</code></pre>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <div class="platform-label">Codex</div>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyToClipboard(this, 'powershell-codex')">Copy</button>
+                        <pre><code>&amp; ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target codex</code></pre>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <div class="platform-label">Cursor</div>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyToClipboard(this, 'powershell-cursor')">Copy</button>
+                        <pre><code>&amp; ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target cursor</code></pre>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <div class="platform-label">Gemini</div>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyToClipboard(this, 'powershell-gemini')">Copy</button>
+                        <pre><code>&amp; ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target gemini</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="command-panel">
+                <h3>Multiple Targets</h3>
+
+                <div class="platform">
+                    <div class="platform-label">Cursor + Codex</div>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-cursor-codex')">Copy</button>
+                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor,codex</code></pre>
+                    </div>
+                </div>
+
+                <div class="platform">
+                    <div class="platform-label">All Supported Runtimes</div>
+                    <div class="code-wrapper">
+                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-all')">Copy</button>
+                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target all</code></pre>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="note">
-            <p>Junior installs global assets under <code>~/.codex</code> and <code>~/.cursor/rules</code>. Open your project and start with <code>jr-init</code>.</p>
+            <p>There is no default target. Always pass <code>--target</code> or <code>-Target</code>.</p>
+            <p>Open your project and start with <code>jr-init</code>.</p>
         </div>
 
         <div class="buttons">
@@ -256,14 +369,22 @@
 
         <footer>
             <p><a href="https://github.com/rusi/junior">github.com/rusi/junior</a></p>
-            <p>by <a href="https://github.com/rusi">Ruslan Hristov</a></p>
+            <p>Made with Claude + Codes</p>
         </footer>
     </div>
 
     <script>
         const commands = {
-            bash: "curl -LsSf https://rusi.github.io/junior/install.sh | sh",
-            powershell: "irm https://rusi.github.io/junior/install.ps1 | iex"
+            "bash-claude": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target claude",
+            "bash-codex": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target codex",
+            "bash-cursor": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor",
+            "bash-gemini": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target gemini",
+            "powershell-claude": "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target claude",
+            "powershell-codex": "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target codex",
+            "powershell-cursor": "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target cursor",
+            "powershell-gemini": "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target gemini",
+            "bash-cursor-codex": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor,codex",
+            "bash-all": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target all"
         };
 
         function copyToClipboard(button, platform) {

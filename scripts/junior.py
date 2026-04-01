@@ -14,6 +14,7 @@ import datetime as dt
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -76,6 +77,7 @@ class InstallTargetConfig:
 
 INSTALL_TARGETS: dict[str, InstallTargetConfig] = {
     "codex": InstallTargetConfig(home_dir=".codex", contract_filename="AGENTS.md"),
+    "cursor": InstallTargetConfig(home_dir=".cursor", contract_filename="AGENTS.md"),
     "gemini": InstallTargetConfig(home_dir=".gemini", contract_filename="GEMINI.md"),
     "claude": InstallTargetConfig(home_dir=".claude", contract_filename="CLAUDE.md"),
 }
@@ -102,8 +104,8 @@ def skills_root(root: Path) -> Path:
     return agents_root(root) / "skills"
 
 
-def cursor_junior_rule_path(root: Path) -> Path:
-    return root / "cursor" / "rules" / "JUNIOR.mdc"
+def cursor_rules_root(root: Path) -> Path:
+    return root / "cursor" / "rules"
 
 
 def install_target_config(target: str) -> InstallTargetConfig:
@@ -135,17 +137,24 @@ def runtime_contract_path(target: str, home: Path | None = None) -> Path:
     return runtime_root(target, home) / runtime_contract_filename(target)
 
 
+def runtime_commands_root(target: str, home: Path | None = None) -> Path:
+    return runtime_root(target, home) / "commands"
+
+
 def runtime_junior_doc_path(target: str, home: Path | None = None) -> Path:
     return runtime_skills_root(target, home) / "jr" / "references" / "junior-readme.md"
 
 
+def runtime_cursor_support_root(home: Path | None = None) -> Path:
+    return runtime_commands_root("cursor", home) / "_shared"
+
+
+def runtime_cursor_doc_path(home: Path | None = None) -> Path:
+    return runtime_cursor_support_root(home) / "junior-readme.md"
+
+
 def runtime_legacy_junior_doc_path(target: str, home: Path | None = None) -> Path:
     return runtime_skills_root(target, home) / "junior" / "references" / "junior-readme.md"
-
-
-def global_cursor_junior_rule_path(home: Path | None = None) -> Path:
-    base = (home or Path.home()).resolve()
-    return base / ".cursor" / "rules" / "JUNIOR.mdc"
 
 
 def global_install_root() -> Path:
@@ -333,8 +342,65 @@ def should_include_file(entry: dict[str, Any], platform_name: str) -> bool:
     return configured_platform == platform_name
 
 
+def discover_skill_markdown_command_ops(repo_root: Path, target_root: Path, destination: str) -> list[FileOp]:
+    ops: list[FileOp] = []
+    commands_root = expand_destination(destination, target_root)
+    for skill_dir in sorted(p for p in skills_root(repo_root).iterdir() if p.is_dir() and p.name != "_shared"):
+        skill_file = skill_dir / "SKILL.md"
+        if not skill_file.exists():
+            continue
+        destination = commands_root / f"{skill_dir.name}.md"
+        ops.append(
+            FileOp(
+                source_path=skill_file,
+                dest_path=destination,
+                metadata_key=str(destination),
+                skip_if_exists=False,
+            )
+        )
+    return ops
+
+
+def discover_skill_support_ops(repo_root: Path, target_root: Path, destination: str) -> list[FileOp]:
+    ops: list[FileOp] = []
+    support_root = expand_destination(destination, target_root)
+    shared_source = skills_root(repo_root) / "_shared"
+
+    if shared_source.is_dir():
+        for file_path in sorted(p for p in shared_source.rglob("*") if p.is_file()):
+            rel = file_path.relative_to(shared_source).as_posix()
+            destination = support_root / rel
+            ops.append(
+                FileOp(
+                    source_path=file_path,
+                    dest_path=destination,
+                    metadata_key=str(destination),
+                    skip_if_exists=False,
+                )
+            )
+
+    for skill_dir in sorted(p for p in skills_root(repo_root).iterdir() if p.is_dir() and p.name != "_shared"):
+        for file_path in sorted(p for p in skill_dir.rglob("*") if p.is_file() and p.name != "SKILL.md"):
+            rel = file_path.relative_to(skill_dir).as_posix()
+            destination = support_root / skill_dir.name / rel
+            ops.append(
+                FileOp(
+                    source_path=file_path,
+                    dest_path=destination,
+                    metadata_key=str(destination),
+                    skip_if_exists=False,
+                )
+            )
+
+    return ops
+
+
 def discover_file_ops(config: dict[str, Any], repo_root: Path, target_root: Path, platform_name: str, console: Console) -> list[FileOp]:
     ops: list[FileOp] = []
+    mode_handlers = {
+        "skill_markdown_commands": discover_skill_markdown_command_ops,
+        "skill_support_tree": discover_skill_support_ops,
+    }
 
     files = config.get("files", [])
     if not isinstance(files, list):
@@ -350,8 +416,14 @@ def discover_file_ops(config: dict[str, Any], repo_root: Path, target_root: Path
         destination = str(entry.get("destination") or "")
         is_directory = bool(entry.get("isDirectory", False))
         skip_if_exists = bool(entry.get("skipIfExists", False))
+        mode = str(entry.get("mode") or "")
 
         if not source or not destination:
+            continue
+
+        handler = mode_handlers.get(mode)
+        if handler is not None:
+            ops.extend(handler(repo_root, target_root, destination))
             continue
 
         source_path = repo_root / source
@@ -484,9 +556,6 @@ def normalize_install_target(value: str) -> str:
 
 def parse_install_targets(value: str) -> list[str]:
     raw = value.strip().lower()
-    if not raw:
-        raw = "codex"
-
     if raw == "all":
         return list(SUPPORTED_INSTALL_TARGETS)
 
@@ -502,7 +571,13 @@ def requested_targets(args: argparse.Namespace) -> list[str]:
     cli_value = str(getattr(args, "target", "") or "").strip()
     legacy_value = str(getattr(args, "legacy_target_path", "") or "").strip()
     raw_value = legacy_value if legacy_value and not cli_value else cli_value
-    return parse_install_targets(raw_value or "codex")
+    return parse_install_targets(raw_value)
+
+
+def has_explicit_target(args: argparse.Namespace) -> bool:
+    cli_value = str(getattr(args, "target", "") or "").strip()
+    legacy_value = str(getattr(args, "legacy_target_path", "") or "").strip()
+    return bool(cli_value or legacy_value)
 
 
 def target_home_alias(install_target: str) -> str:
@@ -515,7 +590,7 @@ def target_contract_alias(install_target: str) -> str:
 
 
 def rewrite_codex_paths_for_target(value: str, install_target: str) -> str:
-    if install_target == "codex":
+    if install_target in {"codex", "cursor"}:
         return value
 
     replacements = (
@@ -533,8 +608,44 @@ def render_contract_content_for_target(content: str, install_target: str) -> str
     return rewrite_codex_paths_for_target(content, install_target)
 
 
+def strip_yaml_frontmatter(content: str) -> str:
+    return re.sub(r"\A---\r?\n.*?\r?\n---\r?\n+", "", content, count=1, flags=re.S)
+
+
+def is_cursor_command_source(op: FileOp, repo_root: Path) -> bool:
+    try:
+        rel = op.source_path.relative_to(skills_root(repo_root))
+    except ValueError:
+        return False
+    return rel.name == "SKILL.md"
+
+
+def render_cursor_command_content(content: str, op: FileOp) -> str:
+    stripped = strip_yaml_frontmatter(content)
+    skill_dir = op.source_path.parent.name
+    support_root = "~/.cursor/commands/_shared"
+    rewritten = stripped.replace("../_shared/", f"{support_root}/")
+    rewritten = re.sub(
+        r"(?<!_shared/)templates/",
+        f"{support_root}/{skill_dir}/templates/",
+        rewritten,
+    )
+    rewritten = re.sub(
+        r"(?<!_shared/)references/",
+        f"{support_root}/{skill_dir}/references/",
+        rewritten,
+    )
+    return rewritten
+
+
 def rendered_source_bytes(op: FileOp, repo_root: Path, install_target: str) -> bytes:
     content = op.source_path.read_bytes()
+    if install_target == "cursor" and is_cursor_command_source(op, repo_root):
+        try:
+            decoded = content.decode("utf-8")
+        except UnicodeDecodeError:
+            return content
+        return render_cursor_command_content(decoded, op).encode("utf-8")
     if op.source_path != (repo_root / "AGENTS.md"):
         return content
     try:
@@ -548,11 +659,30 @@ def is_runtime_contract_source(op: FileOp, repo_root: Path) -> bool:
     return op.source_path == (repo_root / "AGENTS.md")
 
 
+def should_render_source(op: FileOp, repo_root: Path, install_target: str) -> bool:
+    return is_runtime_contract_source(op, repo_root) or (
+        install_target == "cursor" and is_cursor_command_source(op, repo_root)
+    )
+
+
+def op_source_relpath(op: FileOp, repo_root: Path) -> str:
+    try:
+        return op.source_path.relative_to(repo_root).as_posix()
+    except ValueError:
+        return op.source_path.name
+
+
 def map_destination_for_target(destination: str, install_target: str) -> str:
     return rewrite_codex_paths_for_target(destination, install_target)
 
 
 def build_target_install_config(config: dict[str, Any], install_target: str) -> dict[str, Any]:
+    targets = config.get("targets", {})
+    if isinstance(targets, dict):
+        target_config = targets.get(install_target)
+        if isinstance(target_config, dict):
+            return target_config
+
     if install_target == "codex":
         return config
 
@@ -584,8 +714,6 @@ def build_target_install_config(config: dict[str, Any], install_target: str) -> 
                 next_steps: list[str] = []
                 for step in value:
                     if not isinstance(step, str):
-                        continue
-                    if ".cursor/rules/JUNIOR.mdc" in step:
                         continue
                     mapped_step = rewrite_codex_paths_for_target(step, install_target)
                     next_steps.append(mapped_step)
@@ -748,13 +876,13 @@ def run_install_for_target(args: argparse.Namespace, install_target: str) -> int
             continue
 
         if action == "copy":
-            if is_runtime_contract_source(op, repo_root):
+            if should_render_source(op, repo_root, install_target):
                 op.dest_path.write_bytes(rendered_source_bytes(op, repo_root, install_target))
             else:
                 shutil.copy2(op.source_path, op.dest_path)
             console.debug(f"Installed: {op.dest_path}")
         elif action == "overwrite_modified":
-            if is_runtime_contract_source(op, repo_root):
+            if should_render_source(op, repo_root, install_target):
                 op.dest_path.write_bytes(rendered_source_bytes(op, repo_root, install_target))
             else:
                 shutil.copy2(op.source_path, op.dest_path)
@@ -767,6 +895,7 @@ def run_install_for_target(args: argparse.Namespace, install_target: str) -> int
             "sha256": item.source_checksum,
             "size": file_size(op.dest_path),
             "modified": False,
+            "source": op_source_relpath(op, repo_root),
         }
 
     installed_at = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -824,6 +953,9 @@ def run_install_for_target(args: argparse.Namespace, install_target: str) -> int
 
 def run_install(args: argparse.Namespace) -> int:
     console = Console(verbose=bool(args.verbose))
+    if not has_explicit_target(args):
+        console.error("Missing required --target. Use one of: claude, codex, cursor, gemini, all, or a csv list.")
+        return 1
     try:
         targets = requested_targets(args)
     except ValueError as exc:
@@ -837,7 +969,17 @@ def run_install(args: argparse.Namespace) -> int:
     return exit_code
 
 
-def source_path_for_sync(repo_root: Path, key: str, install_target: str) -> Path | None:
+def source_path_for_sync(
+    repo_root: Path,
+    key: str,
+    install_target: str,
+    source_rel: str = "",
+) -> Path | None:
+    if source_rel:
+        candidate = repo_root / source_rel
+        if candidate.exists() or not source_rel.startswith("~"):
+            return candidate
+
     path = key_to_path(global_install_root(), key)
     home = Path.home().resolve()
 
@@ -848,18 +990,39 @@ def source_path_for_sync(repo_root: Path, key: str, install_target: str) -> Path
 
     target_rules = runtime_rules_root(install_target, home).resolve()
     target_skills = runtime_skills_root(install_target, home).resolve()
+    target_commands = runtime_commands_root(install_target, home).resolve()
     target_contract = runtime_contract_path(install_target, home).resolve()
     target_junior_doc = runtime_junior_doc_path(install_target, home).resolve()
     target_legacy_junior_doc = runtime_legacy_junior_doc_path(install_target, home).resolve()
-    cursor_rule = global_cursor_junior_rule_path(home).resolve()
+    cursor_support_root = runtime_cursor_support_root(home).resolve()
+    cursor_doc = runtime_cursor_doc_path(home).resolve()
 
     if str(resolved).startswith(str(target_rules) + os.sep):
         rel = resolved.relative_to(target_rules)
+        if install_target == "cursor":
+            cursor_specific = cursor_rules_root(repo_root) / rel
+            if cursor_specific.exists():
+                return cursor_specific
         return rules_root(repo_root) / rel
 
     if str(resolved).startswith(str(target_skills) + os.sep):
         rel = resolved.relative_to(target_skills)
         return skills_root(repo_root) / rel
+
+    if resolved == cursor_doc:
+        return repo_root / "README.md"
+
+    if str(resolved).startswith(str(cursor_support_root) + os.sep):
+        rel = resolved.relative_to(cursor_support_root)
+        if rel.parts and rel.parts[0] != "_shared" and (skills_root(repo_root) / rel.parts[0]).is_dir():
+            return skills_root(repo_root) / rel
+        return skills_root(repo_root) / "_shared" / rel
+
+    if str(resolved).startswith(str(target_commands) + os.sep):
+        rel = resolved.relative_to(target_commands)
+        if len(rel.parts) != 1:
+            return None
+        return skills_root(repo_root) / rel.stem / "SKILL.md"
 
     if resolved == target_contract:
         return repo_root / "AGENTS.md"
@@ -867,36 +1030,47 @@ def source_path_for_sync(repo_root: Path, key: str, install_target: str) -> Path
     if resolved in {target_junior_doc, target_legacy_junior_doc}:
         return repo_root / "README.md"
 
-    if resolved == cursor_rule:
-        return cursor_junior_rule_path(repo_root)
-
     if key == "AGENTS.md":
         return repo_root / "AGENTS.md"
-
-    if key in {".cursor/rules/JUNIOR.mdc", "cursor/rules/JUNIOR.mdc"}:
-        return cursor_junior_rule_path(repo_root)
 
     return None
 
 
-def run_sync_back_for_target(args: argparse.Namespace, install_target: str) -> int:
-    console = Console(verbose=bool(args.verbose))
-    repo_root = repo_root_from_script()
+@dataclass(frozen=True)
+class SyncCandidate:
+    target: str
+    key: str
+    src_path: Path
+    dest_path: Path
+    sha256: str
+
+
+def installed_targets_with_metadata() -> list[str]:
+    targets: list[str] = []
+    for target in SUPPORTED_INSTALL_TARGETS:
+        if global_metadata_path(target).exists():
+            targets.append(target)
+    return targets
+
+
+def collect_sync_candidates_for_target(
+    repo_root: Path,
+    install_target: str,
+    console: Console,
+) -> tuple[list[SyncCandidate], list[str]]:
     install_root = global_install_root()
     metadata_path = global_metadata_path(install_target)
-    console.info(f"Target: {install_target}")
-
     if not metadata_path.exists():
-        console.error("No global Junior installation metadata found.")
-        console.error(f"Metadata file missing: {metadata_path}")
-        return 1
+        return [], [f"Metadata file missing for target {install_target}: {metadata_path}"]
 
     metadata = read_json(metadata_path)
     files = metadata.get("files", {})
     if not isinstance(files, dict):
         files = {}
 
-    sync_candidates: list[str] = []
+    candidates: list[SyncCandidate] = []
+    warnings: list[str] = []
+
     for key, value in files.items():
         if not isinstance(value, dict):
             continue
@@ -909,49 +1083,90 @@ def run_sync_back_for_target(args: argparse.Namespace, install_target: str) -> i
             continue
 
         current_sha = sha256_file(target_path)
-        if current_sha != installed_sha:
-            sync_candidates.append(key)
-
-    if not sync_candidates:
-        console.success("No modified files to sync")
-        return 0
-
-    print("")
-    console.info(f"Modified files found ({len(sync_candidates)}):")
-    for key in sync_candidates:
-        print(f"  - {key}")
-
-    synced = 0
-    for key in sync_candidates:
-        src_path = key_to_path(install_root, key)
-        dest_path = source_path_for_sync(repo_root, key, install_target)
-        if dest_path is None:
-            console.warning(f"Skipping unknown mapping: {key}")
+        if current_sha == installed_sha:
             continue
 
-        dest_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(src_path, dest_path)
-        console.success(f"Synced: {src_path} -> {dest_path}")
-        synced += 1
+        source_rel = str(value.get("source") or "")
+        dest_path = source_path_for_sync(repo_root, key, install_target, source_rel)
+        if dest_path is None:
+            warnings.append(f"Skipping unknown mapping for {install_target}: {key}")
+            continue
 
-    print("")
-    console.success(f"Sync complete. {synced} files copied to Junior source.")
-    return 0
+        candidates.append(
+            SyncCandidate(
+                target=install_target,
+                key=key,
+                src_path=target_path,
+                dest_path=dest_path,
+                sha256=current_sha,
+            )
+        )
+
+    return candidates, warnings
 
 
 def run_sync_back(args: argparse.Namespace) -> int:
     console = Console(verbose=bool(args.verbose))
-    try:
-        targets = requested_targets(args)
-    except ValueError as exc:
-        console.error(str(exc))
-        return 1
-    exit_code = 0
+    if has_explicit_target(args):
+        try:
+            targets = requested_targets(args)
+        except ValueError as exc:
+            console.error(str(exc))
+            return 1
+    else:
+        targets = installed_targets_with_metadata()
+        if not targets:
+            console.error("No global Junior installation metadata found for any target.")
+            return 1
+
+    repo_root = repo_root_from_script()
+    all_candidates: list[SyncCandidate] = []
+    warnings: list[str] = []
+
     for install_target in targets:
-        rc = run_sync_back_for_target(args, install_target)
-        if rc != 0:
-            exit_code = rc
-    return exit_code
+        console.info(f"Inspecting target: {install_target}")
+        candidates, target_warnings = collect_sync_candidates_for_target(repo_root, install_target, console)
+        all_candidates.extend(candidates)
+        warnings.extend(target_warnings)
+
+    for warning in warnings:
+        console.warning(warning)
+
+    if not all_candidates:
+        console.success("No modified files to sync")
+        return 0
+
+    print("")
+    console.info(f"Modified runtime files found ({len(all_candidates)}):")
+    for candidate in all_candidates:
+        print(f"  - [{candidate.target}] {candidate.key}")
+
+    grouped: dict[Path, list[SyncCandidate]] = {}
+    for candidate in all_candidates:
+        grouped.setdefault(candidate.dest_path, []).append(candidate)
+
+    synced = 0
+    conflict_count = 0
+    for dest_path, candidates in sorted(grouped.items(), key=lambda item: str(item[0])):
+        sha_values = {candidate.sha256 for candidate in candidates}
+        if len(sha_values) > 1:
+            conflict_count += 1
+            console.error(f"Sync conflict for {dest_path}:")
+            for candidate in candidates:
+                print(f"  - [{candidate.target}] {candidate.src_path}")
+            continue
+
+        chosen = candidates[0]
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(chosen.src_path, dest_path)
+        console.success(f"Synced: {chosen.src_path} -> {dest_path}")
+        synced += 1
+
+    print("")
+    if conflict_count:
+        console.warning(f"Sync completed with {conflict_count} conflict(s). Conflicted files were not overwritten.")
+    console.success(f"Sync complete. {synced} files copied to Junior source.")
+    return 1 if conflict_count else 0
 
 
 def create_local_tarball(local_source: Path, tarball_path: Path, console: Console) -> None:
@@ -1131,6 +1346,9 @@ def run_update_for_target(args: argparse.Namespace, install_target: str) -> int:
 
 def run_update(args: argparse.Namespace) -> int:
     console = Console(verbose=bool(args.verbose))
+    if not has_explicit_target(args):
+        console.error("Missing required --target. Use one of: claude, codex, cursor, gemini, all, or a csv list.")
+        return 1
     try:
         targets = requested_targets(args)
     except ValueError as exc:
@@ -1154,7 +1372,7 @@ def build_parser() -> argparse.ArgumentParser:
         "-t",
         "--target",
         default="",
-        help="Install targets: codex, gemini, claude, comma-list, or all",
+        help="Install targets: codex, cursor, gemini, claude, comma-list, or all",
     )
     install.add_argument("-v", "--verbose", action="store_true", help="Show debug output")
     install.add_argument("-i", "--ignore-dirty", action="store_true", help="Skip clean git check")
@@ -1171,7 +1389,7 @@ def build_parser() -> argparse.ArgumentParser:
         "-t",
         "--target",
         default="",
-        help="Sync targets: codex, gemini, claude, comma-list, or all",
+        help="Sync targets: codex, cursor, gemini, claude, comma-list, or all",
     )
     sync.add_argument("-v", "--verbose", action="store_true", help="Show debug output")
 
@@ -1185,7 +1403,7 @@ def build_parser() -> argparse.ArgumentParser:
         "-t",
         "--target",
         default="",
-        help="Update targets: codex, gemini, claude, comma-list, or all",
+        help="Update targets: codex, cursor, gemini, claude, comma-list, or all",
     )
 
     return parser

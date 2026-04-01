@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-TARGET="codex"
+TARGET=""
 
 GITHUB_REPO="rusi/junior"
 GITHUB_BRANCH="main"
@@ -54,7 +54,7 @@ main() {
     case "$1" in
       -t|--target)
         if [[ $# -lt 2 ]]; then
-          error "--target requires a value: codex, gemini, claude, all, or csv list"
+          error "--target requires a value: codex, cursor, gemini, claude, all, or csv list"
           exit 1
         fi
         TARGET="$2"
@@ -67,6 +67,11 @@ main() {
     esac
   done
 
+  if [[ -z "$TARGET" ]]; then
+    error "Missing required --target. Use one of: claude, codex, cursor, gemini, all, or a csv list."
+    exit 1
+  fi
+
   local py_bin
   py_bin="$(find_python)"
   if [ -z "$py_bin" ]; then
@@ -75,7 +80,9 @@ main() {
   fi
 
   if [[ "$TARGET" == "codex" ]]; then
-    info "Installing Junior global assets (~/.codex, ~/.cursor/rules)"
+    info "Installing Junior global assets (~/.codex)"
+  elif [[ "$TARGET" == "cursor" ]]; then
+    info "Installing Junior global assets (~/.cursor)"
   elif [[ "$TARGET" == "gemini" ]]; then
     info "Installing Junior global assets (~/.gemini)"
   elif [[ "$TARGET" == "claude" ]]; then

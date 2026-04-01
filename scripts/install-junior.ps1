@@ -2,14 +2,14 @@
 # Delegates to scripts/junior.py for cross-platform install/update logic.
 #
 # Usage:
-#   .\scripts\install-junior.ps1 [-SyncBack] [-Target codex|gemini|claude|all|csv] [-IgnoreDirty] [-Force] [-Verbose]
+#   .\scripts\install-junior.ps1 [-SyncBack] [-Target claude|codex|cursor|gemini|all|csv] [-IgnoreDirty] [-Force] [-Verbose]
 
 param(
     [Parameter(Mandatory = $false)]
     [switch]$SyncBack,
 
     [Parameter(Mandatory = $false)]
-    [string]$Target = "codex",
+    [string]$Target = "",
 
     [Parameter(Mandatory = $false)]
     [switch]$IgnoreDirty,
@@ -37,7 +37,11 @@ if (-not $Python) {
 
 $mode = if ($SyncBack) { "sync-back" } else { "install" }
 $argsList = @($PyScript, $mode)
-$argsList += @("--target", $Target)
+if (-not $SyncBack -and -not $Target) {
+    Write-Host "[ERROR] Missing required -Target: claude, codex, cursor, gemini, all, or a csv list." -ForegroundColor Red
+    exit 1
+}
+if ($Target) { $argsList += @("--target", $Target) }
 
 if ($Verbose) { $argsList += "--verbose" }
 if ($IgnoreDirty) { $argsList += "--ignore-dirty" }
