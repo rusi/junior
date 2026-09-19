@@ -1,28 +1,27 @@
----
-alwaysApply: true
----
-
 # Python Modern Conventions
 
-## ⚠️ CRITICAL: Always Use `uv run` in This Project
+## Project Tooling Selection
 
-**This project uses `uv` for dependency management. EVERY Python command must use `uv run`.**
+Before running Python commands, read the consuming project's contributor guidance, package
+configuration, lockfiles, environment setup, task scripts, and CI commands. Use the runner,
+Python version, and tools established for the component being changed. A `pyproject.toml`
+alone does not establish a package manager.
 
-```bash
-# ✅ CORRECT
-uv run pytest
-uv run pytest tests/test_advent_model.py -v
-uv run pytest --cov
-uv run python -m app.main
-uv run ruff check .
+- Prefer the project's documented wrapper or task command when it sets up the environment.
+- For a uv-managed project, use `uv run`; for Poetry, use `poetry run`; for a pip/venv
+  project, use its configured environment's interpreter or activated environment.
+- Preserve existing test, lint, format, type-check, benchmark, and CLI tooling. The named
+  tools below are defaults for projects without an established equivalent, not migration
+  requirements. Examples apply only where their runner and tools are configured.
+- Do not add dependencies, change lockfiles, upgrade Python, or migrate tooling solely to
+  satisfy these examples. Match syntax and tool settings to the supported Python version.
+- If evidence is missing or conflicting, resolve the intended environment before commands
+  that install dependencies or modify project state. Recommend a setup for a new project
+  and agree it before adding tooling.
 
-# ❌ WRONG - Never run directly
-python -m pytest          # ❌ Wrong environment
-pytest                    # ❌ Wrong environment
-python script.py          # ❌ Wrong environment
-```
-
-**Why:** `uv run` ensures correct virtual environment, dependencies, and Python version. Without it, commands may fail or use wrong packages.
+Runner examples for projects using pytest: `uv run pytest`, `poetry run pytest`, or
+`python -m pytest` with the configured virtual environment active. These are alternatives,
+not a sequence to execute.
 
 ## Type Hints (Python 3.10+)
 
@@ -54,26 +53,6 @@ def process(items: List[str]) -> Dict[str, int]:
 - Use `X | None` not `Optional[X]`
 - Use `X | Y` not `Union[X, Y]`
 - **Always add `from __future__ import annotations` at the top**
-
-## Additional `uv run` Examples
-
-```bash
-# Testing with coverage
-uv run pytest --cov --cov-report=html
-
-# Linting and formatting
-uv run ruff check .
-uv run ruff format .
-
-# Type checking
-uv run mypy app/
-
-# Running the application
-uv run python -m app.main
-
-# Running scripts
-uv run python scripts/migrate.py
-```
 
 ## Pytest Conventions
 
@@ -206,7 +185,6 @@ r, s = crypto_utils.decode_dss_signature(sig)  # Crypto's decoder
 - Standard library: Always OK to import directly
 - Our own code: Always OK to import classes/functions
 - Very common patterns: OK if idiomatic (`import asyncio`, `import json`)
-```
 
 ### NO Inline Imports (CRITICAL)
 
@@ -268,7 +246,8 @@ class Config:
 
 ## Ruff Configuration
 
-Use ruff for linting and formatting:
+For projects selecting Ruff under Project Tooling Selection, adapt this configuration to
+the project's Python version and formatting conventions:
 
 ```toml
 [tool.ruff]
@@ -281,15 +260,16 @@ select = ["E", "F", "I", "UP"]  # UP = pyupgrade for modern Python
 
 ## Performance Testing
 
-**ALWAYS use pytest-benchmark for performance testing.**
+Use the project's benchmark framework. For pytest projects without an existing equivalent,
+prefer pytest-benchmark for statistical performance testing.
 
 ### Why pytest-benchmark?
 
-✅ Statistical analysis (mean, median, stddev, outliers)
-✅ Regression detection via `--benchmark-compare`
-✅ Multiple iterations automatically
-✅ Built-in warmup and calibration
-❌ **NEVER use manual `time.perf_counter()` in tests**
+- ✅ Statistical analysis (mean, median, stddev, outliers)
+- ✅ Regression detection via `--benchmark-compare`
+- ✅ Multiple iterations automatically
+- ✅ Built-in warmup and calibration
+- ❌ **NEVER use manual `time.perf_counter()` in tests**
 
 ### Basic Usage
 
@@ -312,27 +292,33 @@ def test_function_performance(benchmark):
 
 ### Running Benchmarks
 
+Example for a uv-managed project with pytest-benchmark; otherwise use the selected runner
+and benchmark framework.
+
 ```bash
 # Run benchmarks
-pytest tests/test_performance.py --benchmark-only
+uv run pytest tests/test_performance.py --benchmark-only
 
 # Compare with baseline
-pytest tests/ --benchmark-compare
+uv run pytest tests/ --benchmark-compare
 
 # Save baseline
-pytest tests/ --benchmark-save=baseline
+uv run pytest tests/ --benchmark-save=baseline
 ```
 
 ### When to Write Performance Tests
 
-✅ Performance-critical paths (parsing, algorithms, database queries)
-✅ Features with explicit performance requirements
-✅ Known bottlenecks
-✅ APIs with latency SLAs
+- ✅ Performance-critical paths (parsing, algorithms, database queries)
+- ✅ Features with explicit performance requirements
+- ✅ Known bottlenecks
+- ✅ APIs with latency SLAs
 
 ## CLI Applications
 
 ### Use Modern Frameworks
+
+When choosing new CLI tooling, these are defaults; preserve established equivalents under
+Project Tooling Selection.
 
 **CLI Parsing:**
 - ✅ Use `typer` for type-safe CLI applications
@@ -379,6 +365,7 @@ if __name__ == "__main__":
 
 ## Summary Checklist
 
+- [ ] Use the consuming project's configured Python environment, runner, and tools
 - [ ] Use `from __future__ import annotations`
 - [ ] Use modern type hints (`list`, `dict`, `X | None`)
 - [ ] No `typing.List`, `typing.Optional`, etc.
@@ -386,8 +373,6 @@ if __name__ == "__main__":
 - [ ] f-strings for formatting
 - [ ] No build system for standalone apps
 - [ ] Type hint fixtures and functions
-- [ ] Use pytest-benchmark for performance tests (not manual timing)
-- [ ] Use typer for CLI applications (not argparse)
-- [ ] Use rich for console output (not print)
+- [ ] Use the selected benchmark framework for statistical performance tests
+- [ ] Follow the project's CLI and console-output conventions
 - [ ] Extract utilities (logging, UI, args)
-

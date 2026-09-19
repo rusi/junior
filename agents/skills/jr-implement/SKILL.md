@@ -1,13 +1,13 @@
 ---
 name: jr-implement
-description: Execute feature stories systematically with TDD-first workflow, story discovery, and production-ready completion gates.
+description: Run `/jr-implement` to implement feature stories and verified fixes through their completion gates.
 ---
 
 # Implement Command
 
 ## Purpose
 
-Execute feature stories systematically using Test-Driven Development workflow with intelligent story discovery.
+Execute feature stories and verified fixes systematically using Test-Driven Development workflow with intelligent work selection.
 
 ## Type
 
@@ -16,6 +16,7 @@ Direct execution - Immediate action with user confirmation when uncertain
 ## When to Use
 
 - Ready to implement a specific feature story
+- Ready to apply a verified correction recorded in a finding or resolution
 - Want to work on the next story in sequence
 - Need systematic implementation workflow with progress tracking
 - Want TDD workflow guidance (for coding projects)
@@ -50,19 +51,12 @@ Do not consider coding-story implementation complete until post-implementation `
 - Automated test suites (unit, integration, end-to-end)
 - For non-coding tasks: systematic implementation without TDD requirements
 
-## CRITICAL REQUIREMENT: 100% Test Pass Rate & Coverage (Coding Projects Only)
+## Coding Verification Policy
 
-**⚠️ ZERO TOLERANCE FOR FAILING TESTS OR INCOMPLETE COVERAGE ⚠️**
-
-This command enforces strict test validation:
-- **NO story can be marked "COMPLETED" with ANY failing tests**
-- **100% test pass rate is MANDATORY before completion**
-- **100% code coverage is REQUIRED for all new/modified code**
-- **"Edge case" or "minor" test failures are NOT acceptable**
-- **Incomplete coverage is NOT acceptable**
-- **Implementation is considered incomplete until all tests pass AND coverage is 100%**
-
-If tests fail or coverage is incomplete, the story remains "IN PROGRESS" until all failures are resolved and coverage reaches 100%.
+Apply [Coding Verification](../_shared/references/completion-evidence.md#coding-verification)
+before implementation and at every completion gate. This shared contract defines passing
+checks, behavioral coverage, project thresholds, gap disposition, and approved exceptions.
+Keep coding work in progress until the contract and the required `/jr-test` audit are satisfied.
 
 ## CRITICAL REQUIREMENT: Stateful Context E2E Matrix (Coding Projects)
 
@@ -77,6 +71,8 @@ Minimum required matrix for those stories:
 - At least one assertion proves new-context loader/API activity occurred.
 
 Story completion is blocked until this matrix passes in isolated e2e execution.
+
+Apply [Completion Evidence](../_shared/references/completion-evidence.md) when reusing verification, reconciling checklists, and resolving missing manual observations.
 
 ## Process
 
@@ -97,9 +93,15 @@ Create todos using `todo_write` or `functions.update_plan`:
 }
 ```
 
-### Step 2: Smart Story Discovery
+### Step 2: Select Implementation Work
 
-**Detect current stage:** Use stage detection logic from `01-structure.mdc` to determine which structure (Stage 1/2/3) the project uses. This determines feature path resolution.
+**Finding or resolution input:** Read the referenced evidence, expected behavior, and proposed correction before searching for stories. Apply the workflow selection in `00-junior.md`, **Suggest ONE next step**. For a verified fix, use its linked implementation story if one exists; otherwise use the finding or resolution as the work item and establish a bounded plan and acceptance checks before changing code. Missing story scaffolding is not a reason to start a debug investigation.
+
+An explicit request to implement the finding authorizes that bounded correction; clarify only unresolved scope or design decisions. For this input, skip unrelated story discovery and proceed to Step 3. References to a "story" in the remaining steps mean this selected work item: apply the same implementation and verification gates, including the post-implementation `/jr-test` audit for code changes, and update only tracking documents that exist.
+
+**Story discovery:**
+
+**Detect current stage:** Use stage detection logic from `01-structure.md` to determine which structure (Stage 1/2/3) the project uses. This determines feature path resolution.
 
 **Parse user input for explicit or implicit story selection:**
 
@@ -118,7 +120,7 @@ Create todos using `todo_write` or `functions.update_plan`:
 
 **Discovery Logic (Stage-Aware):**
 
-Use stage-appropriate paths to find features. See `01-structure.mdc` for stage detection and path resolution patterns.
+Use stage-appropriate paths to find features. See `01-structure.md` for stage detection and path resolution patterns.
 
 For each feature found, load `user-stories/feat-{N}-stories.md`, parse task completion, and identify first story with status "Not Started" or "In Progress".
 
@@ -216,7 +218,7 @@ Override: If you confirm the changes are unrelated, reply "override: proceed".
 - Roadmap tracking: `.junior/product/02-roadmap.md` (if exists) using `../_shared/references/roadmap-progress-sync.md`
 - Session context contract: `../_shared/references/session-artifact-log.md`
 
-Where `{feature-path}` is resolved using stage detection (see `01-structure.mdc` for path patterns).
+Where `{feature-path}` is resolved using stage detection (see `01-structure.md` for path patterns).
 
 **Parse story structure:**
 
@@ -289,10 +291,12 @@ If yes:
 
 **🔴 CRITICAL: Read language-specific conventions:**
 
-- **Python projects:** Read `~/.codex/rules/11-python-conventions.mdc` for `uv run` requirements
+Use rules already loaded in context. Otherwise resolve the selected installation’s rule directory: `.claude/rules` for Claude Code, `.cursor/rules` for Cursor, or `.agents/rules` for Codex, relative to the project or home directory for its scope. When maintaining Junior source, follow that checkout's contributor guidance for authoring paths.
+
+- **Python projects:** Read `11-python-conventions` in that rule directory (`.mdc` for Cursor, `.md` otherwise) and apply its Project Tooling Selection section
 - **JavaScript/TypeScript projects:** Read relevant language convention rules
-- **Other languages:** Check for language-specific rules in `~/.codex/rules/`
-- **ALWAYS follow project-specific tool runners** (e.g., `uv run pytest` not `pytest`)
+- **Other languages:** Check for language-specific rules in that rule directory
+- **ALWAYS follow project-specific tool runners**; use the consuming project's documented commands and configured environment
 
 **Identify reusable code:**
 
@@ -440,38 +444,11 @@ Progress: 2/5 tasks (40%)
 
 #### Final Task: Test & Acceptance Verification (Coding Projects)
 
-```
-🔍 TDD Phase: REFACTOR (Verify & Improve)
-
-Verify all tests pass, coverage is 100%, and acceptance criteria are met:
-- Run full test suite: 100% pass rate required
-- Run coverage report: 100% coverage required
-- Run performance benchmarks: All targets met (if applicable)
-- Validate acceptance criteria
-- Refactor if needed while keeping tests green
-
-⚠️ Story cannot be marked complete with failing tests, incomplete coverage, or unmet performance targets.
-
-Mark complete when all tests pass, coverage is 100%, criteria are met, and performance targets achieved.
-```
-
-**CRITICAL: 100% Test Pass Rate & Coverage Required**
-
-**Test execution strategy (gradual approach):**
-
-1. **First**: Run only tests for current story/jr-feature
-2. **Then**: Run related test suites to check for regressions
-3. **Finally**: Consider full test suite if significant changes made
-4. **Acceptance**: Validate user story acceptance criteria are met
-
-**⚠️ STORY CANNOT BE MARKED COMPLETE WITH ANY FAILING TESTS OR INCOMPLETE COVERAGE ⚠️**
-
-If ANY tests fail or coverage is incomplete:
-- **STOP IMMEDIATELY** - Do not mark story as complete
-- Debug and fix each failing test
-- Add tests to reach 100% coverage
-- Re-run test suite until 100% pass rate AND 100% coverage achieved
-- Only then proceed to mark story as complete
+Apply [Coding Verification](../_shared/references/completion-evidence.md#coding-verification).
+Start with tests for the changed behavior, then related regressions, and run the full suite
+where the project requires it or the change warrants it. Resolve failures and coverage gaps
+under the shared contract before marking the work complete. Verify acceptance criteria and
+applicable performance targets; refactor only while keeping the relevant checks green.
 
 **⚠️ NEVER SKIP TYPE CHECKING OR FAILING TESTS TO "MOVE FORWARD" ⚠️**
 
@@ -498,16 +475,16 @@ If ANY tests fail or coverage is incomplete:
 - Selector-only assertions are insufficient; rendered data transition assertions are required.
 - Missing stale-data negative assertions block completion.
 
-After all tasks are executed, run final comprehensive verification:
+After implementation, apply [Coding Verification](../_shared/references/completion-evidence.md#coding-verification) and reuse only applicable evidence under the shared evidence contract:
 
-**1. Run complete test suite:**
+**1. Run required test suites:**
 
 ```bash
 # ⚠️ CRITICAL: Use project-specific test runner
-# Check language-specific rules in ~/.codex/rules/ for correct command
+# Check language-specific rules in the active installation rule directory for correct command
 
 npm test                    # Node.js/JavaScript
-uv run pytest --cov         # Python (this project uses uv)
+uv run pytest --cov         # Python example only: uv + pytest-cov project
 go test -cover ./...        # Go
 cargo test                  # Rust
 make test                   # C/C++
@@ -516,9 +493,11 @@ swift test                  # Swift
 
 **2. Generate and verify coverage report:**
 
+Adapt the examples to the project's configured runner and coverage tool; do not install or migrate tooling merely to match them.
+
 ```bash
 npm test -- --coverage                       # Jest
-uv run pytest --cov --cov-report=html       # Python (this project uses uv)
+uv run pytest --cov --cov-report=html       # Python example only: uv + pytest-cov project
 go test -coverprofile=coverage.out ./...    # Go
 cargo tarpaulin --out Html                  # Rust
 gcov / lcov                                 # C/C++
@@ -527,63 +506,15 @@ swift test --enable-code-coverage           # Swift
 
 **3. Validate results:**
 
-```
-🔍 Final Verification Results
+Report the shared contract's verdict: passing checks, tested behaviors, project thresholds
+and their source, measured coverage or its availability, gap dispositions, and the `/jr-test`
+audit result. State acceptance-criteria and applicable performance results as well.
 
-Tests:
-✅ All tests passing: 45/45 (100%)
-✅ No flaky tests
-✅ No skipped tests
+**4. Resolve failures:**
 
-Coverage:
-✅ Line coverage: 100%
-✅ Branch coverage: 100%
-✅ Function coverage: 100%
-
-Acceptance Criteria:
-✅ All 6 criteria met
-
-Story is ready for completion!
-```
-
-**4. If verification fails:**
-
-```
-❌ Verification Failed
-
-Tests:
-❌ 2 tests failing
-⚠️ 1 test skipped
-
-Coverage:
-❌ Line coverage: 87% (target: 100%)
-❌ Missing coverage in: src/dashboard.ts lines 45-52
-
-REQUIRED ACTIONS:
-1. Fix failing tests
-2. Remove skipped tests or document why skipped
-3. Add tests to reach 100% coverage
-4. Re-run verification
-
-Story CANNOT be marked complete until all checks pass.
-```
-
-**Failure resolution process:**
-
-1. **Identify root cause** - Analyze each failing test to understand why it fails
-2. **Fix implementation** - Modify code to make the test pass
-3. **Add missing tests** - Write tests for uncovered code paths to reach 100% coverage
-4. **Re-run ALL tests** - Ensure 100% pass rate across entire test suite
-5. **Check for regressions** - Verify no existing tests broke from changes
-6. **Repeat if needed** - Continue until NO tests fail and coverage is 100%
-7. **Only then complete** - Mark story as complete when all checks pass
-
-**Specific failure scenarios:**
-
-- **Performance issues**: Optimize implementation until all tests pass within acceptable time
-- **Regressions found**: Fix regressions immediately - story completion is blocked until resolved
-- **Flaky tests**: Identify and fix root cause - no "ignore flaky test" workarounds
-- **Coverage gaps**: Add tests for uncovered lines/branches - no exceptions
+Find and fix the root cause of failed checks or missing behavioral evidence, add meaningful
+tests for required uncovered paths, and rerun affected verification. Apply the shared
+contract to remaining gaps and thresholds. Keep the work in progress while blockers remain.
 
 **For non-coding projects:**
 - Verify all tasks completed
@@ -591,15 +522,126 @@ Story CANNOT be marked complete until all checks pass.
 - Validate acceptance criteria met
 - Skip test/coverage requirements
 
-### Step 7: Story Completion & Status Updates
+### Step 7: Visual Confirmation (UI-Affecting Stories)
+
+**A story whose result a person can see is not finished until someone has seen it.**
+
+The suite answers *is it correct*. It does not answer *does it look right, is the data right,
+does the flow feel right* — the questions a developer used to answer by keeping the site open
+and clicking through while building. This gate answers them, and it runs without being asked,
+because confirmation that waits to be requested is confirmation that stops happening.
+
+**1. Decide whether the story is UI-affecting.**
+
+Judge the story's own diff, not what the story is about:
+
+- **UI-affecting** — a new or altered screen, a state a user lands in, data whose shape or
+  emptiness now reads differently, a flow whose steps a reviewer should recognize
+- **Not UI-affecting** — backend work with no rendered difference, a refactor that renders
+  identically, tooling, build scripts, documentation, agent instructions
+
+`/jr-demo` carries the longer form of this judgment under *When a demo is worth producing*.
+This gate decides only whether to invoke it.
+
+**2. Not UI-affecting → record the answer, then continue.**
+
+One line in the story's Session Artifact Log, naming what changed and why none of it renders.
+A story that finishes with neither a storyboard nor a recorded reason there is none has skipped
+this gate quietly, which is the only way this gate ever fails.
+
+**3. UI-affecting → invoke `/jr-demo`, and supply the profile.**
+
+You have been running this project's commands since Step 4 and know its stack, so name the
+profile rather than leaving the demo to infer it. Supply:
+
+- The **profile** — the `references/` profile in `jr-demo` matching this project's test runner
+- The **story file** — the demo reads its `## Demo Script` section, and authors one back into
+  that section when it is empty
+- The **scope** — this story, not the feature
+
+If no shipped profile matches the stack, stop and record that as the reason there is no
+storyboard. Do not improvise a capture path: an artifact produced by a mechanism nobody has
+verified against this stack is exactly the unverified evidence the gate exists to prevent.
+
+**4. Write the storyboard beside the story spec.**
+
+The profile's run takes its destination as an input. Point it at the story's own directory, so
+the artifact lands beside the story file and commits with the work:
+
+```
+<story-directory>/<walkthrough-name>/
+├── 01-*.png … NN-*.png      (or walkthrough.webm, for a motion walkthrough)
+└── index.html
+```
+
+The profile says how the destination is named. Do not run to the default and copy afterwards:
+a copy has to enumerate what it moves, and whatever a later run learns to produce that the list
+does not mention is silently left behind in a gitignored directory, with the run reporting
+success.
+
+Re-runs overwrite in place — a story keeps its final storyboard, never a run history. Reviewing
+it is reviewing an ordinary working-tree change: commit it, or revert it and re-run. Where a PNG
+optimizer is already on the project's PATH, run it across the panels first; committed binaries
+never compress away later.
+
+**5. Hand it to the developer.**
+
+Name the file to open, on its own line in the completion summary. An artifact mentioned in
+passing, or left in a directory to be discovered, is an artifact nobody opens — and someone
+looking is the entire point of the gate.
+
+#### When an assertion fails
+
+**The story does not complete, and no artifact is produced.** A failing assertion means the
+application never reached the state the script claims. There is no partial storyboard, and
+"the demo is flaky" is not a finding — it is this gate being switched off.
+
+`/jr-demo` runs the mechanical check on the element the failed assertion names. Read its result
+rather than re-deciding it, and note that **the story having touched that element is not what
+makes a script stale** — a story usually breaks the code it is building, so its own diff is
+exactly where a regression hides.
+
+- **Stale script** — the story's diff moved the element and shows what took its place, and that
+  replacement is on the page. Update the caption and locator, re-run, continue.
+- **Regression** — the element is gone with nothing in its place, or is in a state its caption
+  denies, whether or not the diff touched it. Return to Step 5 carrying the defect: write the
+  failing test, red → green → fix, then re-run this gate. The story stays **In Progress** the
+  whole time.
+
+A regression caught here is the gate working. It found a defect the tests did not, before
+anyone shipped it.
+
+### Step 7a: Interactive Handoff (Runnable Features)
+
+**Before suggesting a commit, give the user a working feature to try. Screenshots do not
+replace hands-on use.** This is a workflow obligation, not an automated guarantee.
+
+- For runnable changes, start or reuse the application with the new behavior enabled and its
+  real dependencies ready. Verify the entry point and feature readiness, not just a listening
+  port. Do not hand over a fixture replay as the working feature.
+- Open the application when supported. Provide its clickable URL or exact launch command and
+  one short interaction that exercises the change. Leave the service running for the user,
+  track the process, and identify how to stop it.
+- Make trying the feature the next action. Pause for feedback before suggesting `/jr-commit`
+  or starting another story. Proceed when the user has tried it, explicitly declines the
+  tryout, or explicitly requests a commit; elapsed time is not consent.
+- Keep verified implementation status separate from user review. Do not claim user acceptance
+  based on your own automated checks or visual inspection. Fix reported defects and repeat
+  the relevant checks before handing it back.
+- If running is blocked, name the concrete blocker and the action needed to unblock it. For
+  changes with no meaningful interactive surface, state why and provide the relevant artifact
+  for review instead.
+
+### Step 8: Story Completion & Status Updates
 
 **When all tasks are complete AND final verification passes:**
 
 1. **Verify completion requirements:**
    - All tasks marked with ✅
    - All acceptance criteria met
-   - 100% test pass rate (if applicable)
-   - 100% code coverage (if applicable)
+   - Coding Verification contract satisfied (if applicable)
+   - A storyboard produced, or a recorded reason the story renders nothing to look at
+   - Interactive handoff completed or its concrete blocker stated, per Step 7a
    - Definition of Done satisfied
 
 2. **Update story status:**
@@ -637,21 +679,21 @@ Check if all stories in feature are complete:
 **Acceptance criteria:** All met ✅
 **Tests written:** 18 test cases
 **Tests passing:** 18/18 (100%) ✅
-**Coverage:** 100% ✅
+**Coverage:** [Metric/scope and measured result; agreed threshold or explicit exception; gap dispositions]
 **Files modified:** 8 files
 **User value delivered:** Users can view real-time data on personalized dashboard
+
+👀 **See it working:** `<story-directory>/…-storyboard/index.html` (8 panels)
 
 📊 Feature Progress: feat-3-admin-panel
 - Total stories: 4
 - Completed: 2/4 (50%)
 - Remaining: 2 stories
 
-🎯 Suggested Next Steps:
-1. Run /jr-commit to commit these changes
-2. Continue with Story 3: User Settings
-3. Review feature progress
+Try it: <verified application URL>. Open the dashboard and change its date range.
+The service is running; stop it with <tracked process shutdown instruction>.
 
-What would you like to do next?
+Next: try the feature and share feedback. User review is pending (Step 7a).
 ```
 
 ## Document Update Policy
@@ -694,25 +736,41 @@ This format is MANDATORY for consistency with commit validation.
 - ❌ **NEVER** put findings/analysis/validation reports in user-stories/
 - ❌ **NEVER** put story specifications in docs/
 
-### ⚠️ CRITICAL: All Deliverables Must Be Timeless
+### Output Spec
 
-**NEVER reference stories, tasks, or steps in ANY deliverable:**
+The policy above says which file each thing goes in. This says what goes in each file.
 
-❌ Code comments: `# Story 2: Add validation` or `# Task 1.2: Parse data`
-❌ Code names: `test_story_2_validation()`, `story2_handler()`, `task_1_2_result`
-❌ Documentation: "Story 3 will implement..." or "After Task 2.3..."
+**Artifact 1 — the story file.** Checkbox states, and evidence in the fields that hold evidence.
+Not the sequence the run worked in, not what it tried first, not which rules it checked itself
+against. The `## Session Artifact Log` entry is the story file's only provenance and it is enough.
 
-✅ **Instead, describe WHAT and WHY:**
+**Artifact 2 — a document under `feat-N/docs/`.**
 
-✅ Code comments: `# Validate input format` or `# Parse protocol header`
-✅ Code names: `test_validates_input_format()`, `handle_notification()`, `parse_result`
-✅ Documentation: "System uses adapter pattern for..." or "Protocol state machine handles..."
+- **For:** the next person who hits this. A validation report answers *what was verified and what
+  it showed*; an analysis answers *what the options were and which was taken*; an implementation
+  note answers *what would have been done differently.*
+- **Goes in:** the finding, the evidence behind it, the decision it drove, and what it costs.
+- **Never goes in:** when the document was written and by which run · the story or task it came
+  out of · the reasoning path that reached the finding, where the finding stands on its own ·
+  approaches abandoned mid-run, unless a later reader would otherwise retry them.
+  Baseline: `../_shared/references/artifact-output-spec.md`.
+- **Register:** headings are noun labels — never sentences, questions or conversational phrases.
+  Prose states facts. No editorial lead, no anthropomorphising, no dramatic adjective.
 
-**Test:** Would this be clear in 2 years with no story/task context? If no, remove references.
+**Artifact 3 — the completion report to the developer.** What the story now does, the gate results,
+and the next action, following the interactive handoff in Step 7a before any commit suggestion.
+Not the tasks walked, not the files read, not the tests run listed one by one
+when a pass count says it.
+
+### Timeless Output
+
+Apply rule 13, section 16, **Timeless Code & Tracking Artifacts**. Preserve required identifiers
+and dependencies in planning/tracking files; keep product code and reference documentation
+independent of work numbering.
 
 ### ⚠️ CRITICAL: Follow Implementation Principles
 
-**ALWAYS apply principles from `13-software-implementation-principles.mdc`:**
+**ALWAYS apply principles from `13-software-implementation-principles.md`:**
 
 1. **Modularity & Encapsulation**
    - Extract utilities (logging, CLI UI, formatting)
@@ -729,8 +787,8 @@ This format is MANDATORY for consistency with commit validation.
    - No mixed responsibilities (e.g., validate AND save)
 
 4. **Use Modern Tools**
-   - See language-specific rules (e.g., `11-python-conventions.mdc`)
-   - Python: typer + rich, not argparse + print
+   - See language-specific rules (e.g., `11-python-conventions.md`)
+   - Python: follow Project Tooling Selection in `11-python-conventions`; its library choices are defaults when the project has no established equivalent
    - Don't reinvent solved problems
 
 5. **Clean Console Output**
@@ -789,7 +847,7 @@ git status --short           # Check for uncommitted changes
 
 **File operations (stage-aware):**
 
-Find features and story files using stage-appropriate paths (see `01-structure.mdc` for stage detection and path resolution).
+Find features and story files using stage-appropriate paths (see `01-structure.md` for stage detection and path resolution).
 
 ## Progress Tracking
 
@@ -798,7 +856,9 @@ Find features and story files using stage-appropriate paths (see `01-structure.m
 1. **After Step 4 (Context Gathering):** Replace generic TODOs with story-specific tasks
 2. **After each task completion (Step 5):** Show progress display, update files, mark TODO complete
 3. **After final verification (Step 6):** Confirm all tasks complete, all tests pass
-4. **At story completion (Step 7):** Update story status, update feature progress
+4. **At visual confirmation (Step 7):** Produce the storyboard, or record why there is none
+5. **At interactive handoff (Step 7a):** Leave the runnable feature available for user review
+6. **At story completion (Step 8):** Update story status, update feature progress
 
 **See Step 5 for the mandatory progress display format shown after each task.**
 
@@ -818,10 +878,7 @@ Find features and story files using stage-appropriate paths (see `01-structure.m
 **Test-Driven Development:**
 
 - Write tests before implementation
-- **100% test pass rate required** before story completion
-- **100% code coverage required** before story completion
-- No story can be marked complete with failing tests or incomplete coverage
-- Comprehensive test coverage including edge cases
+- Apply [Coding Verification](../_shared/references/completion-evidence.md#coding-verification) before completion
 
 **Progress tracking:**
 
@@ -914,11 +971,11 @@ Update story notes section to document the blocking issue.
 2. **Verify root cause** - Form hypothesis based on evidence, test it, confirm before fixing
 3. **Check scope** - If feature doesn't work, check task scope or ask user before skipping
 4. **Try alternative approach** - Is there another way to achieve the same goal?
-5. **Research solution** - Use `/research` command for technical investigation
+5. **Research solution** - Use available research tools for technical investigation
 6. **Break down into smaller components** - Can this be split into manageable pieces?
 7. **Maximum 3 attempts** - After 3 failed attempts, escalate or document as blocked
 
-**⚠️ CRITICAL: NO speculation or assumptions. See `13-software-implementation-principles.mdc` section 9 for evidence-based debugging process.**
+**⚠️ CRITICAL: NO speculation or assumptions. See `13-software-implementation-principles.md` section 9 for evidence-based debugging process.**
 
 **Document blocked tasks:**
 - Mark task with ⚠️ and blocking issue description
@@ -948,8 +1005,7 @@ Update story notes section to document the blocking issue.
 
 - Provide clear phase reminders (RED → GREEN → REFACTOR)
 - Guide test-first approach for new functionality
-- Ensure tests pass and coverage is 100% before marking implementation complete
-- Remind about 100% test pass rate and 100% coverage requirements
+- Apply the shared Coding Verification contract and report its evidence before completion
 - **NEVER skip type checking errors or failing tests to "move forward"**
 - Fix quality issues immediately - don't defer or ignore them
 

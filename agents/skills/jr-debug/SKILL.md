@@ -1,6 +1,6 @@
 ---
 name: jr-debug
-description: Plan and drive evidence-based debugging investigations from hypothesis to verified resolution, with escalation to implementation when needed.
+description: Run `/jr-debug` to investigate unexplained failures and verify their root cause.
 ---
 
 # Debug
@@ -20,6 +20,10 @@ Contract-style (clarification → contract → approval → generation)
 - Want to document debugging process for future reference
 - Issue is complex enough that guessing won't work
 
+## Entry Check
+
+Before creating an investigation plan or contract, read any supplied finding or resolution and apply the workflow selection in `00-junior.md`, **Suggest ONE next step**. State the unresolved causal question that warrants investigation. If the evidence instead directs implementation, hand the existing finding or resolution to `/jr-implement`; do not manufacture hypotheses or create another investigation package.
+
 ## Execution Pattern
 
 **Simple investigations** (execute immediately):
@@ -35,8 +39,8 @@ Contract-style (clarification → contract → approval → generation)
 - Multi-step experiments requiring code changes
 - Example: "Embedded device notifications not working" → Build minimal test app, flash, compare with working implementation
 
-**This command:**
-1. Always creates investigation plan (hypotheses, steps, expected evidence)
+**When the entry check establishes a need for investigation, this command:**
+1. Creates an investigation plan (hypotheses, steps, expected evidence)
 2. Executes immediately if simple (Steps 1-8)
 3. Stops after planning if complex → User runs `/jr-implement` to execute steps
 
@@ -200,6 +204,38 @@ Wait for user approval.
 
 **Note:** If investigation requires complex implementation (building apps, hardware testing, etc.), plan will stop after generation. User will use `/jr-implement` to execute steps.
 
+### Output Spec
+
+Applies to every document this skill writes, in Step 7 and Step 9. The templates below fix the
+sections; this fixes what belongs in them.
+
+**What each artifact is for:**
+
+- **`dbg-N-overview.md`** — read by anyone picking up the investigation. Answers *what is broken and
+  under what conditions.*
+- **`dbg-N-steps.md`** — read to decide what to test next. Answers *what we believe and in what
+  order we are testing it.*
+- **`dbg-N-step-M-*.md`** — read to see whether a hypothesis held. Answers *what was tested, what
+  the evidence showed, and what it rules in or out.*
+- **`dbg-N-resolution.md`** — read by whoever hits this again, possibly years later. Answers *what
+  the cause was, what fixed it, and how to stop it recurring.*
+
+**Never goes in any of them:**
+
+- Which files were read or searched to form a hypothesis, where the hypothesis stands on its own
+- Hypotheses that were never tested and are no longer live
+- A disproved hypothesis kept as a struck-through line with its history — a disproved hypothesis is
+  a **finding** (it rules something out), so state it as one in the step's Conclusion, or drop it
+- Speculation retained beside the evidence that replaced it
+- Which run recorded a finding, or when it was captured
+- The skill's own steps, by name or number
+
+Baseline: `../_shared/references/artifact-output-spec.md`.
+
+**Register:** headings are noun labels — never sentences, questions or conversational phrases. Prose
+states facts. No editorial lead, no anthropomorphising, no dramatic adjective. Evidence is quoted
+or cited, never characterised.
+
 ### Step 7: Generate Debug Package
 
 #### 7.1: Create Directory Structure
@@ -258,7 +294,7 @@ See [investigation/dbg-{N}-steps.md](./investigation/dbg-{N}-steps.md) for hypot
 
 #### 7.3: Generate dbg-N-steps.md
 
-```markdown
+````markdown
 # Investigation Plan
 
 > **Issue:** [Issue Name]
@@ -306,7 +342,7 @@ Step 2: [Fallback test]
 - [Step 1: {name}](./dbg-{N}-step-1-{name}.md) ⭐ START HERE
 - [Step 2: {name}](./dbg-{N}-step-2-{name}.md) (if Step 1 fails)
 - [Step 3: {name}](./dbg-{N}-step-3-{name}.md) (if Step 1 & 2 fail)
-```
+````
 
 #### 7.4: Generate Individual Step Files
 
@@ -319,7 +355,7 @@ Step 2: [Fallback test]
 
 **dbg-{N}-step-{M}-{name}.md template:**
 
-```markdown
+````markdown
 # Step {M}: [Hypothesis Name]
 
 > **Status:** Not Started
@@ -393,7 +429,7 @@ Step 2: [Fallback test]
 **If inconclusive:**
 - [What additional data needed]
 - [Alternative approaches]
-```
+````
 
 **🔴 For Step 2+ (skeleton files):**
 
@@ -576,19 +612,26 @@ Create `dbg-{N}-resolution.md`:
 
 ## Next Steps
 
-- [ ] Create bugfix implementation (use future `/bugfix` command)
-- [ ] Or implement fix directly if simple
+- [ ] Implement the verified correction with `/jr-implement`, using this resolution
+- [ ] Verify the original reproduction and applicable regression checks
 
 ---
 
-**Related:** This resolution can be used with `/bugfix` command to create implementation stories.
+**Related:** `/jr-implement` accepts this resolution as the implementation work item.
 ```
 
-**Update dbg-N-overview.md status:**
+**Update dbg-N-overview.md to the same evidence-supported status:**
 
 ```markdown
-> Status: Resolved
+> Status: Root Cause Identified
 ```
+
+Cause identification completes diagnosis, not the fix. Keep implementation and verification
+items pending until performed. After implementation, use `Fix Implemented — Verification
+Pending` in both documents while checks remain. Set both to `Resolved` only when the fix is
+implemented, the original reproduction passes, and applicable regression and acceptance
+checks have supporting evidence. Record that evidence beside the completed checks. A
+resolution filename alone never establishes completion.
 
 **Present completion (for simple investigations executed immediately):**
 
@@ -604,7 +647,7 @@ Create `dbg-{N}-resolution.md`:
 
 🎯 Next Steps:
 1. Review the fix approach in resolution doc
-2. Implement fix (manually or use future /bugfix command)
+2. Run `/jr-implement` with this resolution to implement the verified correction
 3. Test the fix thoroughly
 
 What would you like to do next?

@@ -69,7 +69,16 @@
 - [Improvement + rationale + effort + risk]
 - [Debt/test/docs follow-up]
 
+## Test and Coverage Agreement
+
+[For each coding component, fill the fields in
+[Coverage Agreement](../../_shared/references/completion-evidence.md#coverage-agreement)
+with concrete proposed gates and rationale, including any transition or explicit exception.
+For a documentation-only project, state that code coverage does not apply.]
+
 ## What Will Be Generated
+
+[Include the agreed test/coverage configuration and gate files in the scope below.]
 
 **Product Documentation**
 

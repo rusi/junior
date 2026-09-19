@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Software Architecture Document Guide
 
 ## Core Principle
@@ -37,24 +33,24 @@ Write for the engineer joining your team in 6 months.
 
 ## What Architecture Documents ARE
 
-✅ **Design rationale** - WHY we chose this approach over alternatives
-✅ **System structure** - HOW system is organized (layers, components, modules)
-✅ **Visual models** - State machines, flow diagrams, component diagrams (essential!)
-✅ **Quality attributes** - Performance, scalability, testability, security goals
-✅ **Constraints** - Technical limitations that shaped design
-✅ **Trade-offs** - What we gained vs. what we sacrificed
-✅ **Key patterns** - Layered, event-driven, microservices, pub/sub
-✅ **Interface contracts** - APIs between components (not implementation)
-✅ **Data flow** - How information moves through the system
-✅ **Error handling strategy** - Fail fast, retry, graceful degradation
+- ✅ **Design rationale** - WHY we chose this approach over alternatives
+- ✅ **System structure** - HOW system is organized (layers, components, modules)
+- ✅ **Visual models** - State machines, flow diagrams, component diagrams (essential!)
+- ✅ **Quality attributes** - Performance, scalability, testability, security goals
+- ✅ **Constraints** - Technical limitations that shaped design
+- ✅ **Trade-offs** - What we gained vs. what we sacrificed
+- ✅ **Key patterns** - Layered, event-driven, microservices, pub/sub
+- ✅ **Interface contracts** - APIs between components (not implementation)
+- ✅ **Data flow** - How information moves through the system
+- ✅ **Error handling strategy** - Fail fast, retry, graceful degradation
 
 ## What Architecture Documents ARE NOT
 
-❌ **Implementation code** - No working code with error handling, logging, state management
-❌ **Project plans** - No story references, sprints, migrations, schedules
-❌ **Problem/solution narratives** - No "current code is bad, new code is good"
-❌ **Step-by-step tutorials** - Focus on design, not build instructions
-❌ **Comprehensive spec** - Just enough to understand key decisions
+- ❌ **Implementation code** - No working code with error handling, logging, state management
+- ❌ **Project plans** - No story references, sprints, migrations, schedules
+- ❌ **Problem/solution narratives** - No "current code is bad, new code is good"
+- ❌ **Step-by-step tutorials** - Focus on design, not build instructions
+- ❌ **Comprehensive spec** - Just enough to understand key decisions
 
 ## Standard Structure
 

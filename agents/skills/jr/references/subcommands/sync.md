@@ -7,11 +7,12 @@ It can be installed globally, but it must only execute in the Junior source repo
 
 ## Purpose
 
-Sync Junior framework edits from globally installed files back into Junior source files, then normalize and reconcile any framework changes.
+Sync Junior framework edits from globally installed files back into Junior source files,
+normalize and reconcile framework changes.
 
 Default sync direction:
-- Installed global files (`~/.codex/...`, `~/.cursor/...`)
-- Junior source files (`agents/...`, `cursor/...`)
+- Installed global files in the Path Model below
+- Junior source files (`agents/...`)
 
 ## When to Use
 
@@ -22,16 +23,22 @@ Default sync direction:
 ## Path Model
 
 Global installed paths:
-- `~/.codex/rules/`
-- `~/.codex/skills/`
+- `~/.claude/rules/`
+- `~/.claude/skills/`
+- `~/.claude/hooks/`
 - `~/.cursor/rules/`
-- `~/.cursor/commands/`
-- `~/.cursor/commands/_shared/`
+- `~/.agents/skills/` (shared by Codex and Cursor)
+- `~/.agents/rules/` (Codex canonical rules)
 
 Junior source paths (this repository):
 - `agents/rules/`
 - `agents/skills/`
-- `cursor/rules/`
+- `agents/hooks/`
+
+One file is renamed rather than mapped by directory: `README.md` installs as
+`~/.claude/skills/jr/references/junior-readme.md`. A direct source-to-runtime comparison
+therefore reports it as runtime-only forever. Native shared installs put the same README under `~/.agents/skills/jr/references/junior-readme.md`. That is the install's own naming, not drift,
+and it is the one difference a clean `diff -r` of the two trees is expected to show.
 
 ## Process
 
@@ -57,7 +64,7 @@ Create todos using `todo_write` or `functions.update_plan`:
 ### Step 2: Validate Context (Hard Stop)
 
 Confirm this is the Junior source repository:
-- `agents/rules/00-junior.mdc` exists
+- `agents/rules/00-junior.md` exists
 - `scripts/junior.py` exists
 
 If either check fails:
@@ -65,20 +72,18 @@ If either check fails:
 - explain that `/jr sync` only runs in Junior source
 - stop immediately
 
-### Step 3: Inspect Global Installation State
+### Step 3: Inspect Installation State
 
-Check whether global install roots exist:
-- `~/.codex/rules/`
-- `~/.codex/skills/`
-- `~/.cursor/rules/`
-- `~/.cursor/commands/`
-- `~/.cursor/commands/_shared/`
-
-Then check metadata:
-- `~/.codex/.junior-install.json`
+Inspect the installed roots in the Path Model and their ownership metadata:
+- `~/.claude/.junior-install.json`
 - `~/.cursor/.junior-install.json`
+- `~/.codex/.junior-install.json`
+- `~/.agents/.junior-install.json` (shared skill ownership and consumers)
 
-If global files are missing, stop and explain that no sync source is available.
+Only the selected installed targets must be present. A Codex-only installation does not need
+Claude or Cursor directories. Project sync is unsupported; do not infer a global source from
+project-local assets. If no global installation is present, report runtime-asset sync as
+unavailable and name the missing source.
 
 ### Step 4: Run Canonical Sync First
 
@@ -88,23 +93,37 @@ Run:
 python3 scripts/junior.py sync-back
 ```
 
-If successful, capture and report:
-- synced files count
-- skipped files count
-- conflicts (if any)
+`sync-back` copies only the changes it can prove are safe. Everything else it reports
+for a decision, because the runtime is the only copy of some of it.
+
+Capture and report every category it prints:
+- synced files count (copied into source)
+- **global-only files** - authored in the runtime and absent from source. These exist
+  nowhere else; losing the runtime loses the file. Review each one, then adopt it with
+  `python3 scripts/junior.py sync-back --adopt-new` or move it into source by hand.
+- **changed in both** - runtime and source each moved since install. Copying back would
+  revert source, so nothing is written. Merge the two by hand.
+- **deleted from the runtime** - an installed file was removed globally. Source is never
+  deleted automatically; decide whether the removal was intentional.
+- conflicts between targets (same source file, different content per runtime)
 - resulting `git status --short`
+
+Do not report sync as complete while any global-only, changed-in-both, or deleted item
+is still outstanding. Each needs an explicit decision.
 
 ### Step 5: Fallback Mapping (If Metadata Missing/Invalid)
 
 If `sync-back` cannot operate due to missing or invalid metadata, run manual mapping.
 
 1. Build mapping by relative path:
-- `~/.codex/rules/**` <-> `agents/rules/**`
-- `~/.codex/skills/**` <-> `agents/skills/**`
-- `~/.cursor/rules/**` <-> `agents/rules/**` or `cursor/rules/**`
-- `~/.cursor/commands/*.md` <-> `agents/skills/*/SKILL.md`
-- `~/.cursor/commands/_shared/<skill>/**` <-> `agents/skills/<skill>/**`
-- `~/.cursor/commands/_shared/**` (shared refs/templates) <-> `agents/skills/_shared/**`
+- `~/.claude/rules/**` <-> `agents/rules/**`
+- `~/.claude/skills/**` <-> `agents/skills/**`
+- `~/.claude/hooks/**` <-> `agents/hooks/**`
+- `~/.cursor/rules/**` <-> `agents/rules/**`
+- `~/.agents/skills/**` <-> `agents/skills/**` (once for the shared tree)
+- `~/.agents/rules/**` <-> `agents/rules/**`
+
+Legacy `.codex/skills`, `.cursor/skills`, and `.cursor/commands` require the installer’s ownership-aware migration before sync. Do not treat old rendered commands as current canonical skills or infer ownership from names. Generated `AGENTS.md` blocks and runtime configuration are not rule-authoring sources.
 
 2. Compare checksum/content and classify each path:
 - `different`
@@ -189,7 +208,8 @@ Run checks:
 4. Final `git status --short` scope check
 
 Expected:
-- changed files limited to Junior source maintenance paths (`agents/`, `cursor/`, supporting docs/scripts)
+- changed files limited to Junior source maintenance paths (`agents/`, supporting docs/scripts,
+  and related project documentation)
 - no unrelated application code edits
 - no unresolved leak candidates
 
@@ -200,7 +220,11 @@ Always end with:
 - leak/normalization summary
 - installer/docs update summary
 - verification summary
-- recommended next step: run `/jr-commit` in Junior source
+
+Recommend one next action based on the remaining framework work. Recommend `/jr-commit`
+when the changes are ready to commit. If nothing changed and no framework reconciliation
+remains, report that no action is needed. Feedback documents are considered separately
+when the user explicitly selects them.
 
 ## Tool Integration
 

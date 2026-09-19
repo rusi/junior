@@ -1,6 +1,6 @@
 ---
 name: jr-feature
-description: Create comprehensive feature specifications through contract-first clarification and end-to-end story planning before implementation.
+description: Run `/jr-feature` to specify a new feature end to end and break it into stories before any code is written.
 ---
 
 # Feature
@@ -11,7 +11,13 @@ Create comprehensive feature specifications through contract-first clarification
 
 ## Type
 
-Contract-style (clarification → contract → approval → generation)
+Contract-style (clarification → scope approval → generation → artifact review → consistency checks)
+
+Keep two distinct review points: approval of the scope contract and review of the generated
+artifacts. Placement, component assignment, and story sequencing belong in the scope contract;
+ask separate clarification questions only for unresolved decisions. Reuse explicit approval
+already given for the same scope. Final consistency checks and repairs within that scope run
+under existing approval. This is an agent workflow norm, not an automated guarantee.
 
 ## When to Use
 
@@ -33,7 +39,7 @@ Contract-style (clarification → contract → approval → generation)
 - Component descriptions (responsibility, interface, dependencies)
 - Design decisions (context, decision, rationale, alternatives, trade-offs)
 - Testing strategy (what to test, verification approach)
-- **Reference 01-structure.mdc for structure definitions (DON'T repeat)**
+- **Reference 01-structure.md for structure definitions (DON'T repeat)**
 - **ONE SENTENCE for implementations agent knows (clustering, sorting, parsing)**
 
 **User Stories (user-stories/feat-N-story-M.md):**
@@ -45,10 +51,34 @@ Contract-style (clarification → contract → approval → generation)
 - **Do NOT pre-check acceptance criteria or Definition of Done** (leave unchecked until verified)
 
 **Key Principles:**
-- **DRY:** Define structures/functions once in 01-structure.mdc, reference everywhere
+- **DRY:** Define structures/functions once in 01-structure.md, reference everywhere
 - **Thorough:** Include design decisions, rationale, trade-offs
 - **Concise:** Exclude pseudo-code for known patterns, avoid repetition
 - **Reference:** Link to existing definitions instead of duplicating
+
+**What each artifact is for:**
+
+- **`feat-N-overview.md`** — read by whoever picks this feature up cold. Answers *what is being
+  built, for whom, and what counts as done.*
+- **`specs/01-Technical.md`** — read while implementing. Answers *how the pieces fit and why this
+  design over the alternatives.*
+- **`feat-N-story-M.md`** — read by the run that implements this slice. Answers *what to build, and
+  how to know it works.*
+- **`feat-N-stories.md`** — read to find the next slice. Answers *what is done and what is next.*
+
+**Never goes in any of them:**
+
+- What was clarified in the contract loop, and which question produced which answer
+- Which files were scanned to reach the scope, and how many
+- Scope that was proposed and cut, unless a reader would otherwise propose it again — and then it
+  belongs in the future-enhancements document, as a candidate, not as a record of the cut
+- The contract's own approval history, or that an approval happened
+- Rule citations standing in for the requirement they justify
+
+Baseline: `../_shared/references/artifact-output-spec.md`.
+
+**Register:** headings are noun labels — never sentences, questions or conversational phrases. Prose
+states facts. No editorial lead, no anthropomorphising, no dramatic adjective.
 
 ## Process
 
@@ -102,7 +132,7 @@ If override is used, suggest (not require) optional safety actions:
 
 **3.0: Detect current stage**
 
-First, detect which stage the project is in (see `01-structure.mdc` for detection logic):
+First, detect which stage the project is in (see `01-structure.md` for detection logic):
 
 ```bash
 # Stage detection (filesystem checks)
@@ -132,8 +162,8 @@ Scan all `.junior/` working memory to understand existing work:
 - `list_dir` or `functions.shell_command` `.junior/research/` → technical investigations
 - `list_dir` or `functions.shell_command` `.junior/experiments/` → validation experiments
 - `list_dir` or `functions.shell_command` `.junior/debugging/` → active debugging sessions
-- `list_dir` or `functions.shell_command` `.junior/bugs/` → tracked bugs
-- `list_dir` or `functions.shell_command` `.junior/enhancements/` → small improvements
+- `list_dir` or `functions.shell_command` feature-local `bugs/` directories → tracked bugs (see `01-structure.md`)
+- `list_dir` or `functions.shell_command` feature-local `enhancements/` directories → small improvements (see `01-structure.md`)
 - `read_file` or `functions.shell_command` `.junior/product/01-mission.md` → product vision, problem, users, value (if exists)
 - `read_file` or `functions.shell_command` `.junior/product/02-roadmap.md` → roadmap sequence, scope, and execution tracking (if exists)
 - `read_file` or `functions.shell_command` `.junior/product/03-tech-stack.md` → tech stack and architecture (if exists)
@@ -165,7 +195,7 @@ Scan all `.junior/` working memory to understand existing work:
    - ✅ When: Completes or improves existing feature
    - Example: Adding "Password reset" to existing "User authentication" feature
 
-3. **Modification of Existing Story (use /update-feature instead)**
+3. **Modification of Existing Story (use this skill’s Update Existing mode)**
    - ✅ When: Changes requirements of existing story
    - ✅ When: Fixes or refines existing specifications
    - Example: "Update Story 2 to include email validation"
@@ -186,7 +216,7 @@ Found {N} existing features:
 
 Your request: "[User's request]"
 
-**Recommendation: [New Feature | Add to feat-X | Use /update-feature]**
+**Recommendation: [New Feature | Add to feat-X | Update Existing]**
 
 **Reasoning:**
 [1-2 sentences explaining why this placement makes sense]
@@ -200,16 +230,16 @@ Your request: "[User's request]"
 - Current stories: {M} stories
 - New story will be: feat-X-story-{M+1}
 
-Does this placement make sense, or should we discuss? [yes | discuss | suggest: {alternative}]
 ```
 
-Wait for user confirmation before proceeding to clarification.
+Proceed to clarification. Ask about placement only if the request and repository evidence
+leave a material ambiguity; otherwise carry the recommendation into Step 5.
 
 **3.3: Component Proposal (Stage 2+ only)**
 
 **If Stage 2 or Stage 3 detected AND creating new feature:**
 
-After user confirms new feature placement, propose component assignment:
+For the recommended new feature placement, propose component assignment in the scope contract:
 
 **Semantic Matching Process:**
 
@@ -246,16 +276,18 @@ Based on your feature description, I recommend:
 - Path: .junior/features/comp-{M+1}/feat-1/  [Stage 2]
         .junior/features/comp-{M+1}/features/feat-1/  [Stage 3]
 
-Which option? [1 | 2 | suggest: {alternative-name}]
 ```
 
-**If user chooses Option 1:**
+Include the recommended component and its rationale in the scope contract. Ask separately
+only if a material placement decision remains unresolved.
+
+**For an existing component:**
 - Feature will be added to existing component
 - Component overview will be auto-updated (add feature row to table)
 
-**If user chooses Option 2:**
+**For a new component:**
 - New component will be created
-- Component overview will be generated using template from `01-structure.mdc`
+- Component overview will be generated using template from `01-structure.md`
 
 **Store component assignment for use in Step 6 (directory creation).**
 
@@ -283,14 +315,14 @@ Existing features may have non-sequential numbers (feat-3, feat-8, feat-12) beca
 
 **3.4: Set working mode**
 
-Based on decision and user confirmation:
+Based on the request and placement analysis:
 - **New Feature mode:** Full feature specification (contract + stories + specs)
 - **Add Story mode:** Add story to existing feature (update existing feat-X)
 - **Update Existing:** Modify existing story/jr-feature specifications
 
 All modes proceed to Step 4 for clarification (scope varies by mode).
 
-**Output:** Analysis summary with recommendation and user confirmation
+**Output:** Placement and component recommendation for the scope contract
 
 ### Step 4: Gap Analysis & Clarification Loop
 
@@ -399,94 +431,12 @@ When confidence is high:
 - Present contract without declaring it "final"
 - Leave room for more questions if needed
 
-**4.5: Pre-Contract Story Outline Preview (NEW - REQUIRED)**
+**4.5: Prepare the Story Outline**
 
-Before presenting the contract, show the **planned story structure** so the user can approve scope sequencing.
-
-**Requirements:**
-- List each planned story with **title + 1–2 sentence outcome** (what is working and visible at the end)
-- Call out any **high-impact sequencing** (e.g., "SSO is Story 3, not Story 1")
-- Ask for confirmation or edits **before** locking the contract
-- Keep it short and scannable
-
-**Format:**
-```
-Story Outline Preview (pre-contract)
-
-1. Story 1 — [Title]
-   Outcome: [End-to-end working output the user can validate]
-   User value: [Why this matters to the user]
-   Deliverables: [What is produced: UI/API/flows]
-2. Story 2 — [Title]
-   Outcome: [What becomes possible after Story 2]
-   User value: [Why this matters to the user]
-   Deliverables: [What is produced: UI/API/flows]
-3. Story 3 — [Title]
-   Outcome: [Additional working capability]
-   User value: [Why this matters to the user]
-   Deliverables: [What is produced: UI/API/flows]
-
-Does this story structure and sequencing look right, or should we change it?
-```
-
-**🔴 CRITICAL: Validate Vertical Slice Approach BEFORE Contract**
-
-Before presenting contract, mentally validate story breakdown:
-- **Each story MUST be end-to-end integrated (all layers working)**
-- **Each story MUST produce user-visible, testable output**
-- **NEVER horizontal layers (all DB, then all API, then all UI)**
-
-**RED FLAGS indicating horizontal layering:**
-- "Story 1: Database schema" → ❌ No user output
-- "Story 2: API endpoints" → ❌ Still nothing visible
-- "Story 3: Frontend implementation" → ❌ Only works at Story 3
-- "Story 4: Integration" → ❌ Integration should be in EVERY story
-- "Story 5: Testing" → ❌ Testing should be in EVERY story
-
-**CORRECT vertical slice pattern:**
-- Story 1: Minimal feature (DB + API + UI) working end-to-end with basic data
-- Story 2: Enhanced feature (extend DB + API + UI) for more capability
-- Story 3: Additional feature (extend DB + API + UI) for new functionality
-
-**If you catch yourself planning horizontal stories, STOP and redesign as vertical slices.**
-
----
-
-## ⚠️ MANDATORY PRE-CONTRACT VALIDATION ⚠️
-
-**Before presenting ANY contract, you MUST validate EVERY story against this checklist:**
-
-For EACH story, verify ALL criteria are TRUE:
-
-✅ **Does user see working output?** (UI showing data, API returning real results, feature working end-to-end)
-✅ **Does story touch ALL necessary layers?** (Backend + Frontend + Config/Data working together)
-✅ **Can user test/validate after this story?** (Can demo the feature, not just infrastructure)
-✅ **Is scope reduced, not layers?** (Narrow feature scope, but complete implementation)
-
-**If ANY story fails ANY criterion → STOP → Redesign as vertical slices**
-
-**Example of CORRECT validation:**
-- Story 1: "Basic user profile editing"
-  - ✅ User sees: Working profile page with save functionality
-  - ✅ Layers: Backend (API + storage) + Frontend (form + display) + Data
-  - ✅ Testable: User can edit name/email, click save, see updated profile
-  - ✅ Reduced scope: Basic fields only, no avatar upload yet
-
-**Example of WRONG validation (FORBIDDEN):**
-- Story 1: "User profile API endpoints"
-  - ❌ User sees: Nothing (just API endpoints)
-  - ❌ Layers: Backend only, no frontend
-  - ❌ Testable: Cannot validate profile editing works
-  - ❌ Layers separated: Backend without UI
-
-**🚫 BANNED STORY TYPES (Never create these):**
-- "Build API layer" (no UI = not vertical)
-- "Create data models" (no user output = not vertical)
-- "Implement frontend" (no backend = not vertical)
-- "Integration story" (integration in EVERY story)
-- "Testing story" (tests in EVERY story)
-
-**Only proceed to Step 5 after ALL stories pass validation.**
+Include the planned story titles, consumer outcomes, and high-impact sequencing decisions in
+Step 5's Stories Preview. Review them as part of the scope contract, without a separate outline
+approval. Apply [Vertical Slice Validation](../_shared/references/vertical-slices.md) before
+presenting the contract; resolve missing consumer outcomes or required integration.
 
 ---
 
@@ -499,6 +449,7 @@ For EACH story, verify ALL criteria are TRUE:
 ```
 ## Feature Contract
 
+**Placement:** [New feature / add story / update existing; component and path where applicable]
 **Feature:** [One sentence describing what will be built]
 **User Value:** [Core problem solved and who it helps]
 **Hardest Constraint:** [Biggest technical/business limitation]
@@ -523,30 +474,22 @@ For EACH story, verify ALL criteria are TRUE:
 **Stories Preview (MUST be vertical slices):**
 
 Story 1: [Title - ONE sentence what user sees working]
-- **Layers:** [Backend: X | Frontend: Y | Config: Z] ← Must list ALL layers
+- **Layers:** [Only layers required by this consumer outcome]
 - **User sees:** [Specific working output - what can user test/validate?]
 - **Deliverable:** [End-to-end feature working - reduced scope but complete]
 
 Story 2: [Title - Enhancement to Story 1]
-- **Layers:** [Backend: enhance X | Frontend: enhance Y | Config: update Z]
+- **Layers:** [Required layers extended for this outcome]
 - **User sees:** [Additional working capability]
 - **Deliverable:** [More features, still end-to-end working]
 
 Story 3: [Title - Further enhancement or new capability]
-- **Layers:** [Backend: add/extend | Frontend: add/extend | Config: update]
+- **Layers:** [Required layers added or extended]
 - **User sees:** [Complete feature working]
 - **Deliverable:** [Full scope achieved, end-to-end]
 
-**Validation Checklist (ALL stories MUST pass):**
-✅ Each story includes ALL necessary layers (Backend + Frontend + Config/Data)
-✅ Each story has user-visible, testable output
-✅ Each story delivers working end-to-end feature (not just infrastructure)
-✅ No "Backend only" or "Frontend only" or "Integration" stories
-
-**FORBIDDEN patterns:**
-❌ Story 1 = Backend/API, Story 2 = Frontend/UI, Story 3 = Integration
-❌ Story 1 = Database, Story 2 = Business logic, Story 3 = UI
-❌ Any story that user cannot see/test working output
+**Validation:** Every story must pass [Vertical Slice Validation](../_shared/references/vertical-slices.md).
+Name its consumer outcome, required layers, and acceptance evidence in the preview.
 
 ---
 Options: yes | edit: [changes] | risks | simpler
@@ -562,24 +505,14 @@ Options: yes | edit: [changes] | risks | simpler
 - Use `../_shared/references/story-contracts.md` -> "Update Existing Feature/Story Contract" as canonical structure.
 - Include explicit dependency and regression impact analysis for every requested change.
 
-Wait for user approval.
+Include the placement and sequencing recommendations in the applicable contract. Obtain scope
+approval before generation, unless the user has already explicitly approved that same scope.
+If a material scope decision remains open, ask one focused question about that decision.
 
 ### Step 6: Generate Spec Package
 
-### Step 7: Review & Refinement (Post-Generation)
-
-After generating docs and stories, explicitly ask the user to review and refine. This is a **required** step before completing the feature definition.
-
-**Process:**
-1. Prompt for feedback on the generated docs/stories.
-2. Apply requested adjustments to specs/stories (do not treat as a new command).
-3. Repeat until user confirms the feature definition is complete.
-
-**Completion trigger:** User indicates the definition looks good (e.g., “this looks good”).
-
-**Then:** Suggest next steps (typically `/jr-commit` or implementation command).
-
-### Step 8: Final Consistency Review
+For approved interface design exploration, load and follow [UI Prototype](../jr-ui-prototype/SKILL.md),
+including its parent context and return contract, before final specification review.
 
 **Generation scope varies by mode:**
 
@@ -717,19 +650,7 @@ This format is MANDATORY for consistency with commit instructions.
 
 **🔴 CRITICAL: Every Story MUST Be a Vertical Slice**
 
-**Before writing ANY story, verify it meets ALL these criteria:**
-
-✅ **User sees working output** - Story delivers something user can see/test/validate
-✅ **End-to-end integrated** - All layers working together (not just one layer)
-✅ **Reduced scope, complete implementation** - Narrow feature, but fully working
-✅ **Builds on previous story** - Enhances or adds to working foundation
-
-❌ **FORBIDDEN story types:**
-- "Build database schema" (no user output)
-- "Implement API layer" (no user visibility)
-- "Create frontend" (layers not integrated)
-- "Integration story" (integration should be in EVERY story)
-- "Testing story" (tests should be in EVERY story)
+Apply [Vertical Slice Validation](../_shared/references/vertical-slices.md) before generating each story.
 
 **Story breakdown pattern:**
 1. **Story 1:** Smallest possible working feature (full stack, minimal scope)
@@ -737,7 +658,7 @@ This format is MANDATORY for consistency with commit instructions.
 2. **Story 2:** Enhance with more capability (full stack, more features)
    - Example: "Progress bar → renders ALL scenarios → English only"
 3. **Story 3:** Expand to full scope (full stack, complete feature)
-   - Example: "All languages → organized output → 375 screenshots"
+   - Example: "All supported languages → organized output → complete localized screenshot set"
 
 **user-stories/feat-{N}-stories.md:**
 
@@ -804,6 +725,19 @@ Future enhancements are captured separately for later consideration.
 
 **Out of Scope:**
 - [Features saved for future stories]
+
+## Demo Script
+
+**Medium:** [`stills`, or `motion` where the answer is in the passage between two states —
+a hover menu crossing into its submenu, stale data flashing before a switch lands. Name the
+question that decides it, not just the word. Most questions that feel like motion are state
+questions with a panel missing.]
+
+[Ordered prose — what a reviewer should be shown of this working, one line per thing to
+see, six to ten of them. Written here while the intent is fresh, and read later by the
+command that captures it.]
+
+[Where the story renders nothing a person can look at, write "Not applicable" and why.]
 
 ## Acceptance Criteria
 
@@ -910,19 +844,9 @@ When ready to implement items from this backlog:
 
 **🔴 CRITICAL STORY RULES (NON-NEGOTIABLE):**
 
-1. **VERTICAL SLICES ONLY** - Every story goes through full stack (DB + Backend + Frontend)
-   - ✅ Story 1: Minimal feature working end-to-end
-   - ✅ Story 2: Enhanced feature working end-to-end
-   - ❌ NEVER: Story 1 = DB, Story 2 = Backend, Story 3 = Frontend
-
-2. **USER SEES WORKING OUTPUT** - Each story delivers something user can see/test/validate
-   - Must be able to demo after each story
-   - No invisible infrastructure stories
-   - No "it works but you can't see it yet" stories
-
-3. **COMPLETE IMPLEMENTATION** - Reduce scope, don't skip layers
-   - Narrow the feature, not the stack
-   - All layers working together, just simpler functionality
+1. **VERTICAL SLICES** - Apply [Vertical Slice Validation](../_shared/references/vertical-slices.md).
+2. **CONSUMER OUTCOME** - Name what the consumer can verify after each story.
+3. **COMPLETE IMPLEMENTATION** - Include the required integration for that outcome.
 
 4. **TDD THROUGHOUT** - Test first, implement, verify (in EVERY story)
 
@@ -965,7 +889,7 @@ Every story completion must result in something the user can:
 - User validates each addition before moving forward
 - Can stop/pivot at any point with working feature
 
-**Pattern:** Each story goes through entire stack (database, backend, frontend) but with narrow scope. Build thin vertical slice, then enhance, then add more slices.
+**Pattern for this web application:** Each slice spans its required database, backend, and frontend. Other product types use their own consumer boundary and required layers.
 
 **❌ Wrong Approach (Horizontal Layers):**
 
@@ -1065,12 +989,12 @@ Template structure:
 
 **specs/04-UI-Wireframes.md** (only if UI/UX requirements):
 
-Template structure:
-- Wireframes: ASCII art, design file links, or descriptions
-- User Flows: Step-by-step user action → system response sequences
-- Accessibility: WCAG 2.1 Level AA, keyboard navigation, screen reader, color contrast
-- Responsive Design: Desktop, tablet, mobile requirements
-- Testing: Manual (user interaction scenarios), Accessibility (screen reader, keyboard)
+Use the UI Specification output contract in [UI Prototype](../jr-ui-prototype/SKILL.md).
+Reference its accepted prototype, launch instructions, and matching screenshots; do
+not generate a second design or replace runnable artifacts with static descriptions.
+For requirements that need no design exploration, document the relevant existing
+behavior and constraints without manufacturing a prototype. Prototype verification
+does not complete production acceptance criteria.
 
 ### Step 7: User Review & Refinement Phase
 
@@ -1101,7 +1025,7 @@ Present package for user review:
 **Total Tasks:** {X} implementation tasks
 **Approach:** TDD, end-to-end integrated, user-testable after each story
 
-Please review the generated specification. Let me know if you need any changes, or say "ready" when you're ready for final review.
+Please review the generated specification and share any changes. When it looks good, I will run the final consistency checks.
 ```
 
 **Refinement Loop:**
@@ -1118,7 +1042,9 @@ If ready for final review:
 
 ### Step 8: Final Consistency Review
 
-**Trigger:** Only when user says "ready" after Step 7 review phase.
+**Trigger:** The user accepts the generated artifacts in Step 7 (for example, "ready" or
+"looks good"). Continue directly under that approval; do not request another specification
+confirmation. Preserve saved feedback and apply requested refinements within the approved scope.
 
 Update todos:
 ```json
@@ -1133,30 +1059,19 @@ Update todos:
 }
 ```
 
-**First, validate with user:**
+Run the checks below and repair inconsistencies within the approved scope without asking again.
+If a check exposes a new requirement or a material change to an accepted decision, ask only about
+that change, revise the affected artifacts for review, and resume these checks after acceptance.
+Do not reopen unchanged decisions or treat consistency repairs as a new approval gate.
 
-```
-Review the specification:
-- Captures your vision?
-- Missing requirements?
-- Stories appropriately scoped?
-- Need adjustments?
-```
-
-If user confirms or provides minor feedback, proceed to automated consistency checks.
-
-**Automated consistency checklist:**
+**Consistency checklist (agent review, with mechanical link checks where available):**
 
 1. **Contract consistency:** feat-N-overview.md contract matches stories and specs
 2. **Story dependencies:** Stories reference each other correctly
 3. **Cross-references:** All links work (feat-N-overview.md ↔ stories ↔ specs)
 4. **TDD approach:** All stories include test-first tasks
 5. **Working output:** All stories emphasize user-testable output
-6. **🔴 CRITICAL - Vertical slices:** EVERY story is end-to-end (no horizontal layering)
-   - Check: Each story has UI + Backend + DB (if applicable) working together
-   - Check: Each story deliverable includes "user can see/test working X"
-   - Check: No "database story", "API story", "frontend story", "integration story", "testing story"
-   - Check: Story 1 must have working output (not just infrastructure)
+6. **Vertical slices:** Every story passes [Vertical Slice Validation](../_shared/references/vertical-slices.md).
 7. **Technical alignment:** specs/01-Technical.md aligns with feat-N-overview.md
 8. **API consistency:** If API spec exists, matches feature requirements
 9. **Database consistency:** If DB spec exists, matches data requirements
@@ -1203,10 +1118,10 @@ Your project may benefit from reorganization:
 This is optional - you can continue with current structure if you prefer.
 ```
 
-**If no stage growth detected or user declines:**
-- Proceed with completion
+Treat stage growth as an optional follow-up. Complete the consistency review without waiting
+for a reorganization decision; it does not reopen the approved specification.
 
-**Present review results:**
+**Present review results:** Follow the [planning completion handoff](../_shared/references/planning-completion.md); offer `/jr-commit` before implementation or unrelated follow-ups.
 
 ```
 🔍 Final Review Complete
@@ -1220,21 +1135,11 @@ This is optional - you can continue with current structure if you prefer.
 - ✅ Technical specs - Align with requirements
 - ✅ Document consistency - All files reviewed and aligned
 
-[OR if issues found:]
+Feature specification is complete.
 
-⚠️ Issues Found:
-- [Issue 1 with suggested fix]
-- [Issue 2 with suggested fix]
+**Next step:** Commit the reviewed planning changes.
 
-Should I fix these issues? [yes/no]
-
----
-
-Feature specification is ready for implementation!
-
-**Next steps:**
-- Start Story 1 implementation (TDD approach)
-- Or request specification adjustments
+Would you like me to run `/jr-commit` for this feature specification?
 ```
 
 ## Tools

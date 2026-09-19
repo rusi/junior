@@ -1,6 +1,6 @@
 ---
 name: jr-commit
-description: Commit current-session work with concern-based staging, evidence-based checklist reconciliation, and standardized commit messages.
+description: Run `/jr-commit` to stage this session's work by concern, reconcile story checklists against evidence, and commit.
 ---
 
 # Commit Command
@@ -8,6 +8,12 @@ description: Commit current-session work with concern-based staging, evidence-ba
 ## Purpose
 
 Intelligent git commit that stages files from current session, analyzes changes, and generates standardized commit messages.
+
+## Commit Authorization
+
+Invoking `/jr-commit` or explicitly asking to commit authorizes staging and committing the reviewed scope. Complete the scope, diff, documentation, and validation checks, then commit without asking again for grouping, staging, or message approval.
+
+Honor an explicit request to preview a message or wait before committing. Ask only when a material scope ambiguity or a blocking validation or safety issue needs the user's decision; do not treat routine local commits as an approval gate.
 
 ## 🔴 CRITICAL: Session Scope + Quality-Gate Carryover Scope
 
@@ -48,27 +54,11 @@ Forbidden behavior:
 - Generating commit text from only the most recent chat turns
 - Omitting earlier significant changes in the same commit group
 
-## 🔴 CRITICAL: Evidence-Based Checklist Updates
+## Evidence-Based Checklist Updates
 
-Before committing, reconcile story checklists with evidence captured in this session:
-- Evidence includes commands I ran, logs I captured, or explicit user-provided outputs
-- If evidence exists, update Acceptance Criteria and Definition of Done checkboxes without asking
-- If evidence is missing, ask a single focused question for the missing verification only
- - Default to acting without asking when evidence is sufficient
-
-## 🔴 CRITICAL: Acceptance Criteria + DoD Verification Order
-
-**You must verify Acceptance Criteria and Definition of Done yourself whenever possible.**
-
-**Process (mandatory):**
-1. **First, verify directly** using evidence from this session (tests run, logs, code inspection).
-2. **Do NOT ask the user** if an item is already verified by tests or logs.
-3. **Only if a specific item cannot be verified** from evidence, ask the user **one focused question at a time** (manual validation only).
-4. **Never assume** manual validation occurred. If needed, ask explicitly.
-
-**Question rule (one at a time):**
-- Ask about one specific Acceptance Criterion or DoD item per question.
-- Do NOT ask broad questions like “Did you do manual validation?” if a precise item is missing.
+Apply [Completion Evidence](../_shared/references/completion-evidence.md) when reconciling
+acceptance criteria, Definition of Done, manual checks, and existing verification. Rule 13,
+section 16 defines the boundary between timeless product material and tracking artifacts.
 
 ## 🔴 CRITICAL: Evidence-First Status Reconciliation (Stale Notes Never Win)
 
@@ -84,8 +74,8 @@ Rules:
 
 ## 🔴 CRITICAL: Documentation Alignment Confirmation
 
-**Before committing, explicitly confirm doc updates are applied:**
-- List the exact `.junior/` files updated in this session.
+**Before committing, explicitly confirm documentation is aligned:**
+- List the exact `.junior/` files reviewed and which needed updates; unchanged accurate files need no edit.
 - State whether Acceptance Criteria and DoD were checked (and why).
 - If any remain unchecked, say what evidence is missing.
 
@@ -135,13 +125,13 @@ THEN you MUST create 2 separate commits:
 Session files:
   ✅ backend/controller.py                    ← CODE (Commit 1)
   ✅ frontend/Widget.qml                      ← CODE (Commit 1)
-  ✅ <project-rule-file>.mdc      ← PROJECT RULES 100+ (Commit 1)
+  ✅ <project-rule-file>.md      ← PROJECT RULES 100+ (Commit 1)
   ✅ .junior/features/feat-N-story-M.md       ← JUNIOR DOCS (Commit 2)
 
 WRONG: Stage all files together ❌
 
 RIGHT:
-  Commit 1: controller.py + Widget.qml + 1xx-project-rule.mdc
+  Commit 1: controller.py + Widget.qml + 1xx-project-rule.md
     → feat(module): add feature implementation
 
   Commit 2: feat-N-story-M.md
@@ -180,13 +170,13 @@ RIGHT:
 
 ## Type
 
-Direct execution - Immediate action with user confirmation at key points
+Direct execution - Review, validate, stage, and commit the authorized scope
 
 ## When to Use
 
 - Ready to commit changes from current session
 - Need help writing clear commit message
-- Want to review and confirm changes before committing
+- Want reviewed changes committed with a clear message
 
 ## Process
 
@@ -201,7 +191,7 @@ Create todos using `todo_write` or `functions.update_plan`:
     {"id": "update-docs", "content": "Update ALL documentation sections", "status": "pending"},
     {"id": "verify-docs", "content": "Verify documentation completeness with grep", "status": "pending"},
     {"id": "validate-tests", "content": "Run test validation if code changes present", "status": "pending"},
-    {"id": "stage-files", "content": "Stage session files with user confirmation", "status": "pending"},
+    {"id": "stage-files", "content": "Stage reviewed session files", "status": "pending"},
     {"id": "generate-message", "content": "Generate commit message", "status": "pending"},
     {"id": "commit-changes", "content": "Execute commit", "status": "pending"}
   ]
@@ -298,6 +288,19 @@ Analyze session files to detect distinct concerns using these patterns:
 
 ## Commit Message Style
 
+**What a commit message is for:** read by whoever runs `git log` or `git blame` on this code, months
+or years from now, asking *what changed here and why.* It is the most durable artifact this skill
+writes and the one with the least context around it.
+
+**Never goes in one:** the session that produced it · story or task numbers in implementation
+commits · counts of tests run or files touched, where the diff says it · the reasoning that led to
+the change, where the change states itself · attribution trailers of any kind, including ones a
+runtime appends automatically (`03-style-guide.md`).
+
+**Register:** the subject is a noun-headed action, never a sentence or a question. Body bullets
+state facts. No editorial lead, no anthropomorphising, no dramatic adjective — a fix is described,
+not praised. Baseline: `../_shared/references/artifact-output-spec.md`.
+
 **Default style:**
 - **Subject:** concise, action-oriented, present tense
 - **Body:** 3–6 bullets with key changes only
@@ -338,7 +341,7 @@ Analyze session files to detect distinct concerns using these patterns:
 MANDATORY SPLIT (checked in Step 2.5 FIRST):
 🔴 Implementation + .junior/ docs → ALWAYS 2 commits (NO EXCEPTIONS)
    Implementation = code + tests + project rules (100+) + config
-   Example: controller.py + test_controller.py + 130-rules.mdc + story-2.md
+   Example: controller.py + test_controller.py + 130-rules.md + story-2.md
    → Commit 1: code + tests + project rules (100+), Commit 2: junior docs
 
 Note: framework rules/skills are separate (`.agents/.cursor/.codex` layout)
@@ -368,14 +371,14 @@ ALWAYS split into 2+ commits when both implementation and .junior/ docs changed:
 Example Session:
   Files changed:
     - auth.py, test_auth.py
-    - <project-rule-file>.mdc (project rule)
+    - <project-rule-file>.md (project rule)
     - .junior/features/feat-2-story-2.md
 
   Commits:
     1. feat(auth): implement login with JWT
-       Files: auth.py, test_auth.py, 1xx-project-rule.mdc
+       Files: auth.py, test_auth.py, 1xx-project-rule.md
 
-    2. docs(auth): mark Story 2 authentication complete
+    2. docs(auth): record authentication completion
        Files: .junior/features/feat-2-story-2.md
 
 Why project rules (100+) go with code:
@@ -398,7 +401,7 @@ If YES to most → Split
 If NO to most → Keep together
 ```
 
-**Present grouping proposal:**
+**Report the selected grouping and proceed:**
 
 ```
 📊 Detected Multiple Logical Groups
@@ -422,20 +425,10 @@ Group 2: Infrastructure Updates
   Purpose: Improve code quality tools
   Type: chore
 
-Split into 2 commits? [yes/no/single]
-
-Options:
-- yes: Create 2 focused commits (recommended)
-- no: Create single combined commit
-- single: Let me write one commit message for all changes
+Creating 2 focused commits, one group at a time.
 ```
 
-**If user chooses "yes":**
-- Proceed with grouped commits (one at a time)
-- Stage group 1, commit, then stage group 2, commit
-
-**If user chooses "no" or "single":**
-- Continue with single commit (original flow)
+Apply the grouping rules above without a separate approval step. Stage and commit each group before moving to the next.
 
 ### Step 3: Update Related Documentation
 
@@ -444,6 +437,11 @@ Options:
 **🔴 CRITICAL: PARTIAL UPDATES ARE NOT ACCEPTABLE - Update ALL sections or nothing**
 
 **You MUST check for and update documentation EVERY TIME before staging files.**
+
+**What goes into those documents:** checkbox states, and evidence in the fields that hold evidence.
+Not this session's reasoning, not what was verified in which order, not a note recording that this
+command updated them. The `## Session Artifact Log` entry is the story file's only provenance and
+it is enough. Spec: `../_shared/references/artifact-output-spec.md`.
 
 **Process:**
 
@@ -516,7 +514,7 @@ For completed work, mark EVERY checkbox:
 **🔴 CRITICAL: Determining Feature Completion Status:**
 
 When checking if "all stories complete" for feature status:
-- ✅ **Count ONLY deliverable stories** (Story 1, 2, 3, etc. with actual tasks)
+- ✅ **Count ONLY deliverable stories** (stories with actual implementation work)
 - ❌ **Exclude future enhancements backlog** (NOT in story table, separate document)
 - **Future enhancements:** Captured in `feat-N-story-future-enhancements.md` (not numbered, not in story table)
 
@@ -555,20 +553,11 @@ grep -c "\[ \]" feat-N-story-X.md
 - Technical specs that document changed components
 - API docs for changed endpoints
 
-### Step 4: Confirm Manual Verification Before Marking Completion
+### Step 4: Resolve Missing Manual Evidence
 
-**Trigger:** If any story tasks, acceptance criteria, or Definition of Done include manual verification steps.
-
-**Required action (ask the user):**
-```
-Manual verification items are still pending in the story.
-Have you completed the manual checks? [yes/no]
-```
-
-**Rules:**
-- If **yes**: Mark those manual items complete and proceed.
-- If **no**: Leave them unchecked and keep status "In Progress".
-- If **uncertain**: Ask for the exact verification performed.
+Apply [Completion Evidence](../_shared/references/completion-evidence.md#manual-verification).
+Only unresolved criteria that require a human observation need a question. Ask about one
+specific criterion, retain verified evidence, and leave any unsupported items pending.
 
 **🔴 MANDATORY CHECKLIST - Answer YES to ALL before proceeding:**
 
@@ -577,14 +566,14 @@ Documentation Update Checklist:
 
 [ ] Did I read the ENTIRE story file (not just one section)?
 [ ] Did I use grep to find ALL checkbox sections?
-[ ] Did I update the Status field at the top of the story file?
-[ ] Did I update ALL Acceptance Criteria checkboxes?
-[ ] Did I update ALL Implementation Tasks checkboxes?
-[ ] Did I update ALL Definition of Done checkboxes?
+[ ] Does the story Status field match its evidence?
+[ ] Do ALL Acceptance Criteria checkboxes match applicable evidence?
+[ ] Do ALL Implementation Tasks checkboxes match applicable evidence?
+[ ] Do ALL Definition of Done checkboxes match applicable evidence?
 [ ] Did I reconcile status/checklists from evidence first (not stale pending notes)?
-[ ] Did I confirm any manual verification items with the user?
-[ ] Did I update feat-N-stories.md Status field at the top?
-[ ] Did I update feat-N-stories.md progress table and percentages?
+[ ] Did I reconcile manual items using the shared evidence contract?
+[ ] Does feat-N-stories.md Status match the reconciled stories?
+[ ] Do feat-N-stories.md progress totals match the reconciled stories?
 [ ] Did I check if feature should be "Completed" (excluding backlog stories)?
 [ ] Did I verify with grep that unchecked count is 0 (for completed stories)?
 [ ] Did I update any related READMEs or technical docs?
@@ -614,7 +603,7 @@ grep -c "✅" feat-1-story-2-login.md      # Shows: 19
 - Even if changes seem trivial
 - Even if you "think" docs are already up to date
 - Even if you're in a hurry
-- **Even if you already updated ONE section** ← Must update ALL sections
+- **Even if you already updated ONE section** ← Must review ALL sections; edit only where reconciliation requires it
 
 **⚠️ Common Mistakes to Avoid:**
 - ❌ Updating only Implementation Tasks but not Acceptance Criteria
@@ -647,7 +636,7 @@ find .junior/features/feat-N -name "*story*.md" -exec echo "=== {} ===" \; -exec
 # 2. If any file shows count > 0, display those unchecked boxes
 grep -n "\[ \]" .junior/features/feat-N/user-stories/feat-N-story-X.md
 
-# 3. Verify checked boxes increased
+# 3. Verify checked boxes match evidence (an unchanged count can be correct)
 grep -c "✅" .junior/features/feat-N/user-stories/feat-N-story-X.md
 ```
 
@@ -663,13 +652,13 @@ For completed stories:
 
 For in-progress stories:
 - ⚠️ Unchecked count: Some remaining (document which tasks are pending)
-- ✅ Checked count: Increased from before
+- ✅ Checked count: Matches applicable evidence, including evidence recorded before this command
 
 **If verification fails:**
 - ❌ ANY incorrect checkbox format found (`[x]`) → STOP, FIX FORMAT, rerun verification
 - ❌ Any completed story still has unchecked boxes → GO BACK to Step 3
-- ❌ Checked count didn't increase → GO BACK to Step 3
-- ❌ You can't explain which sections you updated → GO BACK to Step 3
+- ❌ Checkbox states do not match evidence → GO BACK to Step 3
+- ❌ Any checklist section has not been reviewed against evidence → GO BACK to Step 3
 
 **Only proceed to Step 6 after:**
 - ✅ All verification commands run
@@ -678,124 +667,19 @@ For in-progress stories:
 
 ### Step 6: Test & Coverage Validation
 
-**CRITICAL: Validate quality before committing code changes**
+For executable changes, including code shipped inside documentation, apply
+[Coding Verification](../_shared/references/completion-evidence.md#coding-verification).
+Use the project's established runner and reuse evidence only when it covers the exact
+current changes. Documentation-only prose corrections use artifact verification instead.
 
-**Check if code changes exist:**
+Report the shared contract's verdict and evidence before staging. A passing percentage
+alone cannot establish readiness, and this command introduces no separate coverage target.
 
-If session files include code changes (not just documentation/config):
-- Detect code files: `.ts`, `.js`, `.py`, `.go`, `.rs`, `.c`, `.cpp`, `.h`, `.hpp`, `.swift`, etc.
-- Skip if only documentation, config, or non-code files changed
-
-**Prompt user for validation:**
-
-```
-🧪 Code changes detected
-
-You're about to commit code changes:
-  M  src/auth.ts
-  M  src/auth.test.ts
-
-Run test validation before committing? [yes/no/skip]
-
-Options:
-- yes: Run full test suite and coverage check (recommended)
-- no: Skip validation (not recommended for code changes)
-- skip: I've already run tests manually
-```
-
-**If user chooses "yes", run validation:**
-
-**1. Run test suite:**
-
-```bash
-# Use project's test command (language-agnostic)
-npm test              # Node.js/JavaScript
-pytest --cov          # Python
-go test -cover ./...  # Go
-cargo test            # Rust
-make test             # C/C++ (typical)
-swift test            # Swift
-# etc. (detect from project structure)
-```
-
-**2. Generate coverage report:**
-
-```bash
-# Generate coverage with detailed output
-npm test -- --coverage                    # Jest
-pytest --cov --cov-report=term-missing   # Python
-go test -coverprofile=coverage.out ./... # Go
-cargo tarpaulin                          # Rust
-gcov / lcov                              # C/C++
-swift test --enable-code-coverage        # Swift
-```
-
-**3. Display validation results:**
-
-```
-🔍 Test Validation Results
-
-Tests:
-✅ All tests passing: 45/45 (100%)
-✅ No failing tests
-
-Coverage:
-✅ Overall coverage: 98%
-⚠️ Changed files coverage: 95%
-  - src/auth.ts: 98%
-  - src/auth.test.ts: 100%
-
-✅ Safe to commit!
-```
-
-**4. If validation fails:**
-
-```
-❌ Test Validation Failed
-
-Tests:
-❌ 2 tests failing
-  - src/auth.test.ts:45 - Login with invalid password
-  - src/auth.test.ts:67 - Token expiration
-
-Coverage:
-❌ Overall coverage: 87% (target: 90%+)
-❌ Changed files:
-  - src/auth.ts: 75% (missing lines: 45-52, 89-95)
-
-⚠️ NOT RECOMMENDED TO COMMIT
-
-Options:
-1. Fix failing tests and improve coverage (recommended)
-2. Commit anyway (not recommended - may break builds)
-3. Cancel and fix issues first
-
-Proceed with commit anyway? [yes/no]
-```
-
-**Validation outcomes:**
-
-- **All tests pass + coverage good (90%+)**: Proceed to staging normally
-- **Tests fail or coverage low (<90%) AND user commits anyway**: Mark as WIP and add warning note
-- **User chose "no" or "skip"**: Proceed to staging with warning note
-
-**Commit marking based on validation:**
-
-**If user skipped validation (chose "no" or "skip"):**
-```
-⚠️ Note: Committed without test validation
-```
-
-**If validation FAILED but user committed anyway:**
-- Automatically prefix commit type with WIP
-- Add warning note about failures
-```
-WIP: [original commit message]
-
-⚠️ WARNING: Committed with failing tests/incomplete coverage
-- Tests failing: 2
-- Coverage: 87% (target: 90%+)
-```
+- **Contract satisfied:** Proceed to staging within the authorized commit scope.
+- **Contract not satisfied:** Fix the failures or gaps. If the user explicitly authorizes
+  preserving incomplete work, mark the commit `WIP` and name the unmet requirements and risk.
+- **User explicitly requests omitted validation:** Name the checks not run and remaining
+  risk; do not claim verification or completion based on the commit.
 
 ### Step 7: Stage Files (Per Logical Group)
 
@@ -828,24 +712,20 @@ Feature Specification (feat-N):
   A  .junior/features/feat-N-feature-name/specs/01-Technical.md
 
 📋 Excluding (will commit in Group 2):
-  M  .agents/rules/00-junior.mdc
-  M  .agents/rules/03-style-guide.mdc
+  M  .agents/rules/00-junior.md
+  M  .agents/rules/03-style-guide.md
   M  .agents/skills/jr-feature/SKILL.md
 
 📋 Excluding (NOT part of this session):
   M  backend/other.py         ← From different work
   M  frontend/widget.tsx      ← From previous session
 
-Stage Group 1? [yes/no]
+Staging the reviewed files in Group 1.
 ```
-
-**Options:**
-- **yes** - Stage current group and proceed to commit
-- **no** - Cancel
 
 **Stage explicitly (for current group):**
 ```bash
-git add .junior/features/feat-N-feature-name/
+git add .junior/features/feat-N-feature-name/feat-N-overview.md
 ```
 
 **After committing Group 1, repeat for Group 2:**
@@ -875,7 +755,7 @@ git add .junior/features/feat-N-feature-name/
      - Good: `auth`, `dashboard`, `payment`, `api`
      - Bad: `feat-1-story-2`, `story-3`, `task-1.5`
    - Add status: (WIP) if in progress, omit if complete or not tracked work
-   - **Never reference stories/tasks in commit messages** - code is timeless, planning artifacts are temporary
+   - **Keep product commit messages timeless**; documentation-only tracking commits may name work identifiers under the commit-grouping rules above
 
 2. **Run full-diff review for this group (mandatory):**
    - Read every changed hunk for every file in the group (staged + unstaged if relevant)
@@ -917,65 +797,26 @@ Single commit (related work):
 - `feat(login): implement OAuth with tests and docs`
 - `fix(payment): resolve race condition in checkout flow`
 
-### Step 9: User Review & Commit Execution (Per Logical Group)
+### Step 9: Commit Execution (Per Logical Group)
 
-**🔴 HARD GATE: No commit command before explicit message approval**
-- You MUST print the complete commit message verbatim before any commit execution.
-- You MUST ask for explicit confirmation: `Proceed with this commit? [yes/no/edit]`.
-- You MUST wait for the user response.
-- You MUST NOT run `git commit` unless the user response is exactly `yes`.
-- If response is `edit`, regenerate and re-present the FULL message, then ask again.
-- If response is `no`, stop commit execution for this group.
+Follow **Commit Authorization** above. Check the staged diff contains only the reviewed group and that the generated message describes it, then execute the commit using the message format from Step 1.6. Do not pause for message approval unless the user requested a preview or hold.
 
-**Present generated message for current group:**
-
-```
-💬 Generated Commit Message (Group 1 of 2):
-┌─────────────────────────────────────────────
-│ feat(feature-name): add feature implementation spec
-│
-│ Create comprehensive feature specification:
-│ - User stories with acceptance criteria
-│ - Implementation tasks and milestones
-│ - Technical architecture decisions
-│ - Testing and validation strategy
-│
-│ Key deliverables:
-│ - 8 user stories covering core functionality
-│ - Technical specifications and diagrams
-│ - Integration and testing plans
-└─────────────────────────────────────────────
-
-Proceed with this commit? [yes/no/edit]
-```
-
-**Options:**
-- **yes** - Commit with generated message, proceed to next group
-- **no** - Cancel commit
-- **edit** - Modify message before committing
-
-**Execute commit:**
-- Only after explicit `yes` for the exact message shown above.
-- Use the approved message exactly as displayed in the review block.
-
-```bash
-git commit -m "[generated message]"
-```
+After committing, verify the resulting commit and remaining working-tree changes. Report the commit hash and subject, then continue with any remaining groups.
 
 **Show completion:**
 
 ```
 Commit 1 of 2 completed!
 
-📝 Commit: f802180 - feat(component-org): create progressive structure
-📁 Files: 9 staged
-📊 Changes: +1225 lines
+📝 Commit: <commit-hash> - feat(component): add component behavior
+📁 Files: <file-count> staged
+📊 Changes: <diff-summary>
 
 Moving to Group 2...
 ```
 
 **If multiple groups:**
-- Repeat Steps 5-7 for each group
+- Repeat Steps 5-9 for each group
 - After all groups committed, show final summary
 
 **Final summary (after all groups):**
@@ -983,13 +824,13 @@ Moving to Group 2...
 ```
 All commits completed successfully!
 
-📝 Commit 1: f802180 - feat(component-org): create progressive structure
-   📁 9 files, +1225 lines
+📝 Commit 1: <implementation-hash> - feat(component): add component behavior
+   📁 <implementation-diff-summary>
 
-📝 Commit 2: a3b4c5d - docs: strengthen DRY and SIMPLICITY rules
-   📁 3 files, +156 lines
+📝 Commit 2: <documentation-hash> - docs(component): update component guidance
+   📁 <documentation-diff-summary>
 
-Total: 2 commits, 12 files, +1381 lines
+Total: 2 commits, <combined-diff-summary>
 ```
 
 ## Format Guidelines

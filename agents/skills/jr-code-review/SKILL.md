@@ -1,6 +1,6 @@
 ---
 name: jr-code-review
-description: Run comprehensive expert code review on current branch changes and fix findings across debug/dead code, rule violations, correctness risks, and explicit architecture/design/structure/DRY reporting.
+description: Run `/jr-code-review` to review the current branch for correctness, rule, and architecture findings, and fix them.
 ---
 
 # Code Review
@@ -302,7 +302,71 @@ Repeat Step 4 for each category in order:
 - Get explicit approval before applying
 - If uncertain about issue, get more context or ask user - NEVER GUESS
 
-### Step 6: Final Summary
+### Step 5.5: Read the Artifacts This Branch Wrote
+
+Steps 3-5 read code. **This reads the documents** — anything under `.junior/` in the diff, plus a
+README or spec the branch touched. The skills that produced them declare what they may contain
+(`../_shared/references/artifact-output-spec.md`); nothing checks whether they did.
+
+**This is a read, not a scan. Do not grep for it.** Whether a sentence earns its place is not
+countable, positional or literal, so a pattern match here would report clean on everything it
+cannot see and its green would be taken for a verdict (`09-code-or-skill.md`).
+
+**Read each changed document whole — one pass over the whole file, never line by line**, because
+the commonest form of this defect is the same reasoning appearing twice in different words. Of every
+sentence ask: **why is this here?** If the honest answer is *because that is how I found out*, it is
+provenance, and it is a finding.
+
+What it catches, in the order it appears: a stamp recording when a fact was captured or which run
+recorded it · counts of what was scanned, read or analyzed · the session's own reasoning path beside
+the conclusion it reached · a superseded plan left above the current one · a resolved question kept
+as a strikethrough with its answer history · the run's own rule-compliance notes.
+
+**Report hits as correctness findings and fix them** — the content moves to where it belongs or comes
+out. **A document whose skill has no output spec fails this check by default:** there was nothing it
+was written against, so report the missing spec rather than grading the prose.
+
+### Step 6: Show What the Branch Changed
+
+**A review that only reads the diff cannot answer whether the result looks right.** The
+categories above find what is wrong in the code. This answers what the branch does to the
+screen — the question a reviewer would otherwise have to check out the branch and run it to
+ask.
+
+**Run this after the fixes, not before.** Fixes applied during Steps 4 and 5 change what the
+branch renders, so a storyboard captured earlier documents a state that will never be merged.
+The artifact has to depict the code as it now stands or it is evidence for the wrong thing.
+
+**1. Decide whether the diff touches UI.**
+
+Judge the changed files from Step 2. Where nothing in them renders — backend only, tooling,
+tests, documentation, configuration — **no demo runs.** Say so in the summary and continue. This
+is the common case for most branches and it is not a gap.
+
+**2. Where it does, invoke `/jr-demo`**, supplying:
+
+- The **profile** — the `references/` profile in `jr-demo` matching this project's test runner.
+  You have been reading this project since Step 2; name it rather than leaving the demo to infer
+  it.
+- The **scope** — diff-level. The demo traces the changed files to routes and selects only the
+  story Demo Scripts that capture a panel on one of them.
+- The **diff this review read** — in branch-diff mode, the base branch from Step 2; in
+  local-change mode there is no base, and the working tree is itself the change. Supply whichever
+  Step 2 used. A demo left to assume a base branch computes nothing in the mode this review
+  defaults into, and reports no storyboard as though the branch touched no UI.
+
+A branch touching one screen gets that screen's script, not the whole feature's. Where tracing a
+shared component to its routes is inconclusive, the demo includes the script — an omitted one
+hides a regression behind an artifact that looks complete.
+
+**3. Name the artifact in the summary**, on its own line, so it reaches a reviewer rather than
+sitting in an output directory.
+
+**A failing assertion is a correctness finding.** It means the branch, after this review's own
+fixes, cannot reach a state its walkthrough claims. Take it back through Step 4's correctness
+category with the evidence, and do not report the review as clean.
+
+### Step 7: Final Summary
 
 After all categories reviewed:
 - Show summary of all fixes applied (count per category, total files affected)
@@ -320,6 +384,26 @@ After all categories reviewed:
 - Recommend next steps (review diff, run tests, run linter)
 - Suggest running `/jr-commit` if ready for PR
 - If this review was story-scoped and fixes were applied, append a `## Session Artifact Log` entry to the story file per `../_shared/references/session-artifact-log.md` with touched files + validation evidence.
+
+### Step 8: Output Spec
+
+Use the findings from Steps 1–6 and the coverage from Step 7 to write the report below.
+
+**Artifact — the review report.**
+
+- **For:** the developer deciding whether this branch is ready to commit. It answers *what was wrong,
+  what is now fixed, and what still blocks.*
+- **Goes in:** the eight category counts from Step 7, as a block · each finding that changed the
+  code, named by file and what it now does · findings deliberately left, each with the reason ·
+  the storyboard path on its own line, or the one line saying the diff renders nothing · the next
+  command.
+- **Never goes in:** which files were scanned and how many · the grep patterns and searches run ·
+  the categories walked that found nothing, enumerated · rule numbers cited as justification where
+  the finding already states the defect · fix attempts superseded by a later one in the same pass.
+  Baseline: `../_shared/references/artifact-output-spec.md`.
+- **Register:** headings are noun labels — never sentences, questions or conversational phrases.
+  Prose states facts. No editorial lead, no anthropomorphising, no dramatic adjective. A count of
+  zero is a row, not an achievement.
 
 ## Tool Integration
 

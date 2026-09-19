@@ -1,6 +1,6 @@
 ---
 name: jr-status
-description: Produce a comprehensive project status report with git state, active work, progress analysis, and concrete next actions.
+description: Run `/jr-status` to report git state, active work, and progress across the project.
 ---
 
 # Status Command
@@ -52,7 +52,7 @@ git branch --show-current              # Current branch
 git status --porcelain                 # File changes
 git log -1 --format="%s (%ar)"        # Last commit
 git log main..HEAD --oneline           # Commits ahead
-git log HEAD..main --online           # Commits behind
+git log HEAD..main --oneline           # Commits behind
 ```
 
 **Parse and present:**
@@ -72,11 +72,11 @@ Uncommitted: 3 modified files
 
 ### Step 3: Active Work Detection
 
-**Detect current stage:** Use stage detection from `01-structure.mdc` to determine display format (flat vs component tree).
+**Detect current stage:** Use stage detection from `01-structure.md` to determine display format (flat vs component tree).
 
 **Scan `.junior/features/` for in-progress features:**
 
-Use stage-appropriate paths to find all features (see `01-structure.mdc` for path patterns).
+Use stage-appropriate paths to find all features (see `01-structure.md` for path patterns).
 
 For each feature, load `user-stories/feat-N-stories.md`, parse task completion, and identify features with progress > 0% and < 100%.
 
@@ -84,7 +84,12 @@ For each feature, load `user-stories/feat-N-stories.md`, parse task completion, 
 - Features with `Status: In Progress`
 - Features with task progress > 0% and < 100%
 - Show current story and next task for each
-- Highlight most recently modified feature
+- Highlight the most recently worked-on feature — and derive "recent" from **content, not file timestamps**.
+  A file's modification time is a trigger to look, never evidence that anything changed: formatters,
+  editors, sync clients, checkouts and installers all rewrite files without touching a byte of content,
+  so the freshest `mtime` is routinely the least relevant feature. Use `git log -1 --format=%cr -- <path>`
+  per feature, or the most recently completed task in the stories file. If neither is available, say
+  nothing rather than ranking by `mtime` — a wrong highlight here misdirects the next thing the user picks up.
 
 **Output format (Stage 1 - Flat):**
 
@@ -122,7 +127,7 @@ comp-2-installation (1 feature active):
 
 **Comprehensive feature view:**
 
-Use stage-appropriate scanning (see `01-structure.mdc` for path patterns).
+Use stage-appropriate scanning (see `01-structure.md` for path patterns).
 
 For each feature:
 - Read `feat-N-overview.md` for status
@@ -229,7 +234,9 @@ comp-3-integrations (1 feature, 8/8 tasks - 100%):
 - `.junior/features/**/user-stories/*-stories.md` task totals/completed
 - `.junior/improvements/**/user-stories/*-stories.md` task totals/completed
 - `.junior/experiments/**/user-stories/*-stories.md` task totals/completed
-- `.junior/debugging/dbg-*/` completion status (`dbg-N-resolution.md` present = completed)
+- `.junior/debugging/dbg-*/` completion status: count completed only when the fix is
+  implemented and verification evidence supports resolution. A resolution document can
+  contain only a diagnosis or proposed fix; its existence is not completion evidence.
 - Compute:
   - `execution_done = task_done_total + debugging_done_units`
   - `execution_total = task_total + debugging_total_units`
@@ -268,14 +275,16 @@ ls -t .junior/research/*.md | head -5
 find .junior/experiments -name "exp-*" -type d
 ```
 
-**For experiments, check status:**
-```bash
-# Check exp-N-overview.md for Status field
-grep "^> Status:" exp-N-overview.md
+**For experiments:** Read the overview's objectives and completion criteria, execution
+checklists, and findings evidence. Count complete only when that evidence satisfies the
+criteria; a findings directory or an unsupported status label proves nothing. An experiment
+may complete with a negative result when its agreed investigation is finished. Report planned,
+in-progress, and inconclusive/unverified work separately; do not count missing evidence as done.
 
-# Or check for findings directory
-[ -d "findings" ] && echo "Completed" || echo "In Progress"
-```
+Apply the same evidence-first rule to debugging: distinguish investigating, root cause
+identified, fix implemented but unverified, and fixed and verified. If labels or checkboxes
+conflict with evidence, report the discrepancy and use the evidence-supported status in
+completion totals. Historical claims without sufficient evidence remain unverified.
 
 **Output format:**
 
@@ -415,7 +424,6 @@ Priority 3: Planning
 /jr-implement        # Continue or start implementation
 /jr-feature          # Create new feature
 /jr-commit           # Commit changes
-/research         # Research new topic
 ```
 
 ## Tool Integration
@@ -434,6 +442,22 @@ Priority 3: Planning
 - Git commands (status, log, branch info)
 - Directory scans (features, improvements, debugging, research, experiments)
 - File reads (multiple `*-stories.md` files and debug resolution files)
+
+## Output Spec
+
+**Artifact — the status report.**
+
+- **For:** the user picking up the project, cold or after an interruption. It answers *where the
+  work stands and what to do next.*
+- **Goes in:** the report shape from Step 8, filled — git state, active work, feature summary,
+  completion percentage, research and experiments, next-action suggestions.
+- **Never goes in:** which directories were scanned and how many files were parsed · the percentage
+  arithmetic shown as working · the steps of this skill, by name or number · features enumerated
+  with nothing to say about them beyond a status word already in the table · anything the user
+  cannot act on or orient by. Baseline: `../_shared/references/artifact-output-spec.md`.
+- **Register:** headings are noun labels — never sentences, questions or conversational phrases.
+  Prose states facts. No editorial lead, no anthropomorphising, no dramatic adjective. A percentage
+  is reported, never celebrated.
 
 ## Output Formatting Rules
 
@@ -494,7 +518,7 @@ Project structure: Standard git repository
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💡 NEXT ACTIONS
-• Initialize Junior workflow: /jr-init (coming soon)
+• Initialize Junior workflow: /jr-init
 • Create first feature: /jr-feature
 ```
 

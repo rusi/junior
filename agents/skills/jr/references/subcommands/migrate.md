@@ -377,9 +377,8 @@ ENHANCEMENTS (Nested Under Features):
 • Example: enh-1-ui-polish → feat-5-dashboard/enhancements/enh-1-ui-polish
 
 PRODUCT & DOCUMENTATION:
-• product/decisions.md → decisions/product-decisions.md
-• Other product/*.md → docs/
-• docs/ and research/ merged intelligently
+• Apply the canonical product mapping and collision policy under Documentation merging
+• List every source → destination, including retained conflict copies
 
 REFERENCE UPDATES:
 • Update markdown links (spec-N → feat-N, date-prefixes → feat-N)
@@ -460,9 +459,8 @@ ENHANCEMENTS (Nested Under Features):
 • Example: enh-1-ui-polish → feat-5-dashboard/enhancements/enh-1-ui-polish
 
 PRODUCT & DOCUMENTATION:
-• product/decisions.md → decisions/product-decisions.md
-• Other product/*.md → docs/
-• docs/ and research/ merged intelligently
+• Apply the canonical product mapping and collision policy under Documentation merging
+• List every source → destination, including retained conflict copies
 
 REFERENCE UPDATES:
 • Update markdown links (spec-N → feat-N, date-prefixes → feat-N)
@@ -617,12 +615,32 @@ For each enhancement in `.code-captain/enhancements/`:
 5. Renumber enh-M within each feature (sequential: enh-1, enh-2, etc.)
 
 **Documentation merging** (both modes):
-- Create `.junior/decisions/` and `.junior/docs/` if needed
-- `product/decisions.md` → `decisions/product-decisions.md`
-- Other `product/*.md` → `docs/`
-- `research/*.md` → `research/` (add `-cc` suffix if file exists)
-- `docs/*.md` → `docs/` (add `-cc` suffix if file exists)
-- `decisions/*.md` → `decisions/` (add `-cc` suffix if file exists)
+Read product documents to identify their purpose before proposing destinations; filenames
+are examples, not a classifier. Use the canonical product layout consumed by `/jr-init`,
+`/jr-next`, and `/jr-status`:
+
+| Source under `.code-captain/` | Destination under `.junior/` |
+|---|---|
+| `product/mission.md` or `product/01-mission.md` | `product/01-mission.md` |
+| `product/roadmap.md` or `product/02-roadmap.md` | `product/02-roadmap.md` |
+| `product/tech-stack.md` or `product/03-tech-stack.md` | `product/03-tech-stack.md` |
+| `product/dev-env.md` or `product/04-dev-env.md` | `product/04-dev-env.md` |
+| `product/decisions.md` | `decisions/product-decisions.md` |
+| Other product documents | `product/` with descriptive filenames |
+| Research, reference docs, decision records | `research/`, `docs/`, `decisions/`, respectively |
+
+- Resolve alternate names and combined documents by reading them. If a canonical document
+  is absent from the source, report that gap; do not fabricate product context.
+- Include the exact mapping in the approval plan for either target stage. Create parent
+  directories as needed and preserve bytes during the moves-only phase.
+- Never overwrite an existing destination, even when contents match. Keep the existing file
+  and move incoming content to an unused sibling name such as `02-roadmap-cc.md`; if occupied,
+  choose another unused suffix. This also applies when multiple source files map to one target.
+- Record every collision in the migration plan. Reconcile substantive conflicts with the user
+  during content updates before claiming completion. Keep both originals available; the
+  canonical file must expose the agreed context, not silently prefer one roadmap.
+- Update links using the actual source-to-destination mapping, including conflict copies.
+  A directory-only `.code-captain/` → `.junior/` replacement is insufficient.
 
 Show progress as directories are renamed.
 
@@ -800,7 +818,7 @@ Use when target is Stage 1 (flat structure, no components).
 
 **CRITICAL: Only update references to FEATURE/EXPERIMENT files in `.junior/` content.**
 - ✅ Update: `.junior/features/feat-N-name/feature.md` → `feat-N-overview.md`
-- ❌ Don't touch Junior framework docs/skills (for example: `.agents/skills/jr-feature/SKILL.md` in the Junior source repo)
+- ❌ Don't touch Junior framework docs/skills (for example: `agents/skills/jr-feature/SKILL.md` in the Junior source repo)
 
 1. Find all `.md` files in `.junior/` and project README
 2. Update references:
@@ -838,7 +856,7 @@ Use when target is Stage 2 (component organization).
 
 For each component created in Step 5 Phase 1, create `comp-N-overview.md`:
 
-Use template from `/jr maintenance` command (see 01-structure.mdc for reference):
+Use template from `/jr maintenance` command (see 01-structure.md for reference):
 
 ```markdown
 # [Component Name]
@@ -945,7 +963,15 @@ Show progress: "✅ Phase 2 complete: Created [M] component overviews, updated [
    - Count: 0 remaining
    - Command: `grep -r "](./story-" .junior --include="*stories.md" | wc -l` should return 0
 
-6. **Spot-check samples:**
+6. **Product-context journey (required in convert and merge modes):**
+   - Read migrated mission, roadmap, technical stack, and development context through the exact
+     paths used by `/jr-next`; compare their content with the approved mapping and reconciliation.
+   - Run `/jr-status` against the migrated project. Confirm it reads the canonical roadmap,
+     includes planned-but-undrafted features in its denominator, and retains completed progress.
+   - Verify retained collision copies and updated links. Report source-context gaps explicitly;
+     unresolved collisions or inaccessible migrated context block migration completion.
+
+7. **Spot-check samples:**
    - Pick 2-3 random feature files and verify their internal links are correct
    - Check the main roadmap/decisions files for correct references
 
@@ -976,12 +1002,12 @@ Example failure:
 🔍 Reference Verification:
 
 ⚠️  Date-prefixed references: 12 remaining
-   - .junior/docs/roadmap.md:45: "See 2025-10-13-data-visualization"
+   - .junior/product/02-roadmap.md:45: "See 2025-10-13-data-visualization"
    - .junior/features/feat-2-user-auth/feat-N-overview.md:23: "depends on 2025-10-01-user-auth"
    [... list all with file:line:content ...]
 
 ⚠️  .code-captain/ references: 3 remaining
-   - .junior/docs/mission.md:15: "in .code-captain/specs/"
+   - .junior/product/01-mission.md:15: "in .code-captain/specs/"
    - .junior/features/feat-5-data-processing/feat-N-overview.md:78: "See .code-captain/docs/"
 
 ⚠️  spec.md references: 2 remaining
@@ -1157,7 +1183,7 @@ All done!
 
 **Validation failures:** Show issues found, mark as non-blocking if minor. For critical issues (missing files), ask user to fix first.
 
-**Migration interrupted:** Offer rollback via `git reset --hard HEAD` or retry.
+**Migration interrupted:** Use Scoped Recovery below; inspect the actual state before retrying.
 
 **Permissions:** If git mv fails, suggest closing files, checking permissions.
 
@@ -1171,11 +1197,28 @@ All done!
 - Commit renames first (Step 9), then content changes (Step 12) - separate commits
 - Verify references are updated before committing (Step 11)
 - Show progress at each step
-- Merge product/docs intelligently: `product/decisions.md` → `decisions/product-decisions.md`, others → `docs/`
+- Apply Documentation merging for product locations, collision preservation, and reconciliation.
 
 **After:** Verify with `/jr-status`, review commits, test commands.
 
-**Recovery:** `git reset --hard HEAD` to rollback. Can re-run `/jr migrate` if needed.
+### Scoped Recovery
+
+Before moving files, retain the initial HEAD, exact move map, and the affected files' working-tree
+and index contents, including any authorized dirty state. Keep this recovery material outside
+paths the migration moves, using the runtime's temporary storage. Do not stage it.
+
+- **Uncommitted moves:** inspect status and the move map; reverse only migration-owned moves
+  whose original destinations are vacant. Preserve current file contents and unrelated staged
+  or unstaged changes. Stop on overlap instead of overwriting a path.
+- **Moves committed, content incomplete:** keep the moves commit and resume the mapped content
+  edits after inspecting the current diff. Discarding content edits cannot undo committed moves.
+- **Committed migration must be undone:** propose a reviewed revert of the exact migration
+  commits, in reverse order. Preserve later and uncommitted work first; resolve overlap with the
+  user. Do not reset the branch or rewrite history as migration recovery.
+- Any recovery that discards or overwrites existing state requires the per-instance approval
+  specified in the destructive-operations rule: name affected paths, what would be lost, and
+  the least-destructive alternative. Re-running migration also requires inspecting which moves
+  already landed; do not replay the original plan blindly.
 
 ## Examples
 

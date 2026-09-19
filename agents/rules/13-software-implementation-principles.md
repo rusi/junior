@@ -1,35 +1,12 @@
----
-alwaysApply: true
----
-
 # Software Implementation Principles
 
 ## ⚠️ TIMELESS CODE REMINDER ⚠️
 
-**BEFORE EVERY file write/edit, ask: "Would this make sense in 2 years?"**
+**Before writing or completing work, ask: would this make sense without the planning history?**
 
-**NEVER reference in ANY deliverable:**
-- ❌ Story numbers ("Story 1", "Story 2", etc.)
-- ❌ Task numbers ("Task 2.3", etc.)
-- ❌ Implementation order ("First version", "After Task X")
-- ❌ Sprint/iteration references
-
-**This applies to:**
-- Code (source files, comments)
-- Documentation (README, guides, specs)
-- Log messages (console output)
-- Configuration files
-- Test names and descriptions
-
-**Test:** If a new developer reads this in 2 years with NO context, would they understand what it does and why?
-
-**Examples:**
-- ❌ `// Story X: Add feature`
-- ✅ `// Scan for nearby devices`
-- ❌ `"Story X: Feature Name"`
-- ✅ `"Feature Active"`
-- ❌ `test_story_N_feature()`
-- ✅ `test_device_discovery()`
+- Product code and documentation describe behavior and rationale, without numbered work identifiers.
+- Planning and tracking artifacts retain the identifiers and progress needed to coordinate work.
+- Use [Timeless Code & Tracking Artifacts](#16-timeless-code--tracking-artifacts) below for the full boundary and verification steps.
 
 ---
 
@@ -171,7 +148,7 @@ These principles apply to **all software implementation** across any language, f
 
 **Principle:** Validate inputs early and fail with clear messages. Don't be defensive. Never skip errors to "move forward".
 
-**Core philosophy (see 00-junior.mdc for full details):**
+**Core philosophy (see 00-junior.md for full details):**
 - **Validate inputs early** - Check preconditions at function/method entry points
 - **Use proper error handling** - Throw exceptions, return error types, or use language-appropriate mechanisms
 - **Avoid silent failures** - Don't swallow errors or return success when operations fail
@@ -302,21 +279,33 @@ Before skipping ANY non-working feature:
 
 **NEVER assume something is out of scope just because it doesn't work.**
 
+**Scope Verification — The Other Direction: ADJACENT IMPROVEMENTS**
+
+The procedure above governs a BROKEN thing you are tempted to skip. This governs a WORKING thing you are tempted to improve — the "while I'm here" class — and it is the more common scope failure, because it feels like diligence rather than avoidance.
+
+1. **DECLARE THE DELIVERABLE IN ONE LINE before starting** - "this session delivers X, and nothing else." Until the boundary is written down, "out of scope" is not a state anything can BE IN, and every adjacent good idea is admissible by default.
+2. **DEFER is the default; INLINE needs a reason.** Admit an adjacent improvement ONLY if the declared deliverable is WRONG or INCOMPLETE without it.
+3. ❌ **FORBIDDEN justifications:** "it's related" · "it's cheap" · "while I'm here" · "I'm already in the file" · "the principles say to refactor this." Each is individually reasonable, which is exactly why they accrue.
+4. **Everything else: record it and move on** - one backlog/TODO line (or a story) carrying enough context to act on later, then continue the declared work. **Capture is not execution.**
+5. **"Small enough to just do" is NOT a bound** - it is judged by the party that wants to do it.
+
+**NEVER expand scope silently.** A discovered improvement is a RECOMMENDATION the user can decline, not a task you have taken on for them.
+
 **CRITICAL: When User Says "This Works in X" - INVESTIGATE IMMEDIATELY**
 
 When user says **"this has never happened with [working implementation]"** or **"X always works immediately"**:
 
-❌ **FORBIDDEN:** Assuming external factors (sensor timing, network conditions, hardware issues)
-❌ **FORBIDDEN:** Speculating about environmental differences
-❌ **FORBIDDEN:** Suggesting user wait or retry without investigation
-✅ **REQUIRED:** STOP and compare your implementation with working one
-✅ **REQUIRED:** Find concrete differences in code/configuration
-✅ **REQUIRED:** Assume YOUR implementation has a bug until proven otherwise
+- ✅ **REQUIRED:** STOP and compare your implementation with the working one
+- ✅ **REQUIRED:** Find concrete differences in code/configuration
+- ✅ **REQUIRED:** Investigate your implementation before attributing the failure to external factors
+- ❌ **FORBIDDEN:** Assuming external factors explain the failure without evidence
+- ❌ **FORBIDDEN:** Speculating about environmental differences
+- ❌ **FORBIDDEN:** Suggesting the user wait or retry without investigation
 
 **Process when user challenges your assumptions:**
 
 1. **STOP and check evidence FIRST** - Don't assume anything without verifying
-2. **Acknowledge:** "You're right, if Python connects immediately, this is a bug in my implementation."
+2. **State the evidence and next check:** "The reference connects immediately. I'll compare the connection setup before changing it."
 3. **Compare:** Read the working implementation to understand what it does
 4. **Identify differences:** What is different in my implementation?
 5. **Verify bug:** Find concrete evidence (wrong parameters, missing logic, incorrect state)
@@ -332,15 +321,14 @@ When user says **"this has never happened with [working implementation]"** or **
 **Example of evidence-based debugging:**
 
 ```markdown
+✅ GOOD RESPONSE (evidence-based):
+"The comparison shows that I'm using the default connection parameters, but the
+ working implementation passes custom timeout values from the config file.
+ That's why it times out. Fixing by reading the correct config parameters."
+
 ❌ BAD RESPONSE (speculation):
 "The service has intermittent availability - it may be rate-limited.
  Connection timeout is normal. Wait and retry later."
-
-✅ GOOD RESPONSE (evidence-based):
-"You're right - if the reference implementation connects immediately, this is a bug.
- Let me compare... Found it: I'm using the default connection parameters, but the
- working implementation passes custom timeout values from the config file.
- That's why it times out. Fixing by reading the correct config parameters."
 ```
 
 **Key insight:** If something "always works" elsewhere but fails in your implementation → YOU HAVE A BUG. Don't blame external factors.
@@ -400,7 +388,7 @@ When user says **"this has never happened with [working implementation]"** or **
 - **Use standard tools** → Follow language conventions
 - **Choose libraries wisely** (see Dependencies section below)
 
-**See language-specific rules for concrete recommendations** (e.g., `11-python-conventions.mdc`)
+**See language-specific rules for concrete recommendations** (e.g., `11-python-conventions.md`)
 
 ### 14. Clean Console Output
 
@@ -430,7 +418,7 @@ When user says **"this has never happened with [working implementation]"** or **
 
 **Documentation should be:**
 - **Concise** → Short READMEs, detailed docs separate
-- **Timeless** → No references to stories, tasks, implementation order
+- **Timeless** → Apply the artifact boundary in section 16
 - **DRY** → Reference external docs, don't duplicate
 - **Focused** → README = quick start, API docs = separate file
 
@@ -470,47 +458,36 @@ Brief description (2-3 sentences max).
 - Protocols: `docs/protocols/`
 ```
 
-### 16. Timeless Code & Comments
+### 16. Timeless Code & Tracking Artifacts
 
-**Principle:** Code should make sense 2 years from now without context.
+**Product material:**
 
-**NEVER reference in code/docs:**
-- ❌ Story numbers ("Story 1 version", "Story 2 will add...")
-- ❌ Task numbers ("Task 2.3 implementation")
-- ❌ Implementation order ("First version", "Future enhancement note")
-- ❌ Project-specific references in generic code
+- Code, tests, comments, runtime logs, configuration, READMEs, and user/reference documentation describe behavior and rationale.
+- Exclude numbered work identifiers and execution order; the material must make sense without planning history.
 
-**Good references:**
-- ✅ "Scan for devices via service UUID"
-- ✅ "Maintain connection state machine"
-- ✅ "Validates input data format"
-- ✅ "Platform-agnostic implementation"
+**Planning and tracking material:**
 
-**Verification (MANDATORY before marking work complete):**
+- Feature/story specs, investigation plans, roadmap tracking, and session artifact logs may use story/task identifiers, numbered headings, dependencies, checklists, and progress.
+- Skill templates and instructions may show identifiers when teaching planning or tracking.
+- Apply this boundary by content. A location under `.junior/` does not exempt reference documentation or findings from explaining their subject without work-organization history.
 
-Before ANY completion:
-1. **Grep check all modified files:**
-   ```bash
-   grep -rn "(Story|story|Task|task) [0-9]" <modified_files>
-   ```
-2. **If matches found:** Remove ALL story/task references
-3. **Re-check:** Verify clean grep output
-4. **Only then:** Mark work as complete
+**Verification — before editing and before completion:**
 
-**This applies to:**
-- Source code files
-- Documentation (README, guides, specs)
-- Log messages and console output
-- Configuration files
-- Test files and test names
-- Comments and docstrings
+1. Search changed files for numbered story/task references.
+2. Read each match in context; remove it from product material and retain valid planning, tracking, or template references.
+3. Keep required story headings and dependencies. A number alone does not establish a violation.
+4. Recheck corrected material before marking it complete.
+
+Classification is an agent norm, not regex enforcement.
 
 ### 17. Measure & Improve
 
 **Metrics:**
 - **Lines of code** → Simple operations should be 10-50 lines
 - **Module size** → <300 lines per file (guideline)
-- **Test coverage** → 80%+ for business logic
+- **Test coverage** → Use **Coding Verification** in `completion-evidence.md`, located in
+  `_shared/references/` under the selected installation's skill root. It is the shared
+  contract used by `/jr-implement`, `/jr-test`, and `/jr-commit`.
 - **Documentation** → README <100 lines, full docs separate
 
 **When code seems too long:**

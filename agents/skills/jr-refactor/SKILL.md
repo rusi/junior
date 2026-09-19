@@ -1,6 +1,6 @@
 ---
 name: jr-refactor
-description: Improve code quality through adaptive refactoring workflows while preserving behavior and enforcing architectural standards.
+description: Run `/jr-refactor` to improve the quality of existing code while preserving its behaviour.
 ---
 
 # Refactor
@@ -24,8 +24,8 @@ Adaptive - Direct execution for simple changes, contract-style for complex refac
 
 **NOT for:**
 - Adding new capabilities → Use `/jr-feature`
-- Fixing broken behavior → Use `/bugfix`
-- Small UI polish → Use `/enhancement` (nested in features)
+- Fixing broken behavior → Use `/jr-debug`
+- Small UI polish → Use `/jr-add-story` for the existing feature
 
 ## Process
 
@@ -109,7 +109,7 @@ Proceed with refactor anyway? [no | yes (veto override)]
 
 **Reasoning:** The login function isn't working correctly. Bugs fix broken behavior with reproduction steps and verification. Refactoring improves working code.
 
-**I recommend:** Use `/bugfix` for this work.
+**I recommend:** Use `/jr-debug` for this work.
 
 Proceed with refactor anyway? [no | yes (veto override)]
 ```
@@ -219,6 +219,34 @@ Proceed with recommendation? [yes | no, [execute-directly | create-spec]]
 
 **Zero ceremony. Fast completion.**
 
+### Output Spec
+
+Applies to the `.junior/improvements/` documents generated in Step 5B, and to the result block in
+Step 5A. Use the templates for document structure and the requirements below for audience and content.
+
+**What each artifact is for:**
+
+- **`imp-N-overview.md`** — read by whoever executes or reviews the improvement. Answers *what is
+  being changed, why the current shape is a problem, and what the target shape is.*
+- **`imp-N-stories.md`** — read to find the next slice. Answers *what is done and what is next.*
+- **`imp-N-story-M.md`** — read by the run doing the work. Answers *what to change, how to prove
+  behaviour is preserved, and how to roll back.*
+- **`imp-N-story-future-improvements.md`** — read when deciding whether to open more work. Answers
+  *what else is worth doing here, and what it buys.* Candidates, not a record of what was declined.
+
+**Never goes in any of them:**
+
+- Which files or patterns were scanned to find the smell, and how many
+- The guardian routing and complexity assessment that selected this path
+- Rule citations standing in for the defect they justify — name what goes wrong in this code
+- An approach considered and dropped, unless a reader would otherwise retry it
+- Before/after code pasted at length where the change is stated in a sentence
+
+Baseline: `../_shared/references/artifact-output-spec.md`.
+
+**Register:** headings are noun labels — never sentences, questions or conversational phrases. Prose
+states facts. No editorial lead, no anthropomorphising, no dramatic adjective.
+
 ### Step 5B: Contract & Generation (Medium/Large Scope)
 
 **CRITICAL: Contract-first. Get approval before generating specs.**
@@ -270,7 +298,7 @@ Use `list_dir` or `functions.shell_command` to scan `.junior/improvements/` and 
 - **yes** → Generate improvement spec
 - **edit: [changes]** → Adjust contract and re-present
 - **suggest-feature** → Re-route to `/jr-feature`
-- **suggest-bug** → Re-route to `/bugfix`
+- **suggest-bug** → Re-route to `/jr-debug`
 
 **4B.3: Generate improvement spec structure:**
 
@@ -592,7 +620,7 @@ Junior: ⚠️ This sounds like a bug, not a refactor.
 **Reasoning:** The login function isn't working correctly. Bugs fix broken behavior
 with reproduction steps and verification. Refactoring improves working code.
 
-I recommend `/bugfix` or `/jr-debug` for this work.
+I recommend `/jr-debug` for this work.
 
 Proceed with refactor anyway? [no | yes (veto override)]
 ```

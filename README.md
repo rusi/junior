@@ -29,7 +29,7 @@ Junior believes great engineering starts with _why_. It doesn't write code to fi
 
 ## 💡 What Junior Does
 
-Junior turns Cursor into an expert software collaborator that:
+Junior turns Claude Code, Cursor, or Codex into an expert software collaborator that:
 - Thinks like an **expert software engineer**, acts like a **collaborative peer**
 - Asks questions that expose unclear goals or flawed specs
 - Challenges specs that don't align with product goals
@@ -45,163 +45,113 @@ Junior turns Cursor into an expert software collaborator that:
 
 ### Installation
 
-**Quick Install (Recommended):**
-
-Install Junior with a single command — no repository clone needed:
+Install the **latest tagged release** for Claude Code, Cursor, or Codex. Use `claude`,
+`cursor`, `codex`, a comma-separated list, or `all` as the target. The Codex target works
+with the Codex desktop app, CLI, and IDE extension.
 
 **macOS / Linux:**
 ```bash
-curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target codex
+curl -LsSf https://rusi.github.io/junior/install.sh | bash -s -- --target claude
 ```
 
 **Windows (PowerShell):**
 ```powershell
-& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target codex
+& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target claude
 ```
 
-**Note:** If you encounter execution policy errors, use:
-```powershell
-powershell -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target codex"
-```
+Omit the target to choose interactively. The installer shows your installed version,
+the selected release, and its destination, then asks whether to continue. Use `--yes`
+(`-Yes` in PowerShell) for unattended installation with an explicit target.
+Python 3.10+ is required; use Python 3.11+ for Codex.
 
-The bootstrap script will:
-- ✅ Download the latest Junior release
-- ✅ Install global assets for the requested target (`~/.codex/`, `~/.cursor/`, `~/.claude/`, or `~/.gemini/`)
-- ✅ Install rules and workflow assets for the selected assistant runtime
-- ✅ Generate global version tracking metadata
+**Choose where to install:** no path means global installation in your home directory.
+A path means installation in that project:
 
-**Target examples:**
 ```bash
-# Claude
-curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target claude
+# Current project
+curl -LsSf https://rusi.github.io/junior/install.sh | bash -s -- ./ --target codex
 
-# Codex
-curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target codex
-
-# Cursor
-curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor
-
-# Gemini
-curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target gemini
-
-# Cursor + Codex
-curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor,codex
-
-# All supported runtimes
-curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target all
+# Another project
+curl -LsSf https://rusi.github.io/junior/install.sh | bash -s -- ~/my-project --target claude
 ```
 
-**Alternative: Install from Repository**
+In PowerShell, pass `-Destination .\` or `-Destination ~/my-project`. The directory must
+already exist. Commit the project installation so teammates receive the same Junior
+version. Keep `.claude/settings.local.json` out of git; it contains personal settings.
+See [Structure](#structure) for what each runtime installs.
 
-If you prefer to clone the repository first:
+**Choose a version:** save the installer if you want a shorter command for repeated use:
 
-**macOS / Linux:**
 ```bash
-# Clone Junior repository
-git clone https://github.com/rusi/junior.git
-
-# Run installation script
-./junior/scripts/install-junior.sh
+curl -LsSf https://rusi.github.io/junior/install.sh -o install.sh
+bash install.sh --target codex                    # Latest tagged release, globally
+bash install.sh ./ --target codex --choose-version # Pick a release for this project
+bash install.sh --target codex --version v2.0.0    # A specific release
+bash install.sh --target codex --development      # Latest main commit, explicitly
+bash install.sh --list-versions                   # List available stable tags
 ```
 
-**Windows (PowerShell):**
-```powershell
-# Clone Junior repository
-git clone https://github.com/rusi/junior.git
+The version picker offers stable releases and, when newer commits exist, a development
+option showing how far `main` is ahead. The selected version is pinned to its commit for
+the download. Releases predating Junior 2.0 require their original installer.
+PowerShell equivalents are `-ChooseVersion`, `-Version v2.0.0`, `-Development`, and
+`-ListVersions`.
 
-# Run installation script
-.\junior\scripts\install-junior.ps1
-```
+**Start a fresh agent session after installation.** Claude Code reads `.claude/rules/`
+and `CLAUDE.md`. Cursor project installs use native rules in `.cursor/rules/`; global
+rule activation needs separate setup. Codex reads the generated Junior block in
+`AGENTS.md`. The block and individual rule files are generated from the same source; you do not
+maintain them separately.
+
+For runtime loading, Codex capacity settings, hooks, and migration conflicts, see the
+[installation reference](https://github.com/rusi/junior/blob/main/agents/skills/jr/references/installation.md).
 
 ### Updating Junior
 
-**Method 1: Remote Bootstrap (Recommended)**
+Run the same installer command again, including the project path when applicable.
+It defaults to the latest tagged release and preserves modified installed files.
+Use `--choose-version` to inspect available versions before choosing an update.
+In agent chat, `/jr update` performs the same operation for the selected installation.
+
+**Migration:** Junior migrates files it owns and preserves your instructions and
+customizations. If different edited copies conflict, it stops and names them; reconcile
+those copies before retrying. See the [migration details](https://github.com/rusi/junior/blob/main/agents/skills/jr/references/installation.md#migration).
+
+### Installing From a Checkout
+
+To install the exact source you have checked out:
 
 ```bash
-# macOS / Linux
-curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target codex
-
-# Windows (PowerShell)
-& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target codex
+git clone https://github.com/rusi/junior.git
+./junior/scripts/install-junior.sh --target codex
+# Add a project path to install there instead of globally:
+./junior/scripts/install-junior.sh ~/my-project --target codex
 ```
 
-The bootstrap update flow will:
-- ✅ Check GitHub for the latest Junior version
-- ✅ Show current vs. available version (commit hash and timestamp)
-- ✅ Download and install global updates automatically
-- ✅ Preserve your customizations
+On Windows, use `scripts/install-junior.ps1 -Target codex`, optionally with
+`-Destination ~/my-project`. Checkout installation uses your local files; release
+selection belongs to the bootstrap installer above.
 
-**Method 2: Update from Repository**
+### Installation Help
 
-If you have the Junior repository cloned:
+Check that Python is available and GitHub is reachable. macOS/Linux also needs `curl`
+or `wget` to download the installer. Run with your normal user account and make sure
+the destination is writable.
 
-```bash
-# macOS / Linux
-./junior/scripts/install-junior.sh
+For loading or migration issues, use the [installation reference](https://github.com/rusi/junior/blob/main/agents/skills/jr/references/installation.md).
+When [reporting a problem](https://github.com/rusi/junior/issues), include the error,
+Junior version, runtime, OS, and shell, with private details removed.
 
-# Windows (PowerShell)
-.\junior\scripts\install-junior.ps1
-```
-
-The installer will detect and preserve any user-modified files automatically.
-
-**Sync your customizations back to Junior source:**
-```bash
-# macOS / Linux
-./junior/scripts/install-junior.sh --sync-back
-
-# Windows (PowerShell)
-.\junior\scripts\install-junior.ps1 -SyncBack
-```
-
-### Troubleshooting Installation
-
-**Common Issues:**
-
-**"curl: command not found" or "wget: command not found"**
-- **macOS:** Install with `brew install curl` or `brew install wget`
-- **Linux:** Install with `sudo apt install curl` or `sudo yum install curl`
-- **Windows:** Use PowerShell method instead (built-in)
-
-**"tar: command not found"**
-- **macOS:** tar is pre-installed, check your PATH
-- **Linux:** Install with `sudo apt install tar` or `sudo yum install tar`
-- **Windows:** tar is built-in on Windows 10+, use PowerShell method
-
-**"Failed to download Junior tarball"**
-- Check your internet connection
-- Verify GitHub is accessible: `curl -I https://github.com`
-- Try alternative method: Clone repository and run install script
-
-**"Installation failed" or "Permission denied"**
-- Ensure you have write permissions in the target runtime directory (`~/.codex`, `~/.cursor`, `~/.claude`, or `~/.gemini`)
-- Try running from a normal user shell (not restricted environments)
-- Check disk space: `df -h` (Unix) or `Get-PSDrive` (PowerShell)
-
-**"Could not find extracted Junior directory"**
-- This is rare - the tarball extraction may have failed
-- Try alternative method: Clone repository and run install script
-- Report issue at: https://github.com/rusi/junior/issues
-
-**Installation appears to hang**
-- Large downloads may take time on slow connections
-- Wait 30-60 seconds before canceling
-- Try alternative method if problem persists
-
-**Need Help?**
-- Open an issue: https://github.com/rusi/junior/issues
-- Check existing issues for solutions
-- Include error messages and your OS/shell version
-
-**Open your project in Codex, Cursor, or Claude-supported workflows and start with `jr-init` or `jr-feature`.**
+Open your project in Claude Code, Cursor, or Codex and start with `/jr-init` or `/jr-feature`.
 
 ## 📖 Usage
 
 ### Available Commands
 
 **Framework Operations (`jr` skill):**
-- `/jr install` - Install or upgrade global Junior assets
+- `/jr install` - Install or upgrade Junior assets, globally or into a project
 - `/jr update` - Check and apply latest Junior framework updates
+- `/jr feedback` - Prepare or locally deliver an improvement proposal for Junior
 - `/jr sync` - Sync global Junior modifications back to source
 - `/jr migrate` - Migrate legacy structures to current Junior conventions
 - `/jr maintenance` - Reorganize and normalize Junior artifacts/references
@@ -211,15 +161,32 @@ The installer will detect and preserve any user-modified files automatically.
 - `/jr-roadmap` - Update product roadmap using feature layers and sequence-first planning (no timelines)
 - `/jr-feature` - Plan and create feature specifications
 - `/jr-add-story` - Add scoped stories to existing features
+- `/jr-ui-prototype` - Build, show, and iteratively refine interface prototypes before implementation
 - `/jr-implement` - Execute feature stories with TDD workflow
 - `/jr-test` - Post-implementation test-engineering audit gate with optional test-first mode
+- `/jr-demo` - Capture an assert-verified storyboard of the running application
 - `/jr-commit` - Create clean commits with safe staging
 - `/jr-code-review` - Findings-first code review
+- `/jr-product-review` - Whole-product review with prioritized findings and explicit coverage
+- `/jr-integrate` - Acceptance-test all changes on the integration branch before final merge
 - `/jr-debug` - Evidence-based debugging workflow
 - `/jr-refactor` - Behavior-preserving structural improvement
 - `/jr-status` - Project overview with git and `.junior` state
 - `/jr-next` - Recommend highest-value next action
-- `/jr-new-command` - Create new Junior workflow skills
+- `/jr-archive` - End-of-session gate: is the work complete, persisted, and clear of loose ends, safe to close?
+- `/jr-new-skill` - Create new Junior workflow skills
+
+### Feedback
+
+Use `/jr feedback` when Junior should do something better: a rule that causes trouble,
+a missing workflow, or an installer issue. It prepares a concise proposal with expected
+and observed behavior, evidence, and a suggested improvement for you to review and submit.
+
+Name a known local Junior source checkout to save the proposal directly as
+`.junior/docs/feedback-<subject>.md` there. Otherwise, receive submission-ready Markdown
+in the conversation, or request a file at your chosen path. Feedback is considered when
+you direct work to it; preparation does not submit it or authorize implementation.
+Existing handoff documents are preserved. There is no global inbox or required archival.
 
 ### 🔄 Development Workflow
 
@@ -387,26 +354,78 @@ User: /jr-feature add payment processing
       ... [cycle repeats] ...
 ```
 
-## ⚙️ Structure
+## Structure
+
+The runtime paths below are relative to **your home directory for global installs** or
+**the chosen project directory for project installs**. Junior preserves your existing
+instructions and settings, updating only its managed files, blocks, and hook entries.
+
+**Claude Code**
 
 ```text
-~/.codex/
-  AGENTS.md             # Global Junior operating contract
-  rules/                # Global Junior rule set
-  skills/               # Global Junior skills (jr + jr-*)
+.claude/
+  rules/                # Junior rules
+  skills/               # Workflows and their supporting files
+  hooks/                # Bash polling-loop guard
+  junior-contract.md    # Junior loading and workflow contract
+  settings.json         # Hook registrations merged with your settings
+  .junior-install.json  # Installed version, ownership, and checksums
+```
 
+The contract is imported by a managed block in `~/.claude/CLAUDE.md` globally, or
+`CLAUDE.md` at the project root for a project install.
+
+**Cursor**
+
+```text
 .cursor/
-  commands/             # Global Cursor slash commands (jr + jr-*)
-    _shared/            # Shared references/templates used by Cursor commands
-  rules/                # Global Junior rule set for Cursor
+  rules/                # Native .mdc rules; project rules apply automatically
+  .junior-install.json  # Rule version, ownership, and shared-skills reference
+```
 
-.junior/                # Junior's working memory (created as needed)
+Global rule activation requires separate setup in Cursor.
+
+**Codex**
+
+```text
+.codex/
+  config.toml           # Instruction capacity setting merged with yours
+  .junior-install.json  # Rule version, ownership, and shared-skills reference
+```
+
+The generated rule block lives in `~/.codex/AGENTS.md` globally, or `AGENTS.md` at the
+project root. Existing nonempty `AGENTS.override.md` files receive it too, because
+Codex selects an override before the baseline file.
+
+For a custom global profile, set `CODEX_HOME` when installing, updating, or syncing.
+Its instruction files and `config.toml` use that directory instead of `~/.codex`;
+shared skills and rules remain under `~/.agents`, and Codex ownership metadata remains
+under `~/.codex`. Project installations stay within the project.
+
+**Shared by Codex and Cursor**
+
+```text
+.agents/
+  rules/                # Codex rule inputs; used to generate its AGENTS.md block
+  skills/               # One skill installation discovered by both runtimes
+  .junior-install.json  # Shared skill version, ownership, and checksums
+```
+
+Installing skills for either runtime makes them available to both. Updating either
+updates this shared skill installation; each runtime tracks its own rules separately.
+
+**Project memory — the same for every runtime**
+
+```text
+.junior/                # Created as work needs it, inside your project
   features/             # Feature specifications
+  improvements/         # Code quality improvements
   debugging/            # Debug investigations
   experiments/          # Experiments and prototypes
   research/             # Technical research
   decisions/            # Architecture Decision Records
-  docs/                 # Reference documentation
+  docs/                 # Reference documentation and feedback proposals
+  ideas/                # Future ideas
 ```
 
 ## 🤝 Contributing

@@ -20,8 +20,18 @@ Direct execution with approval gate
 
 ### Step 0: Verify Git State
 
+Run the Git commands below from the repository root. Define this helper in the shell used
+for each phase so display settings cannot hide staged submodules or produce unusable patches:
+
 ```bash
+maintenance_diff() {
+  git --no-pager --literal-pathspecs diff --cached --no-color --no-relative \
+    --no-ext-diff --no-textconv --ignore-submodules=none --submodule=short \
+    --src-prefix=a/ --dst-prefix=b/ "$@"
+}
+
 git status --short
+maintenance_diff --name-status
 ```
 
 If not clean:
@@ -41,6 +51,28 @@ Proceed only if:
 - Working directory is clean, OR
 - You recommend proceeding based on isolated scope, OR
 - User explicitly confirms override with "override: proceed".
+
+Permission to proceed with unrelated changes does not include them in maintenance commits.
+Before any move, review exact source/destination file pairs and the complete staged diff.
+If maintenance paths contain unrelated edits, or an existing staged rename crosses the
+maintenance boundary, stop and resolve that overlap with the user. Do not silently include
+those edits in a moves-only commit. Inventory untracked and ignored files inside directories
+to be moved; move reviewed tracked files individually when moving the directory would also
+relocate unrelated files.
+
+If unrelated index entries exist, preserve their exact staged versions outside the worktree
+with `maintenance_diff --binary --full-index --`, restricted to their
+explicit literal file paths (both sides of renames). Verify the saved patch before using
+`git --literal-pathspecs restore --staged --` on only those paths; never restore working-tree content. Keep the
+patch until maintenance finishes, then run `git apply --cached --whitespace=nowarn --check`
+followed by `git apply --cached --whitespace=nowarn` on it. This overrides whitespace-fixing
+configuration so restoration retains the saved bytes. Compare the restored
+`maintenance_diff --binary --full-index` with the saved one. Re-adding
+working-tree files is not restoration: partially staged files can contain different bytes.
+If preservation, isolation, or restoration fails, stop and retain the patch for recovery.
+Never discard staged work, reset commits, or overwrite concurrent index changes.
+Unmerged or intent-to-add entries need resolution before isolation; a diff patch cannot
+faithfully restore those index states.
 
 ### Step 1: Initialize Progress Tracking
 
@@ -62,7 +94,7 @@ Create todos using `todo_write` or `functions.update_plan`:
 
 ### Step 2: Detect Current Stage
 
-**Use stage detection from 01-structure.mdc:**
+**Use stage detection from 01-structure.md:**
 
 Detect which stage the project is currently in:
 - **Stage 1:** No `comp-*/` directories under `.junior/features/`
@@ -164,7 +196,7 @@ Exit gracefully.
 
 **For Stage 1→2 Transition:**
 
-```
+````markdown
 📊 Structure Reorganization Proposal
 
 **Current Stage:** Stage 1 (Flat features)
@@ -220,11 +252,11 @@ Found [N] features that cluster into [M] distinct components:
 - Two commits (moves separate from content)
 
 Options: yes | adjust: [grouping changes] | cancel
-```
+````
 
 **For Stage 2→3 Transition:**
 
-```
+````markdown
 📊 Structure Reorganization Proposal
 
 **Current Stage:** Stage 2 (Component organization)
@@ -288,7 +320,7 @@ Component [comp-N-name] triggers Stage 3:
 - Two commits (moves separate from content)
 
 Options: yes | adjust: [changes] | cancel
-```
+````
 
 ### Step 5: Wait for Approval
 
@@ -316,6 +348,40 @@ If user requests adjustments:
 
 **CRITICAL: Use git mv to preserve history**
 
+#### Maintenance Commit Gate
+
+Use this gate immediately before every maintenance commit below. It is an agent workflow
+requirement, not an automated guarantee.
+
+1. Review the exact file list for the current phase, including both paths of each move.
+   For content updates, populate `maintenance_paths` with only reviewed file paths, including
+   approved additions and deletions. Never use directory paths, globs, `git add .`, or
+   repository-wide staging. Review any newly discovered reference-update paths before adding
+   them to the list.
+2. Moves are already staged by `git mv`; do not stage working-tree content in the moves phase.
+   For the content phase only, stage the reviewed list from the repository root:
+
+   ```bash
+   git --literal-pathspecs add -- "${maintenance_paths[@]}"
+   ```
+
+3. Inspect the **complete index without a path filter**, not just the maintenance subset:
+
+   ```bash
+   maintenance_diff --name-status --find-renames
+   maintenance_diff --check
+   maintenance_diff --binary --full-index
+   ```
+
+   Every staged path and hunk must belong to the reviewed phase. Moves-only commits must
+   contain exactly the planned renames with unchanged file modes and blob contents; content
+   commits must contain only approved overview/reference edits. Reject unexpected entries,
+   content changes in the moves phase, conflicts, and failed checks before committing.
+4. Commit only the verified index. If it changes after inspection, repeat this gate. Inspect
+   the resulting commit and remaining status after each phase. Restore the unrelated staged
+   patch from Step 0 only after both commits (or when stopping safely), and verify those entries
+   and their working-tree bytes are preserved.
+
 **For Stage 1→2 transition:**
 
 ```bash
@@ -336,8 +402,7 @@ verify_file_moves()
 # Check git status
 git status
 
-# Commit Phase 1
-git add -A
+# Run the Maintenance Commit Gate, then commit Phase 1
 git commit -m "$(cat <<'EOF'
 Reorganize into component structure (file moves)
 
@@ -371,8 +436,7 @@ verify_file_moves()
 # Check git status
 git status
 
-# Commit Phase 1
-git add -A
+# Run the Maintenance Commit Gate, then commit Phase 1
 git commit -m "$(cat <<'EOF'
 Group component items by type (file moves)
 
@@ -490,8 +554,9 @@ tree .junior/features -L 3
 
 **7.4: Commit Phase 2**
 
+Run the **Maintenance Commit Gate** with the reviewed content-update file list.
+
 ```bash
-git add -A
 git commit -m "$(cat <<'EOF'
 Add component overviews and update cross-references
 
@@ -510,7 +575,7 @@ EOF
 
 **Present completion summary:**
 
-```
+````markdown
 ✅ Reorganization Complete!
 
 **Transition:** Stage [1/2] → Stage [2/3]
@@ -539,7 +604,7 @@ git log --oneline -2
 - Continue working with new structure
 
 New structure is ready to use!
-```
+````
 
 ## Key Implementation Notes
 
@@ -559,10 +624,11 @@ New structure is ready to use!
   1. File moves only (no content changes)
   2. Content updates and reference corrections
 - Verify after each phase (count files, check references)
+- Apply the Maintenance Commit Gate before each commit; preserve unrelated index entries per Step 0
 - Clear commit messages explaining reasoning
 
 **Component Overview Template:**
-- Use structure from 01-structure.mdc
+- Use structure from 01-structure.md
 - Populate purpose/scope from feature descriptions
 - Auto-generate features table from feat-N-overview.md files
 - Include dependencies between components
@@ -605,8 +671,7 @@ git mv source destination
 tree .junior/features -L 3
 git log --follow file.md
 
-# Commits
-git add -A
+# Commits: first run the Maintenance Commit Gate for the current phase
 git commit -m "message"
 ```
 
@@ -690,6 +755,4 @@ Recommend: Check git status, resolve conflicts, and retry.
 - Auto-populate features table from feat-N-overview.md
 - Update when features added/modified
 
-
-**Implements:** feat-4-story-2 (Component Organization)
-**See also:** 01-structure.mdc for structure definitions, 01-Technical.md for architecture details
+**See also:** 01-structure.md for structure definitions

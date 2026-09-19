@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog - Junior</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 8px;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .tagline {
+            font-size: 1.05em;
+            color: #94a3b8;
+            margin-bottom: 0;
+        }
+
+        .description {
+            margin: 25px 0 30px 0;
+        }
+
+        .description p {
+            color: #cbd5e1;
+            margin-bottom: 10px;
+            font-size: 0.98em;
+        }
+
+        .install-section {
+            margin: 25px 0;
+        }
+
+        h2 {
+            font-size: 1em;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .selectors {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .selectors label {
+            flex: 1 1 180px;
+            min-width: 0;
+            color: #cbd5e1;
+            font-size: 0.9em;
+        }
+
+        select {
+            display: block;
+            width: 100%;
+            margin-top: 8px;
+            padding: 12px;
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            font: inherit;
+        }
+
+        :focus-visible {
+            outline: 2px solid #38bdf8;
+            outline-offset: 3px;
+        }
+
+        summary {
+            cursor: pointer;
+            color: #f8fafc;
+        }
+
+        details[open] summary {
+            margin-bottom: 12px;
+        }
+
+        .command-panel {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .command-panel h3 {
+            font-size: 0.95em;
+            color: #f8fafc;
+            margin-bottom: 8px;
+        }
+
+        .command-panel p,
+        .command-panel ul {
+            color: #94a3b8;
+            font-size: 0.88em;
+            margin-bottom: 10px;
+        }
+
+        .command-panel ul {
+            padding-left: 18px;
+        }
+
+        .code-wrapper {
+            position: relative;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .code-wrapper:hover {
+            border-color: #475569;
+        }
+
+        pre {
+            padding: 14px 80px 14px 16px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.88em;
+            line-height: 1.6;
+        }
+
+        code {
+            color: #38bdf8;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #334155;
+            border: none;
+            color: #94a3b8;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75em;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        .copy-btn:hover {
+            background: #475569;
+            color: #e2e8f0;
+        }
+
+        .copy-btn:disabled {
+            cursor: wait;
+            opacity: 0.6;
+        }
+
+        #copy-status {
+            min-height: 1.6em;
+            margin: 8px 0 0;
+        }
+
+        .note {
+            color: #94a3b8;
+            font-size: 0.9em;
+            margin: 20px 0;
+            padding: 16px 0;
+            border-top: 1px solid #1e293b;
+        }
+
+        .note p {
+            margin-bottom: 6px;
+        }
+
+        .note code {
+            background: #1e293b;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 25px 0;
+            justify-content: center;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 24px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .button:hover {
+            background: #334155;
+            border-color: #475569;
+            transform: translateY(-1px);
+        }
+
+        .button-primary {
+            background: #0ea5e9;
+            color: #fff;
+            border-color: #0ea5e9;
+        }
+
+        .button-primary:hover {
+            background: #38bdf8;
+            border-color: #38bdf8;
+        }
+
+        footer {
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 1px solid #1e293b;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.85em;
+        }
+
+        footer p {
+            margin-bottom: 6px;
+        }
+
+        footer a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: #94a3b8;
+        }
+        .release-notes {
+            margin: 32px 0;
+            padding-top: 24px;
+            border-top: 1px solid #334155;
+            overflow-wrap: anywhere;
+        }
+
+        .release-notes h2 {
+            font-size: 1.15em;
+            text-transform: none;
+            letter-spacing: 0;
+            margin: 24px 0 12px;
+        }
+
+        .release-notes h3 {
+            color: #cbd5e1;
+            font-size: 0.95em;
+            margin: 18px 0 8px;
+        }
+
+        .release-notes p, .release-notes ul, .release-notes ol {
+            margin: 10px 0;
+        }
+
+        .release-notes ul, .release-notes ol {
+            padding-left: 24px;
+        }
+
+        .release-notes li {
+            margin-bottom: 8px;
+        }
+
+        .release-notes pre {
+            padding: 14px 16px;
+            background: #1e293b;
+            border-radius: 6px;
+        }
+
+        .release-notes a, .release-links a {
+            color: #38bdf8;
+            text-underline-offset: 3px;
+        }
+
+        .release-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 24px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Changelog</h1>
+            <p class="tagline">Your expert AI developer for Claude Code, Cursor, and Codex workflows</p>
+        </header>
+
+<nav class="release-links" aria-label="Changelog navigation"><a href="index.html">Installation</a><a href="CHANGELOG.md">Raw Markdown</a></nav>
+<main class="release-notes">
+<h2>v2.0.0 - 2026-09-16</h2>
+<h3>Added</h3>
+<ul>
+<li>Project installation through an optional destination path, with <code>--scope project</code> and <code>--project-root</code> retained for scripts.</li>
+<li><code>jr-product-review</code> for whole-product review with prioritized findings and explicit coverage gaps.</li>
+<li><code>jr-demo</code> for assertion-verified screenshot storyboards and motion recordings.</li>
+<li><code>jr-integrate</code> for acceptance testing all integration-branch changes, including direct, squash, and merge commits.</li>
+<li><code>jr-archive</code> for checking session completeness and persistence before manual archival.</li>
+<li><code>/jr feedback</code> for preparing Junior improvement proposals for submission or delivery to a known local source checkout.</li>
+<li><code>jr-ui-prototype</code> for iterative interface design before implementation.</li>
+<li>Installation command selectors and rendered changelog pages.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Bootstrap installation and remote updates default to the latest stable tagged release. Use <code>--choose-version</code>, <code>--version</code>, or <code>--development</code> to select another source; release archives are downloaded by resolved commit.</li>
+<li>Codex and Cursor share native skills in <code>.agents/skills</code>, with shared ownership tracking.</li>
+<li>Claude loads rules natively. Codex receives managed startup instructions and instruction-capacity configuration; Cursor rules are rendered from shared Markdown sources.</li>
+<li>Installation command listings derive from shipped skills.</li>
+<li>Feature planning supports API, CLI, library, document, configuration, and UI outcomes, with scope approval followed by generated-artifact review.</li>
+<li>Coding workflows use project-agreed coverage metrics and executable thresholds. Establish missing agreements before implementation; existing agreements carry forward.</li>
+<li>Portable instructions follow the consuming project’s tooling. Skill authoring distinguishes portable workflows from repository-only workflows.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Reinstallation preserves the original comparison baseline for customized files, allowing sync to detect independent source changes.</li>
+<li>Updates protect unsynced global edits and verify recovery before replacing customized project files.</li>
+<li>Legacy migration preserves conflicting edits and retires only eligible obsolete assets.</li>
+<li>Sync-back handles installed hooks, additions, deletions, and source divergence.</li>
+<li>Claude hook updates preserve neighboring registrations.</li>
+<li>Installation validates Claude startup settings before changing selected runtime assets.</li>
+<li>Maintenance guidance restricts commits to reviewed paths and preserves unrelated staged changes.</li>
+<li>Product-document migration retains discoverable mission, roadmap, and technical context.</li>
+<li>Debugging and status workflows require verification evidence before reporting resolution.</li>
+<li>Nested Markdown examples retain their intended code-block boundaries.</li>
+</ul>
+<h3>Breaking Changes</h3>
+<ul>
+<li><code>--force</code> is retired. Use <code>--yes</code> for unattended consent and <code>--overwrite</code> for deliberate replacement of modified files during installation.</li>
+<li>Gemini is no longer an installation target. Existing Gemini files remain untouched.</li>
+<li><code>jr-new-command</code> is renamed to <code>jr-new-skill</code>; update saved invocations.</li>
+<li>Codex installation requires Python 3.11 or newer. Re-run installation to migrate legacy layouts, reconcile reported conflicts, and start a fresh session. Trust project installations so Codex loads their configuration.</li>
+<li>The bootstrap requires Junior 2.0 or newer; use the original installer for older releases.</li>
+</ul>
+</main>
+        <footer>
+            <p><a href="https://github.com/rusi/junior">github.com/rusi/junior</a></p>
+            <p>Made with Claude + Codes</p>
+        </footer>
+    </div>
+
+
+</body>
+</html>

@@ -1,81 +1,105 @@
 {
-  "directories": [
-    "~/.codex",
-    "~/.codex/rules",
-    "~/.codex/skills"
-  ],
-  "files": [
-    {
-      "source": "AGENTS.md",
-      "destination": "~/.codex/AGENTS.md"
-    },
-    {
-      "source": "agents/rules/",
-      "destination": "~/.codex/rules/",
-      "isDirectory": true
-    },
-    {
-      "source": "agents/skills/",
-      "destination": "~/.codex/skills/",
-      "isDirectory": true
-    },
-    {
-      "source": "README.md",
-      "destination": "~/.codex/skills/jr/references/junior-readme.md"
-    }
-  ],
-  "messages": {
-    "welcome": "Installing Junior global assets...",
-    "success": "Junior global installation complete!",
-    "nextSteps": [
-      "Verify ~/.codex/AGENTS.md is loaded by your assistant runtime",
-      "Use jr-init to establish project foundation",
-      "Use /jr update for framework updates"
-    ],
-    "availableCommands": "Global skills under ~/.codex/skills: jr, jr-init, jr-roadmap, jr-feature, jr-add-story, jr-implement, jr-test, jr-commit, jr-code-review, jr-debug, jr-refactor, jr-status, jr-next, jr-new-command"
-  },
   "targets": {
+    "claude": {
+      "directories": [
+        "~/.claude",
+        "~/.claude/rules",
+        "~/.claude/skills",
+        "~/.claude/hooks"
+      ],
+      "files": [
+        {
+          "source": "agents/contracts/claude.md",
+          "destination": "~/.claude/junior-contract.md"
+        },
+        {
+          "source": "agents/rules/",
+          "destination": "~/.claude/rules/",
+          "isDirectory": true
+        },
+        {
+          "source": "agents/skills/",
+          "destination": "~/.claude/skills/",
+          "isDirectory": true
+        },
+        {
+          "source": "agents/hooks/",
+          "destination": "~/.claude/hooks/",
+          "isDirectory": true
+        },
+        {
+          "source": "README.md",
+          "destination": "~/.claude/skills/jr/references/junior-readme.md"
+        }
+      ],
+      "messages": {
+        "welcome": "Installing Junior assets...",
+        "success": "Junior installation complete!",
+        "nextSteps": [
+          "Start a new Claude Code session to load Junior's native rules",
+          "Use jr-init to establish project foundation",
+          "Use /jr update for framework updates"
+        ]
+      }
+    },
     "cursor": {
       "directories": [
         "~/.cursor/rules",
-        "~/.cursor/commands",
-        "~/.cursor/commands/_shared"
+        "~/.agents/skills"
       ],
       "files": [
         {
           "source": "agents/rules/",
           "destination": "~/.cursor/rules/",
-          "isDirectory": true
-        },
-        {
-          "source": "cursor/rules/",
-          "destination": "~/.cursor/rules/",
-          "isDirectory": true
+          "mode": "cursor_rules"
         },
         {
           "source": "agents/skills/",
-          "destination": "~/.cursor/commands/",
-          "mode": "skill_markdown_commands"
-        },
-        {
-          "source": "agents/skills/",
-          "destination": "~/.cursor/commands/_shared/",
-          "mode": "skill_support_tree"
+          "destination": "~/.agents/skills/",
+          "isDirectory": true
         },
         {
           "source": "README.md",
-          "destination": "~/.cursor/commands/_shared/junior-readme.md"
+          "destination": "~/.agents/skills/jr/references/junior-readme.md"
         }
       ],
       "messages": {
-        "success": "Junior global Cursor installation complete!",
+        "success": "Junior Cursor installation complete!",
         "nextSteps": [
           "Verify Cursor exposes /jr and /jr-* workflows",
           "Verify Junior rules are available to Cursor",
           "Use /jr-init to establish project foundation",
           "Use /jr update --target cursor for framework updates"
-        ],
-        "availableCommands": "Global commands under ~/.cursor/commands: jr, jr-init, jr-roadmap, jr-feature, jr-add-story, jr-implement, jr-test, jr-commit, jr-code-review, jr-debug, jr-refactor, jr-status, jr-next, jr-new-command"
+        ]
+      }
+    },
+    "codex": {
+      "directories": [
+        "~/.agents/skills",
+        "~/.agents/rules"
+      ],
+      "files": [
+        {
+          "source": "agents/rules/",
+          "destination": "~/.agents/rules/",
+          "isDirectory": true
+        },
+        {
+          "source": "agents/skills/",
+          "destination": "~/.agents/skills/",
+          "isDirectory": true
+        },
+        {
+          "source": "README.md",
+          "destination": "~/.agents/skills/jr/references/junior-readme.md"
+        }
+      ],
+      "messages": {
+        "success": "Junior Codex assets prepared!",
+        "nextSteps": [
+          "Start a new Codex session to load Junior's complete rules through AGENTS.md.",
+          "Project installs require a trusted project so Codex loads its instruction capacity setting."
+        ]
       }
     }
   }

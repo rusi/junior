@@ -1,6 +1,6 @@
 ---
 name: jr-add-story
-description: Add a new story to an existing feature using contract-first clarification, scope validation, and duplicate checks.
+description: Run `/jr-add-story` to add one story to an existing feature, scoped and duplicate-checked against the stories already there.
 ---
 
 # Add Story
@@ -11,7 +11,7 @@ Add new user stories to existing features through intelligent feature detection,
 
 ## Type
 
-Contract-style (scan → analyze → clarify → contract → approval → generation)
+Contract-style (scan → analyze → clarify → contract → approval → generation → review → commit offer)
 
 ## When to Use
 
@@ -33,7 +33,8 @@ Create todos using `todo_write` or `functions.update_plan`:
     {"id": "validate-scope", "content": "Validate story scope", "status": "pending"},
     {"id": "clarify", "content": "Clarify story requirements", "status": "pending"},
     {"id": "contract", "content": "Present story contract", "status": "pending"},
-    {"id": "generate", "content": "Generate story files", "status": "pending"}
+    {"id": "generate", "content": "Generate story files", "status": "pending"},
+    {"id": "commit-offer", "content": "Offer to commit reviewed story planning changes", "status": "pending"}
   ]
 }
 ```
@@ -45,7 +46,7 @@ Create todos using `todo_write` or `functions.update_plan`:
 Use `list_dir` or `functions.shell_command` and `read_file` or `functions.shell_command` to understand:
 - All existing features in `.junior/features/`
 - All existing improvements in `.junior/improvements/`
-- Current stage (Stage 1/2/3 detection per `01-structure.mdc`)
+- Current stage (Stage 1/2/3 detection per `01-structure.md`)
 - Feature overviews and existing stories
 
 **Feature identification:**
@@ -99,7 +100,7 @@ Analyze scope to determine if idea is:
 
 1. **Story-sized** ✅
    - Extends existing feature capability
-   - Single vertical slice (DB + Backend + Frontend working end-to-end)
+   - Single vertical slice through the actual consumer boundary
    - User sees working output after story
    - Integrates with existing stories
    - 5-7 focused tasks
@@ -188,45 +189,9 @@ Wait for user decision before proceeding.
 - Check for contradictions with existing stories
 - Validate vertical slice approach throughout
 
-**Critical validation before contract:**
-
-Before presenting contract, verify story meets ALL vertical slice criteria:
-
-✅ **User sees working output** - Story delivers something user can see/test/validate
-✅ **End-to-end integrated** - All layers working together (DB + Backend + Frontend)
-✅ **Reduced scope, complete implementation** - Narrow feature, but fully working
-✅ **Builds on existing stories** - Integrates with and extends previous work
-
-❌ **FORBIDDEN story patterns:**
-- "Add database tables" (no user output)
-- "Build API endpoints" (no user visibility)
-- "Create frontend components" (layers not integrated)
-- "Integration work" (integration should already be in every story)
-
-**If story fails vertical slice validation:**
-
-Stop and present issue:
-
-```
-⚠️ Vertical Slice Concern
-
-Based on our discussion, this story may not deliver working output:
-
-**Issue:** [Specific problem - e.g., "Only touches backend, no UI"]
-
-**Impact:** User cannot see/test/validate after this story
-
-**Options:**
-1. Expand scope to include all layers (DB + Backend + Frontend working)
-2. Split into multiple vertical slices, each end-to-end
-3. Reduce scope but ensure all layers included
-
-**Recommendation:** [Which option and why]
-
-How should we proceed?
-```
-
-Continue clarification until 95% clear and vertical slice validated.
+**Critical validation before contract:** Apply [Vertical Slice Validation](../_shared/references/vertical-slices.md).
+If it fails, identify the missing consumer outcome or required integration and resolve that
+specific gap before the contract. Continue clarification until scope is clear.
 
 ### Step 5: Present Contract
 
@@ -235,10 +200,14 @@ Continue clarification until 95% clear and vertical slice validated.
 - Use `../_shared/references/story-contracts.md` -> "Add Story Contract" as the canonical template.
 - Keep all sections from the template (Purpose, Scope, Vertical Slice Validation, Integration, Tasks, Impact, Testing).
 - Fill with project-specific content; do not collapse sections.
+- Approval covers generating and reviewing the story and related planning updates. Follow the [planning completion handoff](../_shared/references/planning-completion.md) for commit authorization.
 
 Wait for user approval.
 
 ### Step 6: Generate Story Files
+
+For approved interface design exploration, load and follow [UI Prototype](../jr-ui-prototype/SKILL.md),
+including its parent context and return contract, before final story review.
 
 **6.1: Generate story files from shared reference**
 
@@ -246,11 +215,22 @@ Wait for user approval.
 - Apply stage path resolution from this run (Stage 1/2/3) before creating files.
 - Generate new story file, update `feat-X-stories.md`, and update component overview for Stage 2/3.
 - Enforce checkbox format from the shared reference.
+- Apply the **Output Spec** in that reference: it fixes what each generated document is for, what
+  never goes in one, and the register they are written in.
 
-### Step 7: Present Results
+### Step 7: Review and Commit Offer
+
+Review the generated story and related planning updates against the approved contract; verify links, task totals, and status fields. Implementation tasks and acceptance criteria remain unchecked until implemented and verified.
+
+Follow the [planning completion handoff](../_shared/references/planning-completion.md). Limit the commit offer to this story and related planning files changed by the run. Complete the review before offering to commit.
+
+### Step 8: Present Results
+
+**For:** the user deciding whether to start this story now. It answers *what was added, where it
+lives, and what to do next.* Use the block below after review; if a commit was already authorized and verified, report its hash and follow the shared handoff instead of offering it again.
 
 ```
-✅ Story added successfully!
+✅ Story specification complete!
 
 📁 .junior/features/[path]/feat-X-[name]/
 ├── user-stories/
@@ -273,11 +253,16 @@ Wait for user approval.
 - ✅ feat-X-stories.md - Added story row, updated counts
 - ✅ comp-M-overview.md - Updated story count (Stage 2+)
 
-**Next Steps:**
-- Review generated story file
-- Start implementation using TDD approach
-- Or add another story to feat-X
+**Next Step:** Commit the reviewed planning changes.
+
+Would you like me to run `/jr-commit` for this story specification?
 ```
+
+**The result block is the whole report.** It states what now exists and what to do next. It does
+not state how many features were scanned, which duplicates were ruled out, what the scope check
+weighed, or which steps of this skill ran — that is the run showing its work to the one person who
+asked for a story instead. Register: noun labels, facts, no editorial lead. Baseline:
+`../_shared/references/artifact-output-spec.md`.
 
 Mark todos complete:
 
@@ -288,7 +273,8 @@ Mark todos complete:
     {"id": "validate-scope", "content": "Validate story scope", "status": "completed"},
     {"id": "clarify", "content": "Clarify story requirements", "status": "completed"},
     {"id": "contract", "content": "Present story contract", "status": "completed"},
-    {"id": "generate", "content": "Generate story files", "status": "completed"}
+    {"id": "generate", "content": "Generate story files", "status": "completed"},
+    {"id": "commit-offer", "content": "Offer to commit reviewed story planning changes", "status": "completed"}
   ]
 }
 ```
@@ -297,13 +283,7 @@ Mark todos complete:
 
 ### Vertical Slice Validation (MANDATORY)
 
-**Every story MUST:**
-- Touch all necessary layers (DB + Backend + Frontend working together)
-- Deliver user-visible, working, testable output
-- Be fully integrated (not infrastructure only)
-- Reduce scope, not skip layers
-
-**Before generating any story, verify it passes vertical slice validation.**
+Apply [Vertical Slice Validation](../_shared/references/vertical-slices.md) before generating any story.
 
 ### Scope Decision Framework
 
@@ -361,7 +341,12 @@ User: yes
 Junior: [Clarification loop about password reset flow...]
 Junior: [Presents story contract with vertical slice validation]
 User: yes
-Junior: ✅ Story added: feat-2-story-4-password-reset.md
+Junior: [Generates and reviews planning files]
+Junior: ✅ Story specification complete: feat-2-story-4-password-reset.md
+Junior: Would you like me to run /jr-commit for this story specification?
+User: yes
+Junior: [Runs /jr-commit and verifies the resulting commit]
+Junior: Committed: {hash}. Next: Run /jr-implement for the new story in feat-2-authentication.
 ```
 
 **Scope too large, redirect to feature:**

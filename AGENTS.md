@@ -1,52 +1,41 @@
-# Junior AGENTS Contract
+# Working on Junior
 
-Rule paths in this file are absolute from `~/.codex`.
+These instructions govern contributions to Junior itself. They are not installed into
+projects that use Junior. Paths below are relative to this source checkout.
 
-## Identity Precedence (Authoritative)
+## Source of Truth
 
-- Persona source of truth: `~/.codex/rules/00-junior.mdc`.
-- Operational policy source of truth: applicable loaded rule files (`~/.codex/rules/01-*.mdc`, `~/.codex/rules/02-*.mdc`, and others loaded by context).
-- Skills are execution workflows only. They must not redefine persona, tone, or core principles.
-- If a skill instruction conflicts with loaded rules, loaded rules win.
-- The `jr` skill is an operations router for `/jr <subcommand>` (`install`, `update`, `sync`, `migrate`, `maintenance`), not the assistant identity.
-- Enforcement invariant: when runtime policy conflicts with presentation rules, preserve Junior in reasoning quality, rigor, pushback, simplicity bias, and execution discipline.
+- Edit portable rules in `agents/rules/`, skills in `agents/skills/`, and Claude's installed
+  contract in `agents/contracts/claude.md`. Cursor's `.mdc` rules are rendered from the
+  same Markdown rule sources; there is no separate Cursor rule source tree.
+- Keep installer behavior and its assets consistent. `scripts/install-config.json` defines
+  the installed targets; `scripts/junior.py` implements installation, update, and sync.
+- Installed runtime copies are not authoring sources. Reconcile installed edits through
+  `/jr sync` before updating; see the README for scope-specific update protections.
+  For requests naming an installed path, find and edit its matching source under `agents/`.
+- Changing a source rule does not reload the running session. Propagate changes through
+  the appropriate Junior installation workflow when requested, then start a fresh session.
+- Source maintenance changes stay in this checkout; do not mirror edits into global or
+  installed copies. Installation, update, and sync are separate, explicitly requested
+  workflows governed by `/jr`.
+- When adding or renaming commands, update the root `README.md` command documentation.
+  Installation listings derive from shipped `agents/skills/*/SKILL.md` entries;
+  `scripts/install-config.json` retains explicit runtime installation mappings.
 
-## Mandatory Preflight (Every User Turn)
+## Runtime Entry Points
 
-Before any analysis, planning, edits, or command execution, you MUST:
+- Codex and Cursor read this root `AGENTS.md`; Claude reads it through root `CLAUDE.md`.
+- These contributor instructions do not require a global Junior installation and do not
+  assume any runtime's installed rule paths or startup hooks.
+- When Junior is installed, its runtime rules govern how the assistant works; this file
+  identifies the source files to change when the work is on Junior itself.
 
-1. Read these files from disk in this exact order:
-   - `~/.codex/rules/00-junior.mdc`
-   - `~/.codex/rules/01-structure.mdc`
-   - `~/.codex/rules/02-current-date.mdc`
-   - `~/.codex/rules/03-style-guide.mdc`
-   - `~/.codex/rules/05-dry-principles.mdc`
-   - `~/.codex/rules/06-expert-judgement.mdc`
-   - `~/.codex/rules/13-software-implementation-principles.mdc`
-2. This file defines loading/enforcement only; assistant output behavior (greeting/persona wording/style) must be defined in rule files, primarily `~/.codex/rules/00-junior.mdc`.
-3. If any required file is missing or unreadable:
-   - Stop immediately.
-   - Report the exact missing/unreadable path(s).
-   - Do not continue with any other work in that turn.
+## Verification
 
-## Execution Autonomy on Confirmed Corrections
-
-- If the user points out a concrete mistake and the requested correction is clear, execute the correction immediately without re-asking for permission.
-- Ask follow-up questions only when there is material ambiguity, a safety/destructive-action gate, or a policy conflict that blocks direct execution.
-- When a question is required, ask exactly one focused question and then continue execution.
-
-## Conditional Rules
-
-Load extra rules only when task context requires them:
-
-- Python work: `~/.codex/rules/11-python-conventions.mdc`
-- Architecture documentation: `~/.codex/rules/12-software-architecture-document-guide.mdc`, `~/.codex/rules/architecture-document-template.md`
-- Meta/documentation authoring: `~/.codex/rules/04-meta-rules.mdc`
-
-## Skills (Workflow Layer Only)
-
-A skill is a set of local instructions to follow that is stored in a `SKILL.md` file.
-Use the skill list and trigger logic provided by the environment for this repository session.
-
-Skills provide task-specific procedures, not assistant identity.
-`jr` means the Junior system operations skill, not the Junior persona from `~/.codex/rules/00-junior.mdc`.
+- Validate installer changes in disposable homes and projects for Claude, Codex, and Cursor.
+  Cover installation, update, and sync-back without altering the operator's live installation.
+- Preserve user-owned instructions and installed edits; test migration behavior as well as
+  fresh installs. Never overwrite repository guidance with an installed contract.
+- Use the repository's test runner when available. Keep tests and tracking out of installed
+  assets, and keep public instructions self-contained within the exported source tree.
+- Keep shared contributor guidance here. Runtime adapters should reference it, not copy it.

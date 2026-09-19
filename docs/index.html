@@ -70,15 +70,44 @@
             font-weight: 700;
         }
 
-        .platform {
-            margin-bottom: 18px;
+        .selectors {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
         }
 
-        .platform-label {
-            color: #94a3b8;
-            font-size: 0.85em;
-            margin-bottom: 8px;
-            font-weight: 500;
+        .selectors label {
+            flex: 1 1 180px;
+            min-width: 0;
+            color: #cbd5e1;
+            font-size: 0.9em;
+        }
+
+        select {
+            display: block;
+            width: 100%;
+            margin-top: 8px;
+            padding: 12px;
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            font: inherit;
+        }
+
+        :focus-visible {
+            outline: 2px solid #38bdf8;
+            outline-offset: 3px;
+        }
+
+        summary {
+            cursor: pointer;
+            color: #f8fafc;
+        }
+
+        details[open] summary {
+            margin-bottom: 12px;
         }
 
         .command-panel {
@@ -120,8 +149,9 @@
         }
 
         pre {
-            padding: 14px 16px;
-            overflow-x: auto;
+            padding: 14px 80px 14px 16px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
             margin: 0;
             font-family: 'Monaco', 'Menlo', monospace;
             font-size: 0.88em;
@@ -153,9 +183,14 @@
             color: #e2e8f0;
         }
 
-        .copy-btn.copied {
-            background: #059669;
-            color: #fff;
+        .copy-btn:disabled {
+            cursor: wait;
+            opacity: 0.6;
+        }
+
+        #copy-status {
+            min-height: 1.6em;
+            margin: 8px 0 0;
         }
 
         .note {
@@ -180,6 +215,7 @@
         .buttons {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
             margin: 25px 0;
             justify-content: center;
         }
@@ -236,13 +272,62 @@
         footer a:hover {
             color: #94a3b8;
         }
+        .release-notes {
+            margin: 32px 0;
+            padding-top: 24px;
+            border-top: 1px solid #334155;
+            overflow-wrap: anywhere;
+        }
+
+        .release-notes h2 {
+            font-size: 1.15em;
+            text-transform: none;
+            letter-spacing: 0;
+            margin: 24px 0 12px;
+        }
+
+        .release-notes h3 {
+            color: #cbd5e1;
+            font-size: 0.95em;
+            margin: 18px 0 8px;
+        }
+
+        .release-notes p, .release-notes ul, .release-notes ol {
+            margin: 10px 0;
+        }
+
+        .release-notes ul, .release-notes ol {
+            padding-left: 24px;
+        }
+
+        .release-notes li {
+            margin-bottom: 8px;
+        }
+
+        .release-notes pre {
+            padding: 14px 16px;
+            background: #1e293b;
+            border-radius: 6px;
+        }
+
+        .release-notes a, .release-links a {
+            color: #38bdf8;
+            text-underline-offset: 3px;
+        }
+
+        .release-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 24px;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Junior</h1>
-            <p class="tagline">Your expert AI developer for Codex, Cursor, Claude, and Gemini workflows</p>
+            <p class="tagline">Your expert AI developer for Claude Code, Cursor, and Codex workflows</p>
         </header>
 
         <div class="description">
@@ -254,107 +339,43 @@
             <h2>How to Install</h2>
 
             <div class="command-panel">
-                <h3>Targets</h3>
-                <p>Target is required on every install. Supported targets, in order:</p>
+                <p>Choose your environment to get the installation command.</p>
+                <div class="selectors">
+                    <label for="runtime">Runtime
+                        <select id="runtime">
+                            <option value="claude">Claude Code</option>
+                            <option value="cursor">Cursor</option>
+                            <option value="codex" selected>Codex</option>
+                            <option value="claude,cursor">Claude Code + Cursor</option>
+                            <option value="all">All supported runtimes</option>
+                        </select>
+                    </label>
+                    <label for="platform">Operating system
+                        <select id="platform">
+                            <option value="bash">macOS / Linux</option>
+                            <option value="powershell">Windows (PowerShell)</option>
+                        </select>
+                    </label>
+                </div>
+                <h3 id="selection-title">Codex · macOS / Linux</h3>
+                <div class="code-wrapper">
+                    <button id="copy-command" class="copy-btn" type="button" aria-label="Copy installation command">Copy</button>
+                    <pre tabindex="0" aria-label="Installation command"><code id="selected-command" aria-live="polite"></code></pre>
+                </div>
+                <p id="copy-status" role="status"></p>
+                <noscript>Enable JavaScript to choose a runtime and generate the installation command.</noscript>
+            </div>
+
+            <details class="command-panel">
+                <summary>Installation details</summary>
                 <ul>
-                    <li><code>claude</code></li>
-                    <li><code>codex</code></li>
-                    <li><code>cursor</code></li>
-                    <li><code>gemini</code></li>
+                    <li><strong>Codex:</strong> requires Python 3.11 or newer.</li>
+                    <li><strong>Project installs:</strong> trust the project in Codex to load its configuration.</li>
+                    <li><strong>Shared skills:</strong> Codex and Cursor use one installed skill version.</li>
+                    <li><strong>Cursor:</strong> global rules need separate setup.</li>
                 </ul>
-            </div>
-
-            <div class="command-panel">
-                <h3>macOS / Linux</h3>
-
-                <div class="platform">
-                    <div class="platform-label">Claude</div>
-                    <div class="code-wrapper">
-                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-claude')">Copy</button>
-                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target claude</code></pre>
-                    </div>
-                </div>
-
-                <div class="platform">
-                    <div class="platform-label">Codex</div>
-                    <div class="code-wrapper">
-                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-codex')">Copy</button>
-                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target codex</code></pre>
-                    </div>
-                </div>
-
-                <div class="platform">
-                    <div class="platform-label">Cursor</div>
-                    <div class="code-wrapper">
-                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-cursor')">Copy</button>
-                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor</code></pre>
-                    </div>
-                </div>
-
-                <div class="platform">
-                    <div class="platform-label">Gemini</div>
-                    <div class="code-wrapper">
-                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-gemini')">Copy</button>
-                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target gemini</code></pre>
-                    </div>
-                </div>
-            </div>
-
-            <div class="command-panel">
-                <h3>Windows (PowerShell)</h3>
-
-                <div class="platform">
-                    <div class="platform-label">Claude</div>
-                    <div class="code-wrapper">
-                        <button class="copy-btn" onclick="copyToClipboard(this, 'powershell-claude')">Copy</button>
-                        <pre><code>&amp; ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target claude</code></pre>
-                    </div>
-                </div>
-
-                <div class="platform">
-                    <div class="platform-label">Codex</div>
-                    <div class="code-wrapper">
-                        <button class="copy-btn" onclick="copyToClipboard(this, 'powershell-codex')">Copy</button>
-                        <pre><code>&amp; ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target codex</code></pre>
-                    </div>
-                </div>
-
-                <div class="platform">
-                    <div class="platform-label">Cursor</div>
-                    <div class="code-wrapper">
-                        <button class="copy-btn" onclick="copyToClipboard(this, 'powershell-cursor')">Copy</button>
-                        <pre><code>&amp; ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target cursor</code></pre>
-                    </div>
-                </div>
-
-                <div class="platform">
-                    <div class="platform-label">Gemini</div>
-                    <div class="code-wrapper">
-                        <button class="copy-btn" onclick="copyToClipboard(this, 'powershell-gemini')">Copy</button>
-                        <pre><code>&amp; ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target gemini</code></pre>
-                    </div>
-                </div>
-            </div>
-
-            <div class="command-panel">
-                <h3>Multiple Targets</h3>
-
-                <div class="platform">
-                    <div class="platform-label">Cursor + Codex</div>
-                    <div class="code-wrapper">
-                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-cursor-codex')">Copy</button>
-                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor,codex</code></pre>
-                    </div>
-                </div>
-
-                <div class="platform">
-                    <div class="platform-label">All Supported Runtimes</div>
-                    <div class="code-wrapper">
-                        <button class="copy-btn" onclick="copyToClipboard(this, 'bash-all')">Copy</button>
-                        <pre><code>curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target all</code></pre>
-                    </div>
-                </div>
-            </div>
+                <p>Junior installs local files for your selected coding tool.</p>
+            </details>
         </div>
 
         <div class="note">
@@ -362,10 +383,99 @@
             <p>Open your project and start with <code>jr-init</code>.</p>
         </div>
 
+        <section class="release-notes" aria-labelledby="whats-new">
+            <h2 id="whats-new">What's new</h2>
+<h2>v2.0.0 - 2026-09-16</h2>
+<h3>Added</h3>
+<ul>
+<li>Project installation through an optional destination path, with <code>--scope project</code> and <code>--project-root</code> retained for scripts.</li>
+<li><code>jr-product-review</code> for whole-product review with prioritized findings and explicit coverage gaps.</li>
+<li><code>jr-demo</code> for assertion-verified screenshot storyboards and motion recordings.</li>
+<li><code>jr-integrate</code> for acceptance testing all integration-branch changes, including direct, squash, and merge commits.</li>
+<li><code>jr-archive</code> for checking session completeness and persistence before manual archival.</li>
+<li><code>/jr feedback</code> for preparing Junior improvement proposals for submission or delivery to a known local source checkout.</li>
+<li><code>jr-ui-prototype</code> for iterative interface design before implementation.</li>
+<li>Installation command selectors and rendered changelog pages.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Bootstrap installation and remote updates default to the latest stable tagged release. Use <code>--choose-version</code>, <code>--version</code>, or <code>--development</code> to select another source; release archives are downloaded by resolved commit.</li>
+<li>Codex and Cursor share native skills in <code>.agents/skills</code>, with shared ownership tracking.</li>
+<li>Claude loads rules natively. Codex receives managed startup instructions and instruction-capacity configuration; Cursor rules are rendered from shared Markdown sources.</li>
+<li>Installation command listings derive from shipped skills.</li>
+<li>Feature planning supports API, CLI, library, document, configuration, and UI outcomes, with scope approval followed by generated-artifact review.</li>
+<li>Coding workflows use project-agreed coverage metrics and executable thresholds. Establish missing agreements before implementation; existing agreements carry forward.</li>
+<li>Portable instructions follow the consuming project’s tooling. Skill authoring distinguishes portable workflows from repository-only workflows.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Reinstallation preserves the original comparison baseline for customized files, allowing sync to detect independent source changes.</li>
+<li>Updates protect unsynced global edits and verify recovery before replacing customized project files.</li>
+<li>Legacy migration preserves conflicting edits and retires only eligible obsolete assets.</li>
+<li>Sync-back handles installed hooks, additions, deletions, and source divergence.</li>
+<li>Claude hook updates preserve neighboring registrations.</li>
+<li>Installation validates Claude startup settings before changing selected runtime assets.</li>
+<li>Maintenance guidance restricts commits to reviewed paths and preserves unrelated staged changes.</li>
+<li>Product-document migration retains discoverable mission, roadmap, and technical context.</li>
+<li>Debugging and status workflows require verification evidence before reporting resolution.</li>
+<li>Nested Markdown examples retain their intended code-block boundaries.</li>
+</ul>
+<h3>Breaking Changes</h3>
+<ul>
+<li><code>--force</code> is retired. Use <code>--yes</code> for unattended consent and <code>--overwrite</code> for deliberate replacement of modified files during installation.</li>
+<li>Gemini is no longer an installation target. Existing Gemini files remain untouched.</li>
+<li><code>jr-new-command</code> is renamed to <code>jr-new-skill</code>; update saved invocations.</li>
+<li>Codex installation requires Python 3.11 or newer. Re-run installation to migrate legacy layouts, reconcile reported conflicts, and start a fresh session. Trust project installations so Codex loads their configuration.</li>
+<li>The bootstrap requires Junior 2.0 or newer; use the original installer for older releases.</li>
+</ul>
+
+            <nav class="release-links" aria-label="Release notes">
+                <a href="changelog.html">Full changelog</a>
+                <a href="CHANGELOG.md">Raw Markdown</a>
+            </nav>
+        </section>
+
         <div class="buttons">
             <a href="https://github.com/rusi/junior" class="button button-primary">View on GitHub</a>
             <a href="https://github.com/rusi/junior#readme" class="button">Full Documentation</a>
         </div>
+
+    <script>
+        const commands = {
+            "bash": "curl -LsSf https://rusi.github.io/junior/install.sh | bash -s -- --target ",
+            "powershell": "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target "
+        };
+        const runtime = document.getElementById('runtime');
+        const platform = document.getElementById('platform');
+        const command = document.getElementById('selected-command');
+        const title = document.getElementById('selection-title');
+        const copyButton = document.getElementById('copy-command');
+        const copyStatus = document.getElementById('copy-status');
+
+        function showSelection() {
+            title.textContent = `${runtime.selectedOptions[0].text} · ${platform.selectedOptions[0].text}`;
+            command.textContent = commands[platform.value] + runtime.value;
+            copyStatus.textContent = '';
+        }
+
+        async function copyCommand() {
+            const text = command.textContent;
+            const selection = title.textContent;
+            copyButton.disabled = true;
+            try {
+                await navigator.clipboard.writeText(text);
+                copyStatus.textContent = `Copied ${selection} command.`;
+            } catch {
+                copyStatus.textContent = 'Copy unavailable. Select the command and copy it manually.';
+            } finally {
+                copyButton.disabled = false;
+            }
+        }
+
+        for (const control of [runtime, platform]) control.addEventListener('change', showSelection);
+        copyButton.addEventListener('click', copyCommand);
+        showSelection();
+    </script>
 
         <footer>
             <p><a href="https://github.com/rusi/junior">github.com/rusi/junior</a></p>
@@ -373,35 +483,6 @@
         </footer>
     </div>
 
-    <script>
-        const commands = {
-            "bash-claude": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target claude",
-            "bash-codex": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target codex",
-            "bash-cursor": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor",
-            "bash-gemini": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target gemini",
-            "powershell-claude": "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target claude",
-            "powershell-codex": "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target codex",
-            "powershell-cursor": "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target cursor",
-            "powershell-gemini": "& ([scriptblock]::Create((irm https://rusi.github.io/junior/install.ps1))) -Target gemini",
-            "bash-cursor-codex": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target cursor,codex",
-            "bash-all": "curl -LsSf https://rusi.github.io/junior/install.sh | sh -s -- --target all"
-        };
 
-        function copyToClipboard(button, platform) {
-            const text = commands[platform];
-
-            navigator.clipboard.writeText(text).then(() => {
-                button.textContent = 'Copied!';
-                button.classList.add('copied');
-
-                setTimeout(() => {
-                    button.textContent = 'Copy';
-                    button.classList.remove('copied');
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-            });
-        }
-    </script>
 </body>
 </html>

@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Junior Rule 02: Current Date
 
 ## CRITICAL: Always Determine Current Date

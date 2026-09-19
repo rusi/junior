@@ -57,6 +57,13 @@
 - [Whether to research first: `/research "topic"` or assistant-equivalent deep research prompt]
 - [Priority: high/medium/low with reasoning]
 
+## Test and Coverage Policy
+
+[Persist the agreed component requirements from Coverage Agreement in
+`_shared/references/completion-evidence.md`: scope, metrics, configuration links, rationale,
+and any transition or exception. Keep executable numeric values in configuration once it
+exists; until then record the agreed values here and identify enforcement as pending.]
+
 ## Development Environment
 
 **Setup:** [Local / Docker / Cloud / Hybrid]

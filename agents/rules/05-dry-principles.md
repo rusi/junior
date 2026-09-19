@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # DRY - ZERO TOLERANCE
 
 ## Triggers (STOP immediately)

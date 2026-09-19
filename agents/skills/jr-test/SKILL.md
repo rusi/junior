@@ -1,6 +1,6 @@
 ---
 name: jr-test
-description: Execute chief test-engineering workflows that validate test credibility, close coverage gaps, and enforce multi-layer quality gates.
+description: Run `/jr-test` to audit test credibility, close coverage gaps, and enforce the multi-layer quality gates.
 ---
 
 # Test Engineer Command
@@ -21,6 +21,8 @@ Direct execution with automatic mode inference from context.
 - You need complete test-layer coverage (unit + integration + end-to-end/system)
 
 ## Scope and Quality Bar
+
+Apply [Coding Verification](../_shared/references/completion-evidence.md#coding-verification), including project thresholds and gap disposition. This audit judges test credibility under that shared completion contract.
 
 - This command writes, refactors, and executes tests only.
 - Product implementation changes are forbidden in `/jr-test` (no feature logic, endpoint/controller logic, domain/service logic, migrations, production config changes, or UI feature behavior changes).
@@ -65,6 +67,8 @@ If this matrix is missing or weak (selector-only assertions), audit fails.
   1. `/jr-test [story]` before implementation
   2. `/jr-implement [story]`
   3. `/jr-test [story]` again as final audit
+
+Apply [Completion Evidence](../_shared/references/completion-evidence.md) when reusing verification, reconciling checklists, and resolving missing manual observations.
 
 ## Process
 
@@ -223,7 +227,7 @@ For all modes:
 Run relevant test suites for each layer and report:
 - Which layers ran
 - Pass/fail status
-- Coverage status by layer/module where available
+- Coverage verdict under the shared contract: behavior mapping, threshold sources and scopes, measured results or unavailability, and gap dispositions
 - Reliability status (flaky or stable)
 - Remaining risks or justified gaps
 
@@ -233,6 +237,7 @@ For context-sensitive stories, include:
 - one short exploratory charter result for context + navigation interactions
 
 Validation outcome rules:
+- `audit`: the shared Coding Verification contract must be satisfied; a command-specific percentage never replaces it.
 - `spec-first`: expected failing tests may remain; they must fail for the right reason.
 - `audit`: unresolved failing tests, any skipped/disabled tests, redundant/useless tests, trivial assertion tests, missing mandatory layers, or any failed security containment gate block completion.
 - `audit` (context-sensitive stories): missing context-switch matrix, missing stale-data negatives, or selector-only assertions also block completion.
@@ -245,6 +250,27 @@ Validation outcome rules:
 - For coding stories, keep story status in-progress until post-implementation audit gate is complete.
 - `/jr-test` completion is blocked if required behavior is missing and no `/jr-implement` defect handoff is documented.
 - Append a `## Session Artifact Log` entry in the story file per `../_shared/references/session-artifact-log.md`, including all touched test files and exact verification commands/results.
+
+### Step 10: Output Spec
+
+Everything above is how the run decides. This is what it writes.
+
+**Artifact 1 — the test report handed to the developer.**
+
+- **For:** the developer deciding whether this story's tests can be trusted. It answers *what is
+  covered, what is not, and what blocks completion.*
+- **Goes in:** mode selected and why · layers run with pass/fail counts · credibility findings and
+  what changed because of them · gaps that remain, each with the reason it remains · the blocking
+  verdict, or the next command.
+- **Never goes in:** the playbook and technology-guidance files consulted · which steps of this
+  skill ran · counts of files or stories scanned · the audit checklist walked item by item ·
+  approaches tried and abandoned. Baseline: `../_shared/references/artifact-output-spec.md`.
+- **Register:** headings are noun labels — never sentences, questions or conversational phrases.
+  Prose states facts. No editorial lead, no anthropomorphising, no dramatic adjective.
+
+**Artifact 2 — the story file.** Checkbox states, and evidence in the fields that hold evidence.
+Nothing about how this run reached them; that is what the Session Artifact Log entry is for, and it
+is the only provenance the story file carries.
 
 ## Stack Playbooks
 

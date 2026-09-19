@@ -1,6 +1,6 @@
 ---
 name: jr-init
-description: Initialize or re-initialize project direction with a contract-style workflow that defines product mission, roadmap, technical foundation, and development environment before implementation starts. Use for new projects, unclear strategy, stale planning docs, or when `/jr-init` is requested.
+description: Run `/jr-init` to establish or re-establish project direction — product mission, roadmap, technical foundation, and development environment.
 ---
 
 # Jr Init
@@ -195,6 +195,12 @@ Present analysis:
 - Development environment (local/Docker/cloud)
 - Key dependencies and why needed
 
+**Coverage agreement:** Follow [Coverage Agreement](../_shared/references/completion-evidence.md#coverage-agreement)
+for coding components. Propose stack-appropriate numeric thresholds with the metric, scope,
+tooling, and rationale; settle them with the owner as part of initialization. Preserve an
+existing agreed policy. Documentation-only projects and unsupported metrics follow the
+explicit applicability and exception rules in that shared contract.
+
 ### Step 5: Present Initialization Contract
 
 Before writing files, present contract using `templates/init-contract-template.md`.
@@ -211,6 +217,7 @@ Contract must include:
 - Non-goals must be phase-scoped or product-exclusion scoped.
 - If user states a long-term capability, it cannot appear in non-goals.
 - technical foundation and rationale
+- the coverage agreement for each coding component, or its explicit applicability/exception decision
 - exact files to generate/update
 
 Approval options:
@@ -238,8 +245,37 @@ Template fidelity rules:
 - Use concrete project-specific content (no unresolved placeholders).
 - Preserve vertical-slice guidance in roadmap.
 - Include actionable setup/commands in dev-env output.
+- Persist coverage decisions using the shared agreement's documentation/configuration boundary.
 - Keep README focused on value, quick start, and doc links.
 - Stamp dates consistently.
+
+Output spec — applies to every document generated here:
+
+**What each artifact is for:**
+
+- **`01-mission.md`** — read to decide whether a proposed piece of work belongs. Answers *what
+  problem, for whom, and what is deliberately not in scope.*
+- **`02-roadmap.md`** — read to decide what to build next. Answers *what ships in what order and
+  what value each stage delivers.*
+- **`03-tech-stack.md`** — read before making a technical choice. Answers *what we build on and
+  what that commits us to.*
+- **`04-dev-env.md`** — read on a fresh machine. Answers *how to get this running.*
+- **`README.md`** — read by someone arriving at the repository. Answers *what this is and how to
+  start.*
+
+**Never goes in any of them:**
+
+- What the discovery loop asked, and which answer produced which section
+- Which files or directories were scanned to detect the stack, and how many
+- Options presented and not chosen, unless the rejection is itself a standing constraint — and then
+  it is stated as the constraint, not as the history of the choice
+- That a contract was presented or approved
+- Placeholders left unresolved because the answer was not available; ask instead
+
+Baseline: `../_shared/references/artifact-output-spec.md`.
+
+**Register:** headings are noun labels — never sentences, questions or conversational phrases. Prose
+states facts. No editorial lead, no anthropomorphising, no dramatic adjective.
 
 ### Step 7: Generate Real Project Files (Critical)
 
@@ -268,6 +304,13 @@ Common project files to generate (adapt to stack):
 - build artifacts
 - IDE files
 - dependency directories
+
+7. Test and coverage gates
+- Configure the agreed coverage requirements in the selected runner and CI when available.
+- Verify both passing behavior and rejection of a below-threshold result using disposable
+  fixtures or supported tool controls; do not alter production code merely to force a failure.
+- If the relevant component/tooling is not yet runnable, retain its agreed requirements in
+  the specification and report enforcement as pending. Do not claim a prose threshold is enforced.
 
 Decision framework:
 

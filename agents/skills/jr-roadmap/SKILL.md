@@ -1,6 +1,6 @@
 ---
 name: jr-roadmap
-description: Update product roadmap direction with feature layers and sequence-first planning (no timelines), then sync related high-level product docs.
+description: Run `/jr-roadmap` to re-sequence the product roadmap by feature layer, then sync the product docs that follow from it.
 ---
 
 # Jr Roadmap
@@ -159,13 +159,23 @@ Before completion, verify:
   - avoids vague phrasing ("improve", "handle", "support") without concrete behavior
   - can be executed by `/jr-feature` without major clarification loop
 
-### Step 7: Completion
+### Step 7: Output Spec
 
-Report:
-- files created/updated
-- roadmap-level changes made
-- boundary checks passed
-- recommended next command
+**Artifact 1 — `.junior/product/02-roadmap.md`, and the product docs synced with it.**
+
+- **For:** whoever decides what to build next. Answers *what ships in what order, what each stage
+  delivers, and what is deliberately not on the list.*
+- **Goes in:** the sections required in Step 5, filled with the current direction.
+- **Never goes in:** what the clarification loop asked and answered · which files were scanned to
+  find candidates · a superseded sequence kept beside the new one · sequencing that was proposed
+  and cut, unless the exclusion is itself a standing non-goal, stated as one · that a contract was
+  approved. Baseline: `../_shared/references/artifact-output-spec.md`.
+- **Register:** headings are noun labels — never sentences, questions or conversational phrases.
+  Prose states facts. No editorial lead, no anthropomorphising, no dramatic adjective.
+
+**Artifact 2 — the completion report.** Files created or updated, what changed at roadmap level,
+and the next command. A boundary check that passed is not reported; a boundary check that failed is
+reported as the thing it caught, and it is fixed before completion.
 
 Recommended next command:
 - `/jr-feature` if user wants to define specific features from the updated roadmap.

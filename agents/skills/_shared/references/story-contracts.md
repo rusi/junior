@@ -1,6 +1,6 @@
 # Story Contracts
 
-Use this reference when presenting contracts for story-level changes. Keep structure intact and fill with project-specific details.
+Use this reference when presenting contracts for story-level changes. Keep structure intact and fill with project-specific details. Apply [Vertical Slice Validation](vertical-slices.md).
 
 ## Add Story Contract
 
@@ -19,11 +19,10 @@ Use this reference when presenting contracts for story-level changes. Keep struc
 - ❌ Excluded: [Out of scope for this story]
 
 **Vertical Slice Validation:**
-- **DB:** [Database changes, if any - e.g., "Add field X to table Y"]
-- **Backend:** [API/logic changes - e.g., "Endpoint Z returns new data"]
-- **Frontend:** [UI changes - e.g., "Display shows new field"]
-- **Tests:** [Test coverage approach - e.g., "Unit + integration + manual validation"]
-- **User sees:** [Specific working output - e.g., "Working dashboard with filter controls"]
+- **Consumer boundary:** [API, CLI, library, document, configuration effect, or UI]
+- **Required layers:** [Only layers this outcome needs and how they integrate]
+- **Working output:** [Specific result the consumer can verify]
+- **Verification:** [Behavioral tests or artifact validation appropriate to the product]
 
 **Integration with Existing Stories:**
 - **Depends on:** feat-X-story-Y for [reason]

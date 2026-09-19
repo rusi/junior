@@ -1,6 +1,6 @@
 ---
 name: jr-next
-description: Analyze full project state and recommend the highest-value next action from the end-user perspective.
+description: Run `/jr-next` to recommend the single highest-value next action across the whole project.
 ---
 
 # Next Command
@@ -41,7 +41,7 @@ Create todos using `todo_write` or `functions.update_plan`:
 ```
 
 **Discover available commands:**
-- Use `list_dir ~/.codex/skills/` to see all available commands
+- Use the active runtime’s available skill catalog. If it is unavailable, inspect its installed skill root: `.claude/skills` for Claude Code or `.agents/skills` for Codex/Cursor, relative to the project or home directory for the selected install scope.
 - Only recommend commands that actually exist
 - Don't invent command syntax
 
@@ -225,7 +225,7 @@ Select ONE highest-value action, provide 2-3 alternatives, include context summa
 1. Core journey impact (unblocks core workflow > optional enhancement)
 2. Dependency enabling (foundational > dependent)
 3. Completion proximity (80% done > 20% done, only if value impact is similar)
-4. Feature sequence (Story 2 after Story 1 in same feature)
+4. Feature sequence (a dependent story follows its prerequisite in the same feature)
 5. Roadmap order (earlier > later)
 
 **In USER VALUE:** Brief reason why Option A over B (one sentence using tie-breaker).
@@ -239,10 +239,10 @@ Select ONE highest-value action, provide 2-3 alternatives, include context summa
 
 ## Command Recommendations
 
-**CRITICAL: Only suggest commands that exist in `~/.codex/skills/`**
-- Discovered in Step 1 via `list_dir ~/.codex/skills/`
+**CRITICAL: Only suggest commands found in the active skill catalog or installed root.**
+- Use the discovery result from Step 1.
 - DON'T invent command names or syntax
-- Use exact command patterns and include required arguments/text in-line (e.g., `/jr-implement feat-N-story-M`, `/jr-feature Build room rates and charge model for reservation pricing`, `/jr-roadmap`)
+- Use exact command patterns and include required arguments/text in-line (e.g., `/jr-implement feat-N-story-M`, `/jr-feature Let users edit and save their account display name`, `/jr-roadmap`)
 
 ## Tool Integration
 
@@ -267,7 +267,7 @@ Select ONE highest-value action, provide 2-3 alternatives, include context summa
 - Separators: `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━` between sections
 - Icons: 🎯💡✅🚧⚠️
 - Hierarchy: Primary → Alternatives → Context
-- **Commands: Exact Junior commands with complete inputs** (`/jr-implement feat-N-story-M`, `/jr-feature Build room rates and charge model for reservation pricing`, `/jr-roadmap`, etc.)
+- **Commands: Exact Junior commands with complete inputs** (`/jr-implement feat-N-story-M`, `/jr-feature Let users edit and save their account display name`, `/jr-roadmap`, etc.)
 - **USER VALUE: 2 sentences** (outcome-focused, what user can DO)
 - **Alternatives: Brief description + reasoning** (1 sentence each explaining why/when)
 
@@ -305,10 +305,25 @@ ALTERNATIVES:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 CONTEXT:
-• Analyzed: X features, Y stories, Z tasks
 • In Progress: [Feature/story details or "No active work"]
 • Product Focus: [Brief mission from product docs]
 ```
+
+## Output Spec
+
+**Artifact — the recommendation.**
+
+- **For:** the user choosing what to do in the next hour. It answers *what to do, what it gets them,
+  and how to start.*
+- **Goes in:** the template above, filled. Nothing outside it.
+- **Never goes in:** how many features, stories, or tasks were analyzed · which files were read to
+  reach the recommendation · the priority logic walked through option by option · options considered
+  and dropped beyond the two or three alternatives the template holds · rule or principle citations
+  standing in for the reason. The user asked what to do next, not how the answer was reached.
+  Baseline: `../_shared/references/artifact-output-spec.md`.
+- **Register:** headings are noun labels — never sentences, questions or conversational phrases.
+  Prose states facts. No editorial lead, no anthropomorphising, no dramatic adjective. USER VALUE
+  says what the user can then do, not how significant it is.
 
 ---
 

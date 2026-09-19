@@ -37,6 +37,19 @@ Use this structure:
 **Out of Scope:**
 - [Features saved for future stories]
 
+## Demo Script
+
+**Medium:** [`stills`, or `motion` where the answer is in the passage between two states —
+a hover menu crossing into its submenu, stale data flashing before a switch lands. Name the
+question that decides it, not just the word. Most questions that feel like motion are state
+questions with a panel missing.]
+
+[Ordered prose — what a reviewer should be shown of this working, one line per thing to
+see, six to ten of them. Written here while the intent is fresh, and read later by the
+command that captures it.]
+
+[Where the story renders nothing a person can look at, write "Not applicable" and why.]
+
 ## Acceptance Criteria
 
 - [ ] Given [context], when [action], then [outcome]
@@ -99,3 +112,30 @@ See [../specs/01-Technical.md](../specs/01-Technical.md) for feature-level techn
 - Unchecked: `- [ ] Task description`
 - Checked: `- ✅ Task description`
 - Never use `- [x]` formats.
+
+## Output Spec
+
+Use the template above for the document structure and the requirements below for its audience and content.
+
+**What each artifact is for:**
+
+- **`feat-X-story-M.md`** — read by the run that implements this slice, and by the reviewer checking
+  it landed. Answers *what to build, and how to know it works.*
+- **`feat-X-stories.md`** — read to find the next slice. Answers *what is done and what is next.*
+- **`comp-M-overview.md`** — read to orient in a component. Answers *what this component is for and
+  what lives in it.*
+
+**Never goes in any of them:**
+
+- What the clarification loop asked, and which answer produced which section
+- Which stories were scanned for duplicates, and how many
+- Scope proposed and cut — that belongs in the feature's future-enhancements document, as a
+  candidate, not here as a record of the cut
+- That a contract was presented or approved
+- Which run wrote or last touched the file, beyond the `Last Updated` timestamp the table requires
+
+Exempt: `## Session Artifact Log`, which is provenance and is parsed by `/jr-commit`. See
+`session-artifact-log.md`. Full baseline: `artifact-output-spec.md`.
+
+**Register:** headings are noun labels — never sentences, questions or conversational phrases. Prose
+states facts. No editorial lead, no anthropomorphising, no dramatic adjective.

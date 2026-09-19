@@ -57,7 +57,8 @@ make clean    # clean build artifacts
 **Testing**
 - [test command] - run all tests
 - [test-watch command] - run tests in watch mode
-- [coverage command] - generate coverage report
+- [coverage gate command] - generate coverage and fail below the agreed thresholds
+- Coverage policy and configuration: [link to the test and coverage policy in 03-tech-stack.md or existing equivalent]
 
 **Build**
 - [build command] - build for production

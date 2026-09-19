@@ -1,32 +1,4 @@
----
-alwaysApply: true
----
-
 # Junior Rule 04: Meta-Rules - Writing Documentation for Junior
-
-## Repository-Local Governance (Non-Negotiable)
-
-For this project, all rule/skill/command maintenance is local to this repository.
-
-Allowed locations:
-- Project root files when directly relevant to command/rule/skill maintenance
-- `agents/rules/**`
-- `agents/skills/**`
-- Project root `README.md` (command list updates and user-facing command docs)
-
-Forbidden locations:
-- `~/.codex/rules/**`
-- `~/.codex/skills/**`
-- Any global/shared Junior path outside this repository
-
-When a request involves creating or updating Junior commands, skills, or rules:
-- Apply changes only in the repository paths above.
-- Do not mirror, sync, or back-port to global locations.
-- If a workflow instruction references global paths, translate it to the repository-local equivalents before proceeding.
-
-When adding or renaming commands, update these in the same change:
-- Project-root `README.md` command list
-- `scripts/install-config.json` command list metadata
 
 ## Three Modes of Documentation
 
@@ -34,64 +6,13 @@ When adding or renaming commands, update these in the same change:
 **Audience:** AI (me)
 **Purpose:** Triggers, reminders, context
 
-**When writing NEW or editing EXISTING Mode A docs:**
+**Include:** triggers, concise checklists, relevant decisions, and references to working
+implementations. Keep portable rules independent of a particular repository.
 
-**INCLUDE (Required Components):**
-- ✅ Triggers (when to think about X)
-- ✅ Project-specific decisions
-- ✅ Real examples from THIS codebase
-- ✅ Measurable results
-- ✅ **SHORT code examples (5-20 lines)** showing patterns
-- ✅ **Checklists** (one-line action items)
-- ✅ **Bash commands** (validation steps)
-
-**EXCLUDE (Remove or Don't Add):**
-- ❌ Pattern definitions (I know them)
-- ❌ How concepts work (I know them)
-- ❌ Generic examples (not helpful)
-- ❌ Universal knowledge (textbook stuff)
-- ❌ **LONG code implementations (30+ lines)**
-- ❌ **Full file contents (50+ lines)**
-
-**Code Example Guidelines:**
-- ✅ **5-20 lines:** Show the pattern concisely (GOOD)
-- ⚠️ **20-30 lines:** Borderline - condense if possible
-- ❌ **30+ lines:** Too long - show key parts only OR reference file
-- ❌ **50+ lines:** Tutorial, not trigger - reference actual file
-
-**Checklists ARE Mode A Content (Required):**
-- ✅ **Checklists:** One-line action items - these ARE triggers/reminders
-- ✅ **Pre-commit validation steps:** Concrete bash commands to run
-- ✅ **Quality checks:** Specific things to verify before completing work
-- ✅ **Include in new docs, preserve in existing docs**
-- ❌ **Don't confuse checklists with verbose documentation** - checklists are concise triggers
-
-**Good Example (Concise Pattern):**
-```markdown
-## Service Layer Pattern
-```python
-class UserService:
-    @staticmethod
-    def create(db: Session, user_data: UserCreate) -> User:
-        user = User(**user_data.model_dump())
-        db.add(user)
-        db.flush()
-        db.refresh(user)
-        return user
-```
-- API endpoint delegates to service
-- Service handles business logic
-- Transaction automatic via get_db()
-```
-
-**Bad Example (Full Implementation):**
-```markdown
-## Full UserService Implementation
-```python
-[100 lines of complete service class with all CRUD methods]
-```
-**Instead:** "See service module for working example"
-```
+**Exclude:** code examples, implementation listings, textbook explanations, and copied source.
+Code examples belong in Mode C documentation; Mode A links to them when needed. Exact
+validation commands are operational instructions, not illustrative code examples, and may
+appear when the rule needs them. This distinction also applies to the portability checklist below.
 
 ### Mode B: Junior → Junior + User (Specs/Decisions)
 **Audience:** AI + Human review
@@ -134,7 +55,7 @@ class UserService:
 - ❌ Junior-specific triggers
 
 **Example:**
-```markdown
+````markdown
 ## Stream Exchange Pattern
 
 The library uses context managers for stream operations:
@@ -148,7 +69,7 @@ This pattern ensures:
 - Buffer is prepared before receiving
 - Cleanup happens automatically
 - Exception-safe operation
-```
+````
 
 ## Documentation Test
 
@@ -202,17 +123,14 @@ This pattern ensures:
 **Project-specific rules numbering:**
 - **Generic Junior rules:** 00-99 (portable across all projects)
 - **Project-specific rules:** 100+ (conventions, tools, domain-specific patterns for THIS project)
-- Example: `100-project-conventions.mdc` for project-specific tools (uv, arrow, etc.)
+- Example: `100-project-conventions.md` for project-specific tools (uv, arrow, etc.)
 
 **⚠️ WHEN WRITING/UPDATING JUNIOR RULES:**
 1. **Use generic placeholders:** "Story X", "Task N", "Feature Y" - NOT concrete numbered references
 2. **Use abstract examples:** "add authentication" NOT "add specific domain feature"
 3. **Check before saving:** Would this make sense in ANY project?
 4. **Grep check:** Search for specific story/task numbers in the rule file itself
-5. **ZERO CODE EXAMPLES in Mode A docs (Junior-only rules)**
-   - Mode A = triggers and reminders, NOT implementation examples
-   - Code examples belong in Mode C (user-facing docs) only
-   - If you need code, you already know how - just write principles
+5. Apply the Mode A code-example boundary above; do not duplicate implementation examples in rules.
 
 **Test:** If Junior moved to a completely different project tomorrow, would this "Junior" document still be useful without modification?
 - YES → Good generic Junior document
@@ -224,7 +142,7 @@ This pattern ensures:
 - [ ] No domain-specific examples
 - [ ] Principles are universal across ALL projects
 
-**Enforcement:** Before modifying ANY file in `agents/rules/`, verify it works for ANY project type (web, embedded, CLI, desktop, etc.)
+**Portability review (agent norm):** Before modifying a shared Junior rule, verify it works for any project type (web, embedded, CLI, desktop, etc.). Keep source-authoring paths and policies in that repository's contributor guidance.
 
 ## Summary
 

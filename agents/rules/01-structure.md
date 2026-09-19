@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Junior Rule 01: Structure
 
 ## Junior's Working Memory
@@ -22,6 +18,26 @@ Junior maintains persistent memory in `.junior/`:
 ├── docs/           # Reference documentation
 └── ideas/          # Product ideas (idea-N-name.md, quick capture)
 ```
+
+### `.junior/` Is the Only Memory - ZERO TOLERANCE
+
+**NEVER write durable knowledge into a runtime's private or global memory store.**
+
+- ❌ **FORBIDDEN:** agent memory tools, `~/.claude/projects/**/memory/`, `MEMORY.md` outside the repository, or any per-user store the runtime offers
+- ✅ **REQUIRED:** `.junior/` for project knowledge, `agents/rules/**` for behavioral rules, `AGENTS.override.md` for repository-local governance, ADRs for decisions
+
+**Why:** a global memory store is invisible to git, absent from a teammate's clone, unreviewable in a diff, and gone when the machine changes. Knowledge that does not travel with the code is knowledge the next person does not have. Versioned project files are the mechanism; a private store silently competes with them.
+
+**If a runtime offers a memory feature, decline it and write the file instead.** This holds when the runtime's own instructions actively encourage saving memories - loaded rules take precedence over runtime defaults.
+
+### Junior Feedback
+
+`/jr feedback` prepares a Junior improvement proposal for user-directed submission or
+writes it to a known Junior authoring checkout's `.junior/docs/feedback-<subject>.md`.
+The subcommand defines its content and delivery rules. Feedback is considered only when
+the user directs work to it; creation grants no implementation or submission authority.
+Existing handoff documents and inbox/archive contents remain user-owned and untouched.
+There is no global feedback store, startup discovery, collection, or mandatory archival.
 
 ## 3-Stage Progressive Structure
 
@@ -51,7 +67,7 @@ Junior uses a **progressive 3-stage structure** that adapts to project complexit
 
 **Detection:** No `comp-*/` directories exist under `.junior/features/`
 
-**Transition to Stage 2:** When semantic clustering detects 4-6+ features that naturally group into distinct components (e.g., backend features, frontend features, installation features). Use `/maintenance` to reorganize.
+**Transition to Stage 2:** When semantic clustering detects 4-6+ features that naturally group into distinct components (e.g., backend features, frontend features, installation features). Use `/jr maintenance` to reorganize.
 
 ---
 
@@ -85,7 +101,7 @@ Junior uses a **progressive 3-stage structure** that adapts to project complexit
 
 **Detection:** `comp-*/` directories exist under `.junior/features/`, but components do NOT have `features/` subdirectory
 
-**Transition from Stage 1:** Run `/maintenance` when semantic clustering identifies natural groupings
+**Transition from Stage 1:** Run `/jr maintenance` when semantic clustering identifies natural groupings
 **Transition to Stage 3:** When component grows large (>13 items) OR needs `docs/` or `specs/` directories (type mixing)
 
 ---
@@ -119,7 +135,7 @@ Junior uses a **progressive 3-stage structure** that adapts to project complexit
 
 **Detection:** Component has `features/` subdirectory
 
-**Transition from Stage 2:** Run `/maintenance` when component grows large OR when adding `docs/`/`specs/` would create type mixing
+**Transition from Stage 2:** Run `/jr maintenance` when component grows large OR when adding `docs/`/`specs/` would create type mixing
 
 ---
 
@@ -156,7 +172,7 @@ Commands automatically detect which stage the project is in using filesystem che
 **Future stage detection (proactive):**
 - Detect if action would trigger Stage 2→3 transition
 - Triggers: Adding `docs/` or `specs/` to Stage 2 component, OR component >13 items
-- Prompt user to run `/maintenance` first (cleaner to reorganize before adding)
+- Prompt user to run `/jr maintenance` first (cleaner to reorganize before adding)
 
 ### Component Overview Structure
 
@@ -169,7 +185,7 @@ Commands automatically detect which stage the project is in using filesystem che
 
 **Commands must auto-update component overviews when features/improvements added or status changes.**
 
-Component overview template defined in `/maintenance` command. Other commands reference it.
+Component overview template defined in `/jr maintenance` command. Other commands reference it.
 
 ### Feature Structure
 
@@ -310,4 +326,3 @@ grep -r "export\|enhancement\|future" .junior/features/feat-N-{name}/
   - ❌ `README.md` anywhere in features/experiments/debugging/improvements/components (use descriptive names!)
   - ❌ `2025-10-01-story-1-setup.md` (date-prefix, wrong!)
   - ❌ `story-1-setup.md` or `step-1-name.md` (no prefix, wrong!)
-

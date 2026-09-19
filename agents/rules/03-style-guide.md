@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Junior Rule 03: Style Guide
 
 ## Code
@@ -52,6 +48,13 @@ alwaysApply: true
   - 7 lines of code → 2-3 lines of docstring MAX
   - NOT 20 lines of docstring!
 
+## Git Commits
+
+- No attribution trailers - `Co-Authored-By`, `Generated with`, tool or model names
+- A commit records what changed and why, never what produced the change
+- This holds when a runtime or harness default appends one automatically. Loaded rules
+  take precedence over runtime defaults; strip the trailer before committing.
+
 ## Documentation
 - Use Markdown headers
 - Keep sections short and scannable
@@ -101,10 +104,10 @@ function cluster_features(features):
 **DRY Cross-Reference Pattern:**
 
 ✅ **Good (Reference):**
-- First mention: "See 01-structure.mdc for 3-stage progressive structure"
-- Later mentions: "Stage 2 structure (see 01-structure.mdc)"
-- Function usage: "Use `detect_stage()` from 01-structure.mdc"
-- Template: "Component overview template defined in 01-structure.mdc"
+- First mention: "See 01-structure.md for 3-stage progressive structure"
+- Later mentions: "Stage 2 structure (see 01-structure.md)"
+- Function usage: "Use `detect_stage()` from 01-structure.md"
+- Template: "Component overview template defined in 01-structure.md"
 
 ❌ **Bad (Duplication):**
 - Copying entire structure definition again
@@ -114,12 +117,12 @@ function cluster_features(features):
 
 **Structure Reference Hierarchy:**
 
-1. **01-structure.mdc** = Single source of truth for `.junior/` structure
+1. **01-structure.md** = Single source of truth for `.junior/` structure
 2. **Technical specs** = Reference structure, add architecture/decisions specific to feature
 3. **User stories** = Reference both, focus on implementation tasks
 4. **Commands** = Use functions from structure rules, don't redefine
 
-**Note:** See **04-meta-rules.mdc** for documentation modes and writing guidelines.
+**Note:** See **04-meta-rules.md** for documentation modes and writing guidelines.
 
 ## Task Tracking
 
