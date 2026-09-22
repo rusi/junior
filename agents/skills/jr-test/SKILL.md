@@ -200,6 +200,10 @@ Apply all checks below:
 
 ### Step 7: Implement or Refactor Tests
 
+Test files and fixtures are product material. Apply [product isolation](../_shared/references/product-isolation.md)
+at their write step and run the complete-tree check before handoff. Keep execution context
+in working material; a fixture copied from it still needs content and dependency review.
+
 In `spec-first` mode:
 - Write failing tests that encode acceptance criteria and edge behavior.
 - Ensure failures are specific and actionable for `/jr-implement`.

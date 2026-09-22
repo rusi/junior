@@ -309,6 +309,13 @@ as the answer is the failure mode of this whole skill, one level up.
 
 ## Step 5 — Convert prose into a walkthrough
 
+Apply [product isolation](../_shared/references/product-isolation.md) before copying any
+helper, fixture, or config outside working material. Run the complete-tree check on copied
+tooling; verbatim copying is not an exception. If the shipped helper leaks ownership
+metadata, stop that product-copy path and report it. Keep retained review artifacts in
+working material; do not weaken capture checks to silence an isolation finding. Inspect
+captions and rendered content semantically before any product delivery.
+
 Each prose step becomes exactly one `step(caption, locator)` call, in order, in a walkthrough
 file at the location the profile names.
 
@@ -456,9 +463,8 @@ application.
 The artifact contract is fixed by this skill and identical across every profile:
 
 - One output directory per demo, at a destination the run is given rather than one it fixes —
-  so an artifact worth keeping is written where it belongs and reviewed as an ordinary change,
-  never produced somewhere disposable and copied out afterwards by a step that has to enumerate
-  what it moves
+  so review captures remain beside their specification under `.junior/`. Promotion uses the
+  profile's complete-bundle mechanism after explicit selection and review
 - Numbered full-page PNG panels — separate files, so each diffs and zooms independently
 - A generated `index.html` grid referencing them relatively, opening over `file://` with no
   server running
@@ -485,6 +491,23 @@ is worth one clause, and no more.
 **Register**, for captions and for anything written into a story file: noun labels for headings —
 never sentences, questions or conversational phrases. Prose states facts. No editorial lead, no
 anthropomorphising, no dramatic adjective.
+
+## Selective product promotion
+
+Retaining a capture does not select it for product use. Promote only the explicitly selected,
+reviewed, successfully completed bundles through the profile's prepare/review/accept flow.
+Choose readable product destinations without identity hashes or planning identifiers. Keep
+originals and unselected captures intact; never point runner capture or cleanup at product output.
+
+Apply [product isolation](../_shared/references/product-isolation.md) to the whole proposed
+product tree, copied tooling, filenames, metadata, captions, rendered media, and viewing docs.
+Fix unsuitable content and recapture before promotion. Do not rewrite captured evidence in the copy.
+The profile checks byte completeness and replacement ownership; semantic review is a norm.
+
+Open the candidate without private working material and verify all local assets, full-panel
+navigation, and recording playback/seeking before acceptance. Use the profile's separate viewing
+instructions for product readers; keep run instructions and promotion receipts in `.junior/`.
+Product and tracking commits use separate groups and the shared checks. Promotion does not publish.
 
 ## Definition of Done
 

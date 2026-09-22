@@ -311,24 +311,31 @@ Junior: 🎯 Implementing: feat-1-story-1-registration
 
 **Step 4: Commit the implementation**
 
+Commit product changes separately from planning updates. Product commit messages describe
+behavior without story identifiers.
+
 ```text
 User: /jr-commit
 
-Junior: 📁 Files to stage:
+Junior: 📁 Product files to stage:
           A  src/auth/register.ts
           A  src/auth/register.test.ts
           A  src/db/users.ts
-          M  .junior/features/feat-1-auth/user-stories/feat-1-story-1-registration.md
 
         💬 Commit Message:
         ┌─────────────────────────────────
-        │ feat(feat-1-story-1): ✅ user registration
+        │ feat(auth): add user registration
         │
         │ - Email/password registration endpoint
         │ - Password hashing with bcrypt
         │ - User storage in database
         │ - Comprehensive test coverage
         └─────────────────────────────────
+
+        📁 Separate planning commit:
+          M  .junior/features/feat-1-auth/user-stories/feat-1-story-1-registration.md
+
+        💬 docs(planning): record registration verification
 
 User: yes
 ```

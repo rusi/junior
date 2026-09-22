@@ -43,8 +43,12 @@ demo config's own `testMatch` collects nothing else. Check that both halves hold
 and confirm the demo files appear in exactly one of them — rather than trying to place the
 directory somewhere the e2e config cannot see.
 
-Copy the linked `storyboard.ts` helper and `demo.ts` fixture into that directory.
-Keep the helper unchanged; adapt only the fixture's two marked project-specific lines.
+Before copying into product paths, apply [product isolation](../../_shared/references/product-isolation.md).
+Copy the linked `storyboard.ts` helper, `capture-reporter.ts`, and `demo.ts` fixture into
+that directory. Keep the helper and reporter unchanged; adapt only the fixture's two
+marked project-specific lines. Include the completion reporter last in the demo config.
+A bundle is eligible for promotion only when that reporter seals its complete byte inventory
+at successful run completion; writing an index or migrating an old marker does not qualify.
 
 ## Starting the stack
 
@@ -138,7 +142,7 @@ regenerated wholesale each run:
 ├── 01-first-caption.png
 ├── 02-second-caption.png
 ├── index.html
-└── .junior-capture.json
+└── .capture-owner.json
 ```
 
 Empty or non-Latin titles use `walkthrough` as the prefix. The hash includes the runner's
@@ -156,14 +160,75 @@ directory it belongs in:
 DEMO_OUTPUT=<the story's own directory> <the run command>
 ```
 
-The artifact lands there, and reviewing it is reviewing a normal working-tree change: keep it
-by committing, discard it by reverting. There is no separate promotion step, and deliberately
-so — a copy has to enumerate what it moves, and that enumeration goes stale the first time a
-run learns to produce a file nobody added to the list. The run then succeeds, the artifact
-looks complete, and what was left behind sits in a directory git was told to ignore.
+The retained artifact lands there and keeps its ownership marker. Retain review captures
+under `.junior/` beside their specification. Reruns replace only the capture they own;
+they never write directly into promoted product directories.
 
 A walkthrough recorded as motion writes to the same place, with a recording where the panels
 would be. See *Motion capture*.
+
+## Selective promotion
+
+Promotion has two commands with a review between them: prepare a standalone copy, then
+accept that exact copy into the product destination. The agent runs the commands and carries
+their returned paths forward; the user selects the capture and reviews the result.
+
+After reviewing a completed capture, use [promote.py](../scripts/promote.py) from its installed
+skill location; do not copy this internal migration/promotion tool into product source.
+It imports the existing shared isolation validator. Supply the exact identity from the retained
+marker and a readable destination such as `demos/notebook/editing`. Set `--repo` to the
+Git root; promotion refuses repository subdirectories before creating private state.
+
+```sh
+python3 <skill>/scripts/promote.py --repo <repository> prepare --root <capture-root> --source <capture-directory> --identity '<runner-identity>' --destination demos/notebook/editing --reviewed
+```
+
+The result returns `index` (the copy to review) and `ticket` (the generated `ticket.json`
+path to pass unchanged to `accept`). The ticket records the source, destination, and file
+hashes so acceptance can refuse anything changed since preparation. It is private tool state;
+do not author or edit it. Preparing leaves the product destination untouched.
+
+Open the returned index locally, inspect captions and
+all assets, and exercise full-panel previous/next navigation or video playback and seeking.
+Review it in a disposable copy without private files. The candidate preserves every source file,
+empty directory, and nested asset byte-for-byte, omitting only the root ownership marker.
+No media-extension allowlist exists. Symlinks and nested ownership markers are refused.
+
+Correct unwanted content in the walkthrough and recapture; never edit evidence during promotion.
+Author standalone viewing instructions outside the copied bundle using
+[viewing.md](../templates/viewing.md), with a real relative link to its index. Capture/run
+instructions and review decisions stay in `.junior/`. Apply the shared product checks to the
+complete proposed tree, including copied helpers, names, and viewing documentation. The optional
+`--review` accepts the shared validator's exact review decisions; semantic media review remains
+required.
+
+After candidate review, pass the returned ticket path:
+
+```sh
+python3 <skill>/scripts/promote.py --repo <repository> accept --ticket <ticket-path> --reviewed
+```
+
+Acceptance rechecks source, candidate, destination, and isolation before replacing anything.
+Only destinations previously accepted by this tool and still byte-identical may be replaced.
+Unowned content and changed published bundles are refused. A failed replacement restores the
+previous bundle; its backup and ownership receipts remain recoverable in `.junior/demo-promotion/`.
+Do not run concurrent capture or promotion writers against the same paths. Process termination
+or machine failure can leave a recovery directory: inspect the saved `previous` bundle before
+retrying; no crash-atomic multi-directory transaction is claimed. Product commits and tracking
+commits remain separate under the [shared commit checks](../../_shared/references/product-isolation.md).
+
+## Legacy ownership migration
+
+For an explicitly selected retained legacy capture, use the same internal tool:
+
+```sh
+python3 <skill>/scripts/promote.py migrate --root <capture-root> --source <capture-directory> --identity '<runner-identity>'
+```
+
+Migration validates direct-child containment, metadata type, identity, and token before renaming
+ownership metadata to `.capture-owner.json`, preserving its bytes and every capture file.
+Missing, malformed, symlinked, or conflicting markers refuse without adopting ownership.
+Migration supplies no completion proof: recapture through the current runner before promotion.
 
 ## Motion capture
 
@@ -205,7 +270,7 @@ matches `VIEWPORT` in `storyboard.ts`.
 <destination>/<walkthrough-name>-<identity-hash>/
 ├── walkthrough.webm
 ├── index.html
-└── .junior-capture.json
+└── .capture-owner.json
 ```
 
 `index.html` carries the brief, the player, and the ordered list of claims the run asserted.
@@ -244,6 +309,12 @@ anything that will — it sits beside `index.html` under its own name.
 This is the guarantee. Copy it unchanged; do not adapt it, and do not add a capture path to it.
 
 [storyboard.ts](../scripts/storyboard.ts)
+
+## The completion reporter — copy verbatim
+
+No project-specific edits. This file travels alongside the helper and fixture.
+
+[capture-reporter.ts](../templates/capture-reporter.ts)
 
 ## The fixture — copy verbatim
 

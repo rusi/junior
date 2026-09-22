@@ -11,6 +11,7 @@ import type {
   TestType,
 } from "@playwright/test";
 
+import { captureReceipt } from "./capture-reporter";
 import { capturePath, PRESS_FEEDBACK_MS, Storyboard } from "./storyboard";
 // Project-specific: the e2e fixture that provisions an isolated session per worker. Where a
 // project has none, import `test as projectTest` from "@playwright/test" instead.
@@ -26,15 +27,8 @@ const base = projectTest as unknown as TestType<
   PlaywrightWorkerArgs & PlaywrightWorkerOptions
 >;
 
-// Where a run writes. The default suits an exploratory run: a gitignored path, so
-// regenerating an artifact never dirties the working tree. A run whose artifact is meant to
-// be kept points this at the directory it belongs in — beside the story or feature it is
-// evidence for — and the artifact lands there directly.
-//
-// Directly, rather than being copied afterwards, because a copy step has to enumerate what
-// it moves, and an enumeration is a list that goes stale the moment a run learns to produce
-// something new. The artifact then exists, the run reports success, and the thing nobody
-// listed is silently left behind in a directory git was told to ignore.
+// Exploratory runs use ignored output. Retained captures use a caller-supplied review
+// directory; product copies are prepared independently after the capture is reviewed.
 const OUTPUT_ROOT = process.env.DEMO_OUTPUT !== undefined
   ? process.env.DEMO_OUTPUT
   : path.resolve(
@@ -84,6 +78,7 @@ export const test = base.extend<{ demo: Storyboard }>({
       // Saved before the sheet is written, because the sheet points at it.
       const weight = await storyboard.record();
       const index = await storyboard.write();
+      await testInfo.attach("capture-bundle", { body: await captureReceipt(index), contentType: "application/json" });
       console.log(`\n  Storyboard: ${index}${weight ? `  (recording ${weight})` : ""}\n`);
     } catch (error) {
       await storyboard.discard();

@@ -79,94 +79,24 @@ Rules:
 - State whether Acceptance Criteria and DoD were checked (and why).
 - If any remain unchecked, say what evidence is missing.
 
-## 🔴 CRITICAL: Code + .junior/ Documentation = 2 Commits
+## Product and Working-Material Commit Groups
 
-**MANDATORY SPLIT PATTERN - CHECK THIS FIRST BEFORE ANY STAGING:**
+Apply **Product Isolation** in `01-structure.md` and the executable workflow in
+[product-isolation.md](../_shared/references/product-isolation.md).
 
-```
-IF session changes include BOTH:
-  - Code files (.py, .ts, .js, .qml, .cpp, etc.)
-  - .junior/ documentation files
+Separate every product file from `.junior/` working material: code, tests, configuration,
+README and other documentation, HTML, images, video, copied helpers, and metadata all count.
+This split applies even when no code changed. Tracking-only commits may retain work context;
+product subjects and bodies describe product behavior alone.
 
-THEN you MUST create 2 separate commits:
-  Commit 1: Code implementation + Project Rules (feat/fix/jr-refactor)
-  Commit 2: .junior/ Documentation ONLY (docs)
-```
+Classify exact runtime instruction/settings surfaces before grouping them; never exempt a
+whole directory. In application repositories, framework assets form their own concern.
+Honor repository-specific grouping where Junior itself is the product: source rules/skills
+may need to land with their implementation. This never permits mixing them with `.junior/`.
 
-**Path scope rule (mandatory):**
-- Use only repository-local paths that appear in `git status` for the current repository.
-
-**What goes in each commit:**
-
-**Commit 1 (Implementation - TIMELESS):**
-- ✅ Code files (*.py, *.ts, *.js, *.qml, *.cpp, etc.)
-- ✅ Test files (test_*.py, *.test.ts, etc.)
-- ✅ Project rule files (if present): `.cursor/rules/100+` or `.codex/rules/100+`
-- ✅ Configuration files (package.json, pyproject.toml, etc.)
-- ❌ NO Junior framework files in the same commit: `.agents/skills/`, `.agents/rules/00-99`, `.cursor/skills/`, `.codex/skills/`, `.cursor/rules/00-99`, `.codex/rules/00-99`
-- ❌ NO story/task references in messages or code
-
-**Commit 2 (Junior Documentation - CAN reference stories):**
-- ✅ ALL `.junior/` documentation (features, improvements, debugging, experiments, research, decisions, docs, ideas)
-- ✅ CAN reference Story X, Task Y, etc. (tracking work)
-
-**Note on rule/skill layout:**
-- `.agents/rules/00-99`, `.cursor/rules/00-99`, `.codex/rules/00-99` = Junior framework rules
-- `.cursor/rules/100+`, `.codex/rules/100+` = Project-specific rules
-- `.agents/skills/`, `.cursor/skills/`, `.codex/skills/` = Junior framework skills/commands
-
-**When to commit framework/project rule files:**
-- Project rules (`.cursor/rules/100+`, `.codex/rules/100+`) → WITH code changes
-- Junior framework rules (`.agents/rules/00-99`, `.cursor/rules/00-99`, `.codex/rules/00-99`) → separate framework commit
-- Junior framework skills (`.agents/skills/`, `.cursor/skills/`, `.codex/skills/`) → separate framework commit
-
-**Example pattern:**
-```
-Session files:
-  ✅ backend/controller.py                    ← CODE (Commit 1)
-  ✅ frontend/Widget.qml                      ← CODE (Commit 1)
-  ✅ <project-rule-file>.md      ← PROJECT RULES 100+ (Commit 1)
-  ✅ .junior/features/feat-N-story-M.md       ← JUNIOR DOCS (Commit 2)
-
-WRONG: Stage all files together ❌
-
-RIGHT:
-  Commit 1: controller.py + Widget.qml + 1xx-project-rule.md
-    → feat(module): add feature implementation
-
-  Commit 2: feat-N-story-M.md
-    → docs(module): mark Story M complete
-```
-
-**Why split this way:**
-- Code + Project Rules (100+) are TIMELESS (no story references)
-- Project rules (100+) document patterns used in this project's code
-- `.junior/` docs track WORK (Story X, Task Y) - separate concern
-- Code+Project Rules can be reverted together without losing work tracking
-- Clear separation: Implementation vs Project Management vs Framework
-
-**Default assumption:**
-- In normal application repositories, Junior framework files are not present in `git status`.
-- If framework files are present (for example in Junior source maintenance), treat them as a separate concern and commit separately.
-
-**Why project rules (100+) go with code:**
-- Project-specific conventions that document patterns in THIS codebase
-- Rules change when code patterns change → same commit makes sense
-- Example: Adding service layer → update backend conventions rule
-
-**Why framework skills/rules are separate:**
-- These are Junior framework files (work across ALL projects)
-- Not project-specific, not tied to any particular implementation
-- Changes to these are Junior framework improvements
-- Should be committed separately with `feat(junior):` or `docs(junior):` type
-
-**Analogy:**
-- Project rules (100+) = Your project's style guide (changes with your code)
-- Framework rules (00-99) = Junior's operating manual (rarely changes)
-- Framework skills = Junior's command library (rarely changes)
-- `.junior/` = Your project management tracking (changes with work status)
-
-**This check happens BEFORE staging in Step 2.5**
+Review each group's complete file list, contents, and message. A product link into private
+working material fails even when its target is in a different commit. Keep identifiers in
+tracking artifacts; do not copy them into public documentation or commit text.
 
 ## Type
 
@@ -215,15 +145,14 @@ Create todos using `todo_write` or `functions.update_plan`:
 - Detail 3 (optional: scope/notes)
 ```
 
-**Commit command rule (avoid blank lines in body):**
-- Use a **single message** with explicit newlines, not multiple `-m` flags.
-- Recommended:
-  - `git commit -m $'summary\n\n- bullet 1\n- bullet 2\n- bullet 3'`
-  - Or write a temp file and use `git commit -F /path/to/message.txt`
+**Commit message preparation:**
+- Write the complete subject and body with real newlines to a temporary message file.
+- Validate that file with the staged isolation gate in Step 9, then use `git commit -F`.
+  This gives the checker and Git the same message bytes, without rebuilding shell-quoted text.
 
 **Rules:**
 - Summary ≤ 72 chars
-- Body bullets concise, factual, no story/task IDs in non-doc commits
+- Body bullets concise and factual; product documentation commits also exclude workflow references
 - Prefer “what changed” + “why” over generic phrasing
 
 ### Step 2: Git Status Analysis & Logical Grouping
@@ -235,6 +164,8 @@ git status --porcelain
 ```
 
 **🔴 CRITICAL: Analyze changes to identify commit-scope files**
+
+Use only repository-local paths reported by `git status` in the current repository.
 
 1. **Identify commit-scope files:**
    - Start with files explicitly worked on in THIS session.
@@ -270,17 +201,9 @@ Out-of-scope files (EXCLUDE):
 
 **🔴 CRITICAL: Automatically detect when changes should be split into multiple commits**
 
-**FIRST: Check for Code + .junior/ Documentation Pattern (MANDATORY SPLIT)**
-
-**Detection triggers (check FIRST):**
-- Implementation files (code, tests, config) + `.junior/` docs → MANDATORY split
-- Implementation includes: code, tests, project rules (100+), config
-- Junior framework files (skills/rules 00-99) → separate from implementation
-
-**Split logic:**
-1. Identify implementation files vs `.junior/` docs
-2. Check for project-rule files (`.cursor/rules/100+`, `.codex/rules/100+`) vs framework files (`.agents/skills/`, `.agents/rules/00-99`, `.cursor/skills/`, `.codex/skills/`, `.cursor/rules/00-99`, `.codex/rules/00-99`)
-3. Create 2+ commits: implementation, junior docs, optional framework
+**First apply Product and Working-Material Commit Groups above.** Inspect all file types,
+including documentation-only and media-only changes, and preserve repository-specific
+framework grouping. Classify runtime sections explicitly. Stage one reviewed group at a time.
 
 **If the above pattern is NOT detected, then proceed with general pattern-based analysis:**
 
@@ -305,7 +228,7 @@ not praised. Baseline: `../_shared/references/artifact-output-spec.md`.
 - **Subject:** concise, action-oriented, present tense
 - **Body:** 3–6 bullets with key changes only
 
-**Implementation commits (code/tests/config):**
+**Product commits (including docs and media):**
 - ✅ Keep subject short
 - ✅ Body summarizes the main functional changes and any migration/tooling impact
 - ❌ No story/task references
@@ -338,14 +261,9 @@ not praised. Baseline: `../_shared/references/artifact-output-spec.md`.
 **Heuristics for splitting (NOT rigid rules, EXCEPT .junior/ pattern):**
 
 ```
-MANDATORY SPLIT (checked in Step 2.5 FIRST):
-🔴 Implementation + .junior/ docs → ALWAYS 2 commits (NO EXCEPTIONS)
-   Implementation = code + tests + project rules (100+) + config
-   Example: controller.py + test_controller.py + 130-rules.md + story-2.md
-   → Commit 1: code + tests + project rules (100+), Commit 2: junior docs
-
-Note: framework rules/skills are separate (`.agents/.cursor/.codex` layout)
-      → Separate commit if changed (not grouped with implementation)
+MANDATORY SPLIT (checked first):
+All product artifacts + .junior/ working material → separate commits.
+Apply Product and Working-Material Commit Groups above, including repository governance.
 
 STRONG signals to split:
 ✅ Multiple feature directories → Different features
@@ -356,40 +274,6 @@ WEAK signals (usually keep together):
 ⚠️ Implementation + its tests → Same feature (keep together)
 ⚠️ Implementation + project rules (100+) → Same concern (keep together)
 ⚠️ Related changes in same module → Same concern (keep together)
-
-SPECIAL PATTERN - .junior/ Documentation:
-ALWAYS split into 2+ commits when both implementation and .junior/ docs changed:
-
-  Commit 1: Implementation (code + tests + project rules (100+) + config)
-            - TIMELESS, no story refs
-            - feat/fix/jr-refactor type
-
-  Commit 2: Junior Documentation (.junior/ files only)
-            - CAN reference stories/features
-            - docs type
-
-Example Session:
-  Files changed:
-    - auth.py, test_auth.py
-    - <project-rule-file>.md (project rule)
-    - .junior/features/feat-2-story-2.md
-
-  Commits:
-    1. feat(auth): implement login with JWT
-       Files: auth.py, test_auth.py, 1xx-project-rule.md
-
-    2. docs(auth): record authentication completion
-       Files: .junior/features/feat-2-story-2.md
-
-Why project rules (100+) go with code:
-  - Project-specific rules document patterns used in THIS project
-  - Rules change when project code patterns change
-  - Example: Adding service layer → update backend conventions
-
-Why framework rules/skills are separate:
-  - Junior framework files (work across ALL projects)
-  - Not tied to any specific project implementation
-  - Changes are Junior improvements, not project features
 
 ASK YOURSELF:
 - Would these changes make sense in separate pull requests?
@@ -799,6 +683,12 @@ Single commit (related work):
 
 ### Step 9: Commit Execution (Per Logical Group)
 
+Write the full proposed message to a temporary file. Follow the `staged` gate in
+[product-isolation.md](../_shared/references/product-isolation.md): check actual index blobs,
+complete changed-file lists, and that exact message before committing with `git commit -F`.
+A failed check stops the commit. Revalidate if the index or message changes, then inspect
+and validate the resulting commit. Do not silently rewrite history to repair a finding.
+
 Follow **Commit Authorization** above. Check the staged diff contains only the reviewed group and that the generated message describes it, then execute the commit using the message format from Step 1.6. Do not pause for message approval unless the user requested a preview or hold.
 
 After committing, verify the resulting commit and remaining working-tree changes. Report the commit hash and subject, then continue with any remaining groups.
@@ -861,7 +751,7 @@ Total: 2 commits, <combined-diff-summary>
 **Git commands:**
 - `git status --porcelain` - Check status
 - `git add file1.ts file2.ts` - Stage files explicitly
-- `git commit -m "[message]"` - Commit changes
+- `git commit -F <validated-message-file>` - Commit the validated group
 
 **Test validation commands (language-agnostic):**
 - `npm test` / `npm test -- --coverage` - Node.js/JavaScript

@@ -18,10 +18,7 @@
 
 ## Documentation
 
-- `.junior/product/01-mission.md`
-- `.junior/product/02-roadmap.md`
-- `.junior/product/03-tech-stack.md`
-- `.junior/product/04-dev-env.md`
+[Link only existing standalone product documentation. Omit this section when none exists.]
 
 ## Status
 

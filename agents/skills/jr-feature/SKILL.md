@@ -511,6 +511,8 @@ If a material scope decision remains open, ask one focused question about that d
 
 ### Step 6: Generate Spec Package
 
+Keep this package in working material. If standalone product documentation is part of the approved scope, apply [product isolation](../_shared/references/product-isolation.md) at its write step; do not copy private planning templates verbatim.
+
 For approved interface design exploration, load and follow [UI Prototype](../jr-ui-prototype/SKILL.md),
 including its parent context and return contract, before final specification review.
 

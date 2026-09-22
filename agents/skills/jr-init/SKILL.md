@@ -231,6 +231,12 @@ Do not generate files until approval.
 
 ### Step 6: Generate Product Documentation
 
+Apply [product isolation](../_shared/references/product-isolation.md) at this write step.
+The `.junior/product/` outputs are working documents. The README and real project files
+must stand alone: include setup needed by their readers, link only existing standalone
+product docs, and omit the Documentation section when none exists. Do not copy the private
+planning template into public docs or create empty documents to populate a link list.
+
 Generate/update using templates:
 
 - `templates/mission-template.md` -> `.junior/product/01-mission.md`
@@ -241,7 +247,7 @@ Generate/update using templates:
 
 Template fidelity rules:
 
-- Keep all major sections from each template.
+- Keep applicable major sections; the README Documentation section is conditional on existing standalone product docs.
 - Use concrete project-specific content (no unresolved placeholders).
 - Preserve vertical-slice guidance in roadmap.
 - Include actionable setup/commands in dev-env output.
@@ -323,6 +329,10 @@ Examples:
 - Right: create `Makefile` and reference it.
 - Wrong: list env vars only in markdown prose.
 - Right: create `.env.example` with comments.
+
+Run the shared complete-tree checker and semantic review after generating the real project
+files. Exercise the README setup and links in a disposable copy without `.junior/` before
+handoff. Fix findings before reporting generation complete.
 
 ### Step 8: Completion Summary
 

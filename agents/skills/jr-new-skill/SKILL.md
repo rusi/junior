@@ -151,6 +151,11 @@ Before writing skill, verify:
 
 ### Step 5: Generate Skill File
 
+Classify every output under **Product Isolation** in `01-structure.md`. A generated skill
+that writes product files or commits must invoke the shared `product-isolation.md` workflow
+at that write/commit step, including semantic review. Resolve its reference from the actual
+skill location as for the output-spec baseline; do not duplicate the policy or checker.
+
 **For:** the new `SKILL.md` is read by Junior at invocation, not by an end user. It answers *what to
 do, in what order, and what to produce.* The `README.md` describes portable skills for
 users. Distribution and discovery follow Step 6 below.
@@ -175,7 +180,7 @@ users. Distribution and discovery follow Step 6 below.
 [From contract]
 
 ## Output Spec
-[What the skill's artifact is for, what goes in, what never does, register]
+[What the skill's artifact is for, what goes in, what never does, register; classify product/runtime/working outputs and apply the shared product-isolation checks at product write and commit steps]
 
 ## Tool Integration
 [Tools and commands]
@@ -324,6 +329,8 @@ For portable skills, check the generated skill file for:
 ### Step 8: Validate & Complete
 
 **Validate skill:**
+- Product-writing and commit steps apply `product-isolation.md`; planning-only outputs stay
+  in working material. Review the generated skill's behavior, not just the citation.
 - Follows Junior patterns
 - Uses `.junior/` structure correctly (if applicable)
 - Clear tool integration (high-level, not detailed patterns)

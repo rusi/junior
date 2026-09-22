@@ -39,6 +39,62 @@ the user directs work to it; creation grants no implementation or submission aut
 Existing handoff documents and inbox/archive contents remain user-owned and untouched.
 There is no global feedback store, startup discovery, collection, or mandatory archival.
 
+## Product Isolation
+
+Product material must stand on its own when `.junior/` is absent. Keep Junior workflow
+terminology, commands, tracking identifiers, private paths, provenance, and dependencies
+out of product code, comments, tests, configuration, documentation, filenames, copied
+helpers, metadata, and rendered media. Product commit subjects and bodies follow the
+same boundary, including documentation-only and media-only changes.
+
+Junior working material belongs in `.junior/`; product dependencies on it are forbidden.
+Working material may reference product files; product files must not depend on or point
+back to it. Tracking documents and tracking-only commits
+may retain their work identifiers. Keep all product files separate from `.junior/` in
+commits, regardless of file extension. Apply repository-specific grouping within each side.
+
+### Runtime Surfaces
+
+Keep installed instructions, settings, and entry points in their supported locations.
+Identify each actual runtime file or section from the installation and repository guidance:
+
+- `AGENTS.md`, `AGENTS.override.md`, and `CLAUDE.md`: only the runtime instruction sections;
+  ordinary contributor guidance remains independently usable product documentation.
+- Exact installed rules, skills and their support files, hooks, and legacy commands under
+  the selected runtime's rule/skill roots; installation ownership records identify files,
+  never an exempt directory.
+- Exact runtime settings and installation metadata files, including the applicable
+  `.codex/config.toml`, Claude settings, runtime contract, and installation manifests.
+
+A product file sharing one of these directories is still product material. Classify before
+writing or copying; file location alone does not establish purpose. Do not relocate runtime
+assets or erase user-owned instructions to satisfy product checks.
+
+### Product Purpose
+
+A product that develops Junior or integrates with it may describe Junior functionality.
+Read each reference for a concrete product purpose; this is not a repository exemption.
+Junior's own documentation, source instructions, and tests may describe its workspace paths,
+commands, formats, and behavior. Review each such literal for product purpose and independence
+from this checkout's private working material. Actual private tracking links and dependencies
+remain prohibited. Bind accepted literal findings to exact content through the shared review
+mechanism; neither a repository name nor a keyword establishes legitimacy.
+
+### Verification
+
+Before handing over product output, read it for indirect workflow leakage and inspect
+rendered content. Confirm use and documentation work without private working material.
+Run the shared `product-isolation.md` workflow from `_shared/references/` in the selected
+skill root: complete candidate tree, explicit pending commit range when known, and actual
+staged contents plus the proposed message before committing. Report existing violations
+explicitly. Do not claim history is clean without a resolved, explicit base.
+
+The executable checks enumerate literal references, paths, complete commit file lists,
+and messages. Their execution fails on findings; invoking them and judging semantics are
+agent norms. Text scanning does not verify images/video or prove the absence of indirect
+dependencies. Resolve findings before the dependent workflow proceeds; history rewriting,
+live installation changes, and publishing require their own authorization.
+
 ## 3-Stage Progressive Structure
 
 Junior uses a **progressive 3-stage structure** that adapts to project complexity. Projects start simple and evolve naturally as complexity emerges.

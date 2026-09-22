@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.1.0 - 2026-09-21
+
+### Added
+
+- Product isolation checks for complete trees, staged files and commit messages, and commit ranges, with content-bound review decisions.
+- `/jr-demo` promotion of selected, verified capture bundles into standalone documentation, with content verification and backups when replacing existing bundles.
+
+### Changed
+
+- Planning, generation, review, and commit workflows keep product code, documentation, and media independent of private planning material.
+- Product changes and planning updates use separate commits.
+- Playwright captures record successful-run completion before becoming eligible for promotion. Refresh existing copied demo helpers and configuration, then recapture before promoting older bundles.
+
 ## v2.0.0 - 2026-09-16
 
 ### Added

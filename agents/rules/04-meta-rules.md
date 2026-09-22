@@ -2,6 +2,10 @@
 
 ## Three Modes of Documentation
 
+Classify the destination using **Product Isolation** in `01-structure.md` before choosing
+the documentation mode. Mode C product output is independent of private working material;
+portable instructions and their templates must not cause that material to leak into it.
+
 ### Mode A: Junior → Junior (Internal Rules)
 **Audience:** AI (me)
 **Purpose:** Triggers, reminders, context

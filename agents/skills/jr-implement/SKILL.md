@@ -347,6 +347,11 @@ Use rules already loaded in context. Otherwise resolve the selected installation
 
 ### Step 5: Story Task Execution (TDD Workflow)
 
+Apply [product isolation](../_shared/references/product-isolation.md) before writing code,
+tests, docs, configuration, or copying tooling. Run its complete-tree check after product
+writes and before handoff; inspect indirect dependencies and rendered output semantically.
+Keep execution notes and planning links in the selected working document.
+
 **Execute story tasks in sequential order, one at a time:**
 
 **For each task in sequence:**

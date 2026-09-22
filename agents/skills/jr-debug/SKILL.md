@@ -562,6 +562,8 @@ Next: [What we'll test next and why]
 
 ### Step 9: Resolution Documentation
 
+Keep investigation evidence in working material. Any separately requested product documentation uses [product isolation](../_shared/references/product-isolation.md), including complete-tree checks before handoff.
+
 **When root cause is identified (with evidence):**
 
 Create `dbg-{N}-resolution.md`:

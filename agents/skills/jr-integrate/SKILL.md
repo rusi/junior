@@ -66,6 +66,10 @@ not proof of coverage. Update todos from the reconciled groups, not from merge c
 
 ### Step 4: Feature-by-Feature Walkthrough
 
+Run [product isolation](../_shared/references/product-isolation.md) for the complete
+integration tree and the recorded range. Keep its literal findings, semantic review, and
+rendered-content findings in the coverage map; repeat affected checks after inline fixes.
+
 **For each inventory group (oldest first):**
 
 #### 4a. Gather Context (Read Both Code AND Reports)

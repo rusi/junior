@@ -17,6 +17,7 @@ Apply these gates before marking work complete.
 4. Documentation gate
 - Specs/checklists/status files are updated with evidence.
 - References and links remain valid.
+- Product output passes [product isolation](product-isolation.md), including the complete-tree check and semantic/rendered review.
 
 5. Handoff gate
 - Summarize outcome, evidence, residual risks, and next action.

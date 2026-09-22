@@ -51,6 +51,8 @@ has no interface design work, return without creating an artifact.
 
 ### 2. Initial Prototype
 
+Keep the prototype beside its private specification. Any approved extraction into product paths uses [product isolation](../_shared/references/product-isolation.md); inspect its source, fixtures, links, captions, and rendered content before delivery.
+
 Use available rendering tools and the project's conventions; prescribe no framework.
 Reuse the actual application's visual language and place the change in its surrounding
 layout. Build the smallest runnable draft that answers the agreed design question,

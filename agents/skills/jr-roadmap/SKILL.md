@@ -105,6 +105,11 @@ Do not write files until approved.
 
 ### Step 5: Apply Updates
 
+Apply [product isolation](../_shared/references/product-isolation.md) when syncing README
+or `docs/` outputs. Keep prompts, execution tracking, and planning links in the private
+roadmap; product-facing documents receive only independently useful product direction.
+Run the complete-tree check and semantic review after any product-document changes.
+
 Primary file:
 - `.junior/product/02-roadmap.md`
 
@@ -165,7 +170,7 @@ Before completion, verify:
 
 - **For:** whoever decides what to build next. Answers *what ships in what order, what each stage
   delivers, and what is deliberately not on the list.*
-- **Goes in:** the sections required in Step 5, filled with the current direction.
+- **Goes in:** the sections required in Step 5 for the private roadmap; synced product docs hold only the standalone product direction relevant to their readers.
 - **Never goes in:** what the clarification loop asked and answered · which files were scanned to
   find candidates · a superseded sequence kept beside the new one · sequencing that was proposed
   and cut, unless the exclusion is itself a standing non-goal, stated as one · that a contract was

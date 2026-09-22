@@ -51,6 +51,10 @@ do not replace review. Use suitable viewers for non-text assets. Verify changing
 claims against official sources and actual local behavior; distinguish source claims from
 observations, and record unavailable verification rather than guessing.
 
+Run [product isolation](../_shared/references/product-isolation.md) over the complete
+candidate tree and any explicitly scoped pending range. Review indirect workflow leakage
+and rendered content separately; literal success never replaces the examination above.
+
 ### 3. Findings and Coverage
 
 Update the same artifact after each coherent review segment. Prioritize findings by user

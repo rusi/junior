@@ -16,7 +16,8 @@ export default defineConfig({
   outputDir: path.join("<the project's gitignored output root>", "demo-results"),
   // The e2e config's HTML reporter writes to a fixed folder; sharing it would overwrite
   // the last e2e report with a demo run nobody was looking for.
-  reporter: [["list"]],
+  // Keep the completion reporter last: it seals captures after the full run succeeds.
+  reporter: [["list"], ["./tests/demo/capture-reporter.ts"]],
   projects: [
     {
       name: "demo",

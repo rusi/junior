@@ -139,6 +139,8 @@ Legacy `.codex/skills`, `.cursor/skills`, and `.cursor/commands` require the ins
 
 ### Step 6: Analyze for Leaks and Issues
 
+Also apply [product isolation](../../../_shared/references/product-isolation.md) to any product outputs. Source instructions have a concrete Junior product purpose; that does not permit private project context to escape into portable assets.
+
 After sync, inspect changed source files for:
 - project-specific leakage (class names, module names, domain terms)
 - hardcoded local paths that should be generic

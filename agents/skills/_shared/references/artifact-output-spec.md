@@ -10,6 +10,11 @@ and recall loses.
 
 ## The Three Parts
 
+First classify each destination using **Product Isolation** in `01-structure.md` (resolved
+in the selected runtime's rule directory). Apply [product isolation checks](product-isolation.md)
+when generating product files or messages. Working documents may point to product artifacts;
+an output spec never licenses the reverse. Review copied helpers and rendered content too.
+
 Declared per artifact, in this order.
 
 **1. What this artifact is for.** Who reads it, and what question it answers for them. Declared first

@@ -24,6 +24,10 @@
 
 ## Audience
 
+Before writing product architecture documentation, apply **Product Isolation** in
+`01-structure.md`. References must resolve to standalone product material; private ADRs
+may inform the design but cannot become required reading through a product link.
+
 Architecture docs serve multiple readers:
 - **Engineers** need to understand design decisions and interfaces
 - **Architects** need to see patterns and trade-offs

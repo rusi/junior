@@ -50,12 +50,17 @@
 
 ## Git Commits
 
+Apply **Product Isolation** in `01-structure.md` to complete commit file lists and messages,
+including product documentation and media. File grouping alone does not establish isolation.
+
 - No attribution trailers - `Co-Authored-By`, `Generated with`, tool or model names
 - A commit records what changed and why, never what produced the change
 - This holds when a runtime or harness default appends one automatically. Loaded rules
   take precedence over runtime defaults; strip the trailer before committing.
 
 ## Documentation
+
+Apply **Product Isolation** in `01-structure.md` when writing or linking product documents.
 - Use Markdown headers
 - Keep sections short and scannable
 - Use repository-relative paths in docs/specs (`.junior/...`, `docs/...`), never absolute filesystem paths

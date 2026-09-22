@@ -45,6 +45,10 @@ roadmap, any TODO/notes file the project keeps. Then ground ALL the questions in
 **Question 2 is the exception.** A chat-only artifact leaves no disk trace, so a disk-first sweep cannot
 find what was never written. Question 2 alone runs conversation → disk; see `### 2. Persisted?`.
 
+Persist workflow findings in working material under **Product Isolation** in `01-structure.md`.
+Do not put session context into product docs merely to make it durable. Reuse applicable
+[product isolation](../_shared/references/product-isolation.md) evidence when judging completion.
+
 **A restriction on Git writes still permits read-only inspection.** Use `git status`, `git log`,
 and `git diff` to establish what is saved and committed. Do not stage, commit, reset, or otherwise
 change Git state unless authorized. If the project explicitly forbids even read-only Git access,

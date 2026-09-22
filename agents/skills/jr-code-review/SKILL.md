@@ -103,7 +103,13 @@ git ls-files --others --exclude-standard
 - Include untracked files by reading their current contents and reviewing them as new files.
 - If changes map to a `.junior/.../feat-N-story-M*.md` scope, load `../_shared/references/session-artifact-log.md` and maintain that story's `## Session Artifact Log` for this review pass.
 
-**Focus on changed lines, not entire files:**
+Run [product isolation checks](../_shared/references/product-isolation.md) against the
+complete candidate tree and, in branch mode, every commit after the resolved base. Include
+unchanged files, copied helpers, filenames, metadata, docs, and media. Missing/ambiguous
+base means history is unchecked, even when local changes can be reviewed. Findings block
+a clean review; existing violations are not excused by age.
+
+**For the other code checks, focus on changed lines, not entire files:**
 - Review only what changed (added, modified, deleted lines)
 - Include surrounding context for understanding
 - Filter to relevant files (source code only, exclude generated files)
@@ -112,7 +118,7 @@ git ls-files --others --exclude-standard
 
 Scan the **changes** (diffs) for issues in 4 categories:
 
-**Focus on changed lines only** - Don't review entire files, only what was added/modified in this PR.
+**The code categories below focus on changed lines.** Product isolation uses the complete tree and pending range specified above.
 **Non-negotiable in every run (including local-change mode):**
 - DRY violations must always be checked and fixed.
 - Security issues must always be checked and fixed.
@@ -303,6 +309,10 @@ Repeat Step 4 for each category in order:
 - If uncertain about issue, get more context or ask user - NEVER GUESS
 
 ### Step 5.5: Read the Artifacts This Branch Wrote
+
+Apply the semantic half of [product isolation](../_shared/references/product-isolation.md):
+read product content, follow dependencies, and inspect rendered media, including unchanged
+candidate material. Literal checks cannot establish meaning or image/video contents.
 
 Steps 3-5 read code. **This reads the documents** — anything under `.junior/` in the diff, plus a
 README or spec the branch touched. The skills that produced them declare what they may contain

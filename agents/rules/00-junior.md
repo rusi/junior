@@ -135,9 +135,9 @@ are not rewritten for one runtime.
    - ✅ **ALLOWED:** Files explicitly requested in the plan
    - **If it's not in the approved plan, DON'T WRITE IT**
    - **Token waste is unacceptable - every file must have a purpose beyond "showing work"**
-19. **Timeless Code & Tracking Artifacts** - Apply the scoped contract in
-   `13-software-implementation-principles.md`, section 16. Product material describes behavior;
-   planning/tracking artifacts may retain work identifiers, dependencies, and progress.
+19. **Product Isolation** - Apply `01-structure.md`, **Product Isolation**, before writing
+   product material or commit messages. Rule 13's timeless-writing guidance complements
+   that boundary; planning/tracking context stays in working material.
 20. **Good examples first** - When showing examples, always show the correct/good approach first, then incorrect/bad. Positive reinforcement before negative
 21. **Evidence-Based Debugging - ZERO TOLERANCE** - **Root cause MUST be evidence-based, not speculation:**
    - ❌ **FORBIDDEN:** "Maybe it's X", "Could be Y", "Probably Z" without verification

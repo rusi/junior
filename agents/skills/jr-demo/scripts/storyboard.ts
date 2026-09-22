@@ -47,7 +47,7 @@ class CaptureDirectory {
     private readonly identity: string,
   ) {}
 
-  private get marker(): string { return path.join(this.directory, ".junior-capture.json"); }
+  private get marker(): string { return path.join(this.directory, ".capture-owner.json"); }
 
   static async open(root: string, directory: string, identity: string): Promise<CaptureDirectory> {
     if (!root.trim() || !directory.trim() || !identity.trim()) {
@@ -278,8 +278,8 @@ function drawPointer(pressFeedbackMs: number): void {
  *
  * A walkthrough that opted into motion is the same object with the same one door. Its steps
  * assert and record their claim; the artifact they land in is a recording rather than a
- * grid, and the footage between two asserted moments is evidence of nothing, which the
- * sheet says out loud.
+ * grid. Captions identify demonstrated states; intervening frames remain visual evidence
+ * for a person to evaluate, not individually asserted states.
  */
 export class Storyboard {
   private readonly claims: Claim[] = [];
@@ -400,6 +400,7 @@ export class Storyboard {
 
   /** Write the contact sheet and return the file to open. */
   async write(): Promise<string> {
+    if (!this.claims.length) throw new Error("A capture requires at least one asserted moment.");
     if (!this.summary) {
       // A reviewer arriving at eight screenshots with no framing infers the question from the
       // pictures, and infers a different one than the author meant. Optional would mean
@@ -591,9 +592,8 @@ const PLAYER_STYLE = `  video { display: block; width: 100%; max-width: 1280px; 
  * A recording, and the ordered claims the run asserted while making it.
  *
  * There is no grid, because what a reviewer does with a recording is watch it. The list is
- * what the run proved: every line was asserted before the walkthrough was allowed to
- * continue. The note carries what this medium makes easiest to forget — that the footage
- * between two asserted moments was asserted by nobody, so a frame is not a panel.
+ * what the run proved. The viewer describes states and transitions without exposing the
+ * capture process; assertion evidence stays in the runner's completion receipt.
  */
 function recordingSheet(title: string, summary: string, claims: Claim[]): string {
   const items = claims
@@ -606,15 +606,14 @@ function recordingSheet(title: string, summary: string, claims: Claim[]): string
   return sheet(
     title,
     summary,
-    `${claims.length} asserted moment${claims.length === 1 ? "" : "s"} &middot; watched end to end`,
+    `${claims.length} moment${claims.length === 1 ? "" : "s"} &middot; play the walkthrough`,
     PLAYER_STYLE,
     `<video controls preload="metadata" src="${RECORDING}"></video>
 
 <ol class="claims">${items}
 </ol>
 
-<p class="note">Every line above was asserted before the run was allowed to continue, and the
-run delivered nothing until all of them had passed. The footage between two of them was
-asserted by nobody: judge the transition, and do not read a frame as a panel.</p>`,
+<p class="note">Captions identify demonstrated states. Watch the recording to inspect the
+transitions between them.</p>`,
   );
 }

@@ -8,6 +8,9 @@ Use this reference for consistent story-file generation and updates.
 - Stage 2: `.junior/features/comp-M/feat-X/user-stories/`
 - Stage 3: `.junior/features/comp-M/features/feat-X/user-stories/`
 
+Planning output stays in `.junior/`; product documentation derived from it uses
+[product isolation](product-isolation.md), never a verbatim copy with tracking references.
+
 ## New Story File
 
 File: `feat-X-story-{M+1}-{name}.md`

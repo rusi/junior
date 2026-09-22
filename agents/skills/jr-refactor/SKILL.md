@@ -199,6 +199,9 @@ Proceed with recommendation? [yes | no, [execute-directly | create-spec]]
 
 **4A.2: Verify refactoring:**
 
+Apply [product isolation](../_shared/references/product-isolation.md) to changed product
+files and copied helpers; run its complete-tree check and semantic review before handoff.
+
 - Run tests if available
 - Verify syntax is correct
 - Check that behavior is unchanged

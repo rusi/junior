@@ -350,6 +350,9 @@ If user requests adjustments:
 
 #### Maintenance Commit Gate
 
+Apply [product isolation](../../../_shared/references/product-isolation.md) before every commit: complete staged contents and the exact proposed message file. Stop on findings and commit with that validated file. Product README/docs corrections form a separate group from working material; never rewrite private links into product docs.
+
+Allocate `isolation_message` as a scratch file and resolve `<checker>` through the shared reference.
 Use this gate immediately before every maintenance commit below. It is an agent workflow
 requirement, not an automated guarantee.
 
@@ -403,7 +406,7 @@ verify_file_moves()
 git status
 
 # Run the Maintenance Commit Gate, then commit Phase 1
-git commit -m "$(cat <<'EOF'
+cat > "$isolation_message" <<'EOF'
 Reorganize into component structure (file moves)
 
 - Transition from Stage 1 (flat) to Stage 2 (components)
@@ -413,7 +416,8 @@ Reorganize into component structure (file moves)
 
 Phase 1 of 2: File moves only (no content changes)
 EOF
-)"
+python3 <checker> --repo . staged --message-file "$isolation_message" &&
+  git commit -F "$isolation_message"
 ```
 
 **For Stage 2→3 transition:**
@@ -437,7 +441,7 @@ verify_file_moves()
 git status
 
 # Run the Maintenance Commit Gate, then commit Phase 1
-git commit -m "$(cat <<'EOF'
+cat > "$isolation_message" <<'EOF'
 Group component items by type (file moves)
 
 - Transition comp-[N]-[name] from Stage 2 to Stage 3
@@ -447,7 +451,8 @@ Group component items by type (file moves)
 
 Phase 1 of 2: File moves only (no content changes)
 EOF
-)"
+python3 <checker> --repo . staged --message-file "$isolation_message" &&
+  git commit -F "$isolation_message"
 ```
 
 **Verification after Phase 1:**
@@ -557,7 +562,7 @@ tree .junior/features -L 3
 Run the **Maintenance Commit Gate** with the reviewed content-update file list.
 
 ```bash
-git commit -m "$(cat <<'EOF'
+cat > "$isolation_message" <<'EOF'
 Add component overviews and update cross-references
 
 - Created comp-N-overview.md for each component (Stage 1→2)
@@ -568,7 +573,8 @@ Phase 2 of 2: Content updates and reference corrections
 
 Reorganization complete!
 EOF
-)"
+python3 <checker> --repo . staged --message-file "$isolation_message" &&
+  git commit -F "$isolation_message"
 ```
 
 ### Step 8: Report Success
@@ -672,7 +678,7 @@ tree .junior/features -L 3
 git log --follow file.md
 
 # Commits: first run the Maintenance Commit Gate for the current phase
-git commit -m "message"
+git commit -F "$isolation_message"  # Only after the staged isolation gate succeeds
 ```
 
 **Filesystem commands:**

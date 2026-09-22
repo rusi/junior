@@ -460,6 +460,9 @@ Brief description (2-3 sentences max).
 
 ### 16. Timeless Code & Tracking Artifacts
 
+Apply **Product Isolation** in `01-structure.md` as the canonical product/runtime/working
+material boundary. The guidance below governs writing within that boundary.
+
 **Product material:**
 
 - Code, tests, comments, runtime logs, configuration, READMEs, and user/reference documentation describe behavior and rationale.
@@ -473,8 +476,9 @@ Brief description (2-3 sentences max).
 
 **Verification — before editing and before completion:**
 
-1. Search changed files for numbered story/task references.
-2. Read each match in context; remove it from product material and retain valid planning, tracking, or template references.
+1. Run the complete-tree and applicable commit checks in the shared `product-isolation.md`
+   workflow, not only a search of changed lines.
+2. Read each finding in context; remove workflow leakage from product material and retain valid planning, tracking, or template references in their proper locations.
 3. Keep required story headings and dependencies. A number alone does not establish a violation.
 4. Recheck corrected material before marking it complete.
 

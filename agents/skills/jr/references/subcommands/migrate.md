@@ -570,12 +570,15 @@ git status
 
 **Commit Phase 1:**
 
+Resolve `<checker>` from the shared product-isolation reference and allocate
+`isolation_message` as a scratch file before writing the message below.
+
 ```bash
 # Add moved directories explicitly (git mv already staged moves)
 # Verify what's staged
 git status
 
-git commit -m "$(cat <<'EOF'
+cat > "$isolation_message" <<'EOF'
 Migrate Code Captain to Junior Stage 2: organize features into components (file moves)
 
 - Created [M] components based on semantic clustering
@@ -586,7 +589,8 @@ Migrate Code Captain to Junior Stage 2: organize features into components (file 
 Phase 1 of 2: File moves only (no content changes)
 Next: Create component overviews and update references
 EOF
-)"
+python3 <checker> --repo . staged --message-file "$isolation_message" &&
+  git commit -F "$isolation_message"
 ```
 
 **Show progress:** "✅ Phase 1 complete: [N] features organized into [M] components"
@@ -785,6 +789,12 @@ Example failure:
 
 ### Step 9: Commit Renames (Before Content Changes!)
 
+Apply [product isolation](../../../_shared/references/product-isolation.md) before every
+migration commit, including moves: inspect actual staged contents and the proposed message
+file, stop on findings, and commit with that validated file. Treat exact legacy
+`.code-captain/` working paths as working material during migration. Never group product
+README/docs/media changes with private working material.
+
 **CRITICAL: Commit all file renames BEFORE editing content/references**
 
 This preserves git history better - git tracks file moves separately from content changes.
@@ -820,7 +830,9 @@ Use when target is Stage 1 (flat structure, no components).
 - ✅ Update: `.junior/features/feat-N-name/feature.md` → `feat-N-overview.md`
 - ❌ Don't touch Junior framework docs/skills (for example: `agents/skills/jr-feature/SKILL.md` in the Junior source repo)
 
-1. Find all `.md` files in `.junior/` and project README
+1. Find all `.md` files in `.junior/`. Review the project README separately: remove private
+   workflow links or replace them with existing standalone product documentation, never
+   redirect them into `.junior/`. Run complete-tree checks after product edits.
 2. Update references:
    - `spec-N` → `feat-N` (in links, mentions, etc.)
    - `YYYY-MM-DD-name` → `feat-N-name` (if any date references remain)
@@ -1018,6 +1030,11 @@ Example failure:
 
 ### Step 12: Commit Content Updates
 
+Use Step 9's staged isolation gate for each group. Allocate `isolation_message` as a scratch
+file and resolve `<checker>` through the shared reference before the first migration commit. The message examples below describe
+tracking-only commits. Stage exact files, validate the full proposed message file, and
+commit with `git commit -F <validated-message-file>`.
+
 **CRITICAL: Add files explicitly, never use `git add -A`**
 
 **Branch based on target stage:**
@@ -1029,10 +1046,10 @@ Stage and commit content/reference updates:
 
 ```bash
 # Add modified files explicitly (reference updates in .junior/)
-git add .junior/
-git add README.md  # if project README was updated
+git add <explicit-reviewed-working-file-paths>
+# Product README changes are a separate group, validated through Step 9's isolation gate.
 
-git commit -m "$(cat <<'EOF'
+cat > "$isolation_message" <<'EOF'
 Migrate Code Captain to Junior Stage 1: update cross-references
 
 - Updated all spec-N → feat-N references
@@ -1045,7 +1062,8 @@ Phase 2 of 2: Content updates and reference corrections
 
 All internal links now point to Junior Stage 1 structure.
 EOF
-)"
+python3 <checker> --repo . staged --message-file "$isolation_message" &&
+  git commit -F "$isolation_message"
 ```
 
 
@@ -1058,10 +1076,10 @@ Stage and commit Phase 2 changes:
 git add .junior/features/comp-*/comp-*-overview.md
 
 # Add modified files (reference updates)
-git add .junior/
-git add README.md  # if project README was updated
+git add <explicit-reviewed-working-file-paths>
+# Product README changes are a separate group, validated through Step 9's isolation gate.
 
-git commit -m "$(cat <<'EOF'
+cat > "$isolation_message" <<'EOF'
 Migrate Code Captain to Junior Stage 2: add component overviews and update references
 
 - Created comp-N-overview.md for [M] components
@@ -1074,7 +1092,8 @@ Phase 2 of 2: Content updates and reference corrections
 
 Migration to Stage 2 complete!
 EOF
-)"
+python3 <checker> --repo . staged --message-file "$isolation_message" &&
+  git commit -F "$isolation_message"
 ```
 
 
