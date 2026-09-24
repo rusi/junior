@@ -43,8 +43,9 @@ const OUTPUT_ROOT = process.env.DEMO_OUTPUT !== undefined
  * Teardown runs whether the body passed or threw, which is the only place the
  * no-artifact-on-failure rule can be enforced without a walkthrough author remembering it.
  */
-export const test = base.extend<{ demo: Storyboard }>({
-  demo: async ({ page, video }, use, testInfo) => {
+export const test = base.extend<{ demo: Storyboard; demoViews: [string, string] | null }>({
+  demoViews: [null, { option: true }],
+  demo: async ({ page, video, demoViews }, use, testInfo) => {
     // What the walkthrough declared, not what the runner happens to be doing. Every other
     // recording mode — kept for failures, kept on a retry — is the runner's business, and
     // reading one of those as a request for motion delivers a recording in place of the
@@ -62,6 +63,7 @@ export const test = base.extend<{ demo: Storyboard }>({
       motion,
       OUTPUT_ROOT,
       identity,
+      demoViews,
     );
 
     await use(storyboard);

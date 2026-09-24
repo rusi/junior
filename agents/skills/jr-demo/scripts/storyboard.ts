@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import { createHash, randomUUID } from "node:crypto";
 import path from "node:path";
 import { expect, type Locator, type Page, type Video } from "@playwright/test";
+import type { MultiViewCapture } from './multiview';
 
 const VIEWPORT = { width: 1280, height: 800 };
 
@@ -117,7 +118,7 @@ function escapeHtml(value: string): string {
  * It exists only in motion mode — stills never carry it — and it takes no pointer events,
  * so nothing the walkthrough does can land on it.
  */
-function drawPointer(pressFeedbackMs: number): void {
+function drawPointer({ pressFeedbackMs, animate }: { pressFeedbackMs: number; animate: boolean }): void {
   const ID = "demo-pointer-overlay";
   const IDLE = 700;
 
@@ -132,7 +133,9 @@ function drawPointer(pressFeedbackMs: number): void {
       // pointer's exact position and the arrow's body hangs down-right of it — away from
       // whatever the caption is about, the way a real cursor does. The device sits up-right,
       // out of the arrow's way, and appears only while something is being pressed or turned.
-      root.innerHTML =
+      // Animated overlay layers can stall Chromium screencast delivery. Keep multi-view
+      // feedback immediate so the overlay does not distort the captured timeline.
+      root.innerHTML = (animate ? "" : `<style>#${ID} * { transition: none !important; }</style>`) +
         '<div data-ripple style="position:absolute;left:0;top:0;width:38px;height:38px;' +
         "margin:-19px 0 0 -19px;border:3px solid rgba(255,60,60,1);border-radius:50%;" +
         "opacity:0;transform:scale(.2);" +
@@ -193,7 +196,7 @@ function drawPointer(pressFeedbackMs: number): void {
 
   const install = (): void => {
     document.addEventListener(
-      "mousemove",
+      animate ? "mousemove" : "pointermove",
       (event) => {
         const { root } = ensure();
         root.style.display = "block";
@@ -204,7 +207,7 @@ function drawPointer(pressFeedbackMs: number): void {
     );
 
     document.addEventListener(
-      "mousedown",
+      animate ? "mousedown" : "pointerdown",
       (event) => {
         const { path, ripple, left, right, wheel } = ensure();
         showDevice();
@@ -228,7 +231,7 @@ function drawPointer(pressFeedbackMs: number): void {
     );
 
     document.addEventListener(
-      "mouseup",
+      animate ? "mouseup" : "pointerup",
       () => {
         const { path, left, right, wheel } = ensure();
         path.setAttribute("fill", "#fff");
@@ -281,9 +284,17 @@ function drawPointer(pressFeedbackMs: number): void {
  * grid. Captions identify demonstrated states; intervening frames remain visual evidence
  * for a person to evaluate, not individually asserted states.
  */
+async function installPointer(page: Page, animate: boolean): Promise<void> {
+  const options = { pressFeedbackMs: PRESS_FEEDBACK_MS, animate };
+  await page.addInitScript(drawPointer, options);
+  await page.evaluate(drawPointer, options);
+}
+
 export class Storyboard {
   private readonly claims: Claim[] = [];
   private summary = "";
+  private readonly views = new Map<string, Page>();
+  private multiCapture: MultiViewCapture | null = null;
 
   private constructor(
     private readonly page: Page,
@@ -291,6 +302,7 @@ export class Storyboard {
     private readonly recording: Video | null,
     private readonly output: CaptureDirectory,
     private readonly title: string,
+    private readonly viewLabels: readonly [string, string] | null,
   ) {}
 
   private get directory(): string { return this.output.directory; }
@@ -302,7 +314,14 @@ export class Storyboard {
     motion: boolean,
     outputRoot: string,
     identity: string,
+    viewLabels: readonly [string, string] | null = null,
   ): Promise<Storyboard> {
+    if (viewLabels && (motion || viewLabels.length !== 2 ||
+        viewLabels.some(label => !label.trim() || label.length > 60 || /[\r\n]/.test(label)) ||
+        viewLabels[0] === viewLabels[1])) {
+      throw new Error('Two-view capture requires two distinct short labels and video: "off".');
+    }
+    if (viewLabels && page.video()) throw new Error('Two-view pages must use video: "off".');
     await page.setViewportSize(VIEWPORT);
 
     const capture = page.screenshot.bind(page);
@@ -325,15 +344,40 @@ export class Storyboard {
       );
     }
 
-    if (motion) {
+    if (motion || viewLabels) {
       // On every navigation from here, and once on the page already open — an init script
       // alone would leave the overlay missing until the walkthrough happened to navigate.
-      await page.addInitScript(drawPointer, PRESS_FEEDBACK_MS);
-      await page.evaluate(drawPointer, PRESS_FEEDBACK_MS).catch(() => {});
+      await installPointer(page, !viewLabels);
     }
 
     const output = await CaptureDirectory.open(outputRoot, directory, identity);
-    return new Storyboard(page, capture, recording, output, title);
+    const storyboard = new Storyboard(page, capture, recording, output, title, viewLabels);
+    if (viewLabels) storyboard.views.set(viewLabels[0], page);
+    return storyboard;
+  }
+
+  /** Register the second, already initialized page; labels determine the fixed placement. */
+  async registerView(label: string, page: Page): Promise<void> {
+    if (!this.viewLabels || !this.viewLabels.includes(label) || this.views.has(label) ||
+        [...this.views.values()].includes(page) || this.multiCapture) {
+      throw new Error('Register each declared view once, before recording starts.');
+    }
+    if (page.video()) throw new Error('Two-view pages must use video: "off".');
+    await page.setViewportSize(VIEWPORT);
+    await installPointer(page, false);
+    page.screenshot = async () => { throw new Error('Use step with a registered view instead of capturing directly.'); };
+    this.views.set(label, page);
+  }
+
+  /** Start a common timeline after both views have reached their intended starting state. */
+  async startRecording(): Promise<void> {
+    if (!this.viewLabels || this.views.size !== 2 || this.multiCapture || this.claims.length) {
+      throw new Error('Start recording once, with both declared views registered and before any claims.');
+    }
+    const { MultiViewCapture } = await import('./multiview');
+    this.multiCapture = await MultiViewCapture.open(
+      this.viewLabels.map(label => this.views.get(label)!), this.viewLabels, this.directory,
+    );
   }
 
   /** What this walkthrough shows, and what a reviewer should judge. Required before `write`. */
@@ -343,6 +387,12 @@ export class Storyboard {
 
   /** Assert the locator is visible, capture the whole page, and append the panel. */
   async step(caption: string, locator: Locator): Promise<void> {
+    if (this.viewLabels) {
+      const view = [...this.views].find(([, page]) => page === locator.page());
+      if (!view) throw new Error('An assertion must belong to a registered view.');
+      if (!this.multiCapture) throw new Error('Start recording before asserting a two-view claim.');
+      caption = `${view[0]}: ${caption}`;
+    }
     const position = this.claims.length + 1;
     await expect(locator, `panel ${position}: ${caption}`).toBeVisible();
     // Bring the asserted element into view before capturing. `fullPage` makes framing a
@@ -350,7 +400,7 @@ export class Storyboard {
     // once it has been reached.
     await locator.scrollIntoViewIfNeeded();
 
-    if (this.recording) {
+    if (this.recording || this.viewLabels) {
       // Motion is already being captured continuously, so a still here would be a second
       // artifact of the same moment. The claim and its assertion are what this step adds.
       this.claims.push({ caption, image: null });
@@ -385,11 +435,16 @@ export class Storyboard {
    * exists to save it into.
    */
   async record(): Promise<string | null> {
-    if (!this.recording) return null;
-    await this.page.close();
-
     const file = path.join(this.directory, RECORDING);
-    await this.recording.saveAs(file);
+    if (this.viewLabels) {
+      if (!this.multiCapture) throw new Error('Two-view recording was never started.');
+      try { await this.multiCapture.finish(file); }
+      finally { await Promise.all([...this.views.values()].map(page => page.close())); }
+    } else {
+      if (!this.recording) return null;
+      await this.page.close();
+      await this.recording.saveAs(file);
+    }
 
     // Reported rather than enforced. What a recording should weigh depends on what it is
     // evidence for, and a limit that refuses would throw away a complete, correct artifact
@@ -411,8 +466,8 @@ export class Storyboard {
       );
     }
     const index = path.join(this.directory, "index.html");
-    const sheet = this.recording
-      ? recordingSheet(this.title, this.summary, this.claims)
+    const sheet = this.recording || this.viewLabels
+      ? recordingSheet(this.title, this.summary, this.claims, Boolean(this.viewLabels))
       : contactSheet(this.title, this.summary, this.claims);
     await fs.writeFile(index, sheet, "utf8");
     return index;
@@ -427,8 +482,13 @@ export class Storyboard {
    * next person looks for a demo.
    */
   async discard(): Promise<void> {
-    await this.output.remove();
-    if (!this.recording) return;
+    try {
+      if (this.viewLabels) {
+        try { if (this.multiCapture) await this.multiCapture.dispose(); }
+        finally { await Promise.all([...this.views.values()].map(page => page.close())); }
+      }
+    } finally { await this.output.remove(); }
+    if (this.viewLabels || !this.recording) return;
     // The recorder finalizes on close and `delete` waits for that, so closing first keeps
     // the wait inside this teardown rather than the runner's. Closing twice is harmless.
     await this.page.close();
@@ -595,7 +655,7 @@ const PLAYER_STYLE = `  video { display: block; width: 100%; max-width: 1280px; 
  * what the run proved. The viewer describes states and transitions without exposing the
  * capture process; assertion evidence stays in the runner's completion receipt.
  */
-function recordingSheet(title: string, summary: string, claims: Claim[]): string {
+function recordingSheet(title: string, summary: string, claims: Claim[], wide = false): string {
   const items = claims
     .map(
       (claim, index) => `
@@ -607,7 +667,7 @@ function recordingSheet(title: string, summary: string, claims: Claim[]): string
     title,
     summary,
     `${claims.length} moment${claims.length === 1 ? "" : "s"} &middot; play the walkthrough`,
-    PLAYER_STYLE,
+    PLAYER_STYLE + (wide ? "\nvideo { max-width: 2560px; }" : ""),
     `<video controls preload="metadata" src="${RECORDING}"></video>
 
 <ol class="claims">${items}

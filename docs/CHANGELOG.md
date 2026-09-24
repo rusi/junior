@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.2.0 - 2026-09-24
+
+### Added
+
+- Optional synchronized multi-view recordings in `/jr-demo` for demonstrating collaborative features across multiple users, with two labeled side-by-side views. Requires Chromium and `ffmpeg`.
+
+### Changed
+
+- Motion walkthroughs show essential actions and results together, preserve readable pacing, and require full playback review.
+- When refreshing existing copied demo tooling, include the new `multiview.ts` helper alongside the updated `storyboard.ts` and `demo.ts` fixture.
+
 ## v2.1.0 - 2026-09-21
 
 ### Added

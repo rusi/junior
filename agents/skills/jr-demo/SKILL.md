@@ -299,9 +299,26 @@ a state something asserted; a frame two seconds into a transition was asserted b
 recording carries is the ordered list of claims that *were* asserted, and continuous footage of
 the run that satisfied them. Judge the transition; do not read a frame as a panel.
 
-**Keep the walkthrough short — it is watched end to end, not skimmed.** A recording is delivered
-whole, so every second of it is a second every reviewer spends. Where a script has eight steps and
-one motion question, the motion question is its own walkthrough and the other seven are stills.
+### Motion composition
+
+**Frame the cause and the result.** Decide which views must remain visible before scripting.
+When the question concerns interaction across views, show the acting view and the receiving view
+simultaneously, with stable placement and readable controls. A caption naming an offscreen action
+cannot substitute for seeing it. If the profile cannot capture the required composition, report
+the capability gap before recording; do not deliver one view as proof of the whole interaction.
+
+**Use a reference as direction, not as source material.** When a user supplies a recording,
+inspect its sequence, framing, pointer movement, pacing, and visible results before adapting the
+walkthrough. Keep its project names, paths, media, domain vocabulary, and identifiers out of
+shared skill instructions and examples. Carry over the presentation principles only.
+
+**Keep the walkthrough focused.** Show an established starting state, a visible action, and its
+result. Move deliberately, pause briefly where the reviewer needs to read, and preserve real
+transition timing. Related actions may form one coherent sequence; do not turn the recording into
+a tour of the test suite. Provision unrelated setup before visible interaction and leave cleanup,
+expiry waits, and reconnect checks to tests or separate artifacts unless their timing is the
+question. Do not speed up, splice, or manufacture a transition to conceal a wait. The shipped
+profile decides what recording boundaries it supports.
 
 **Where the profile does not produce motion, say so plainly.** Name the question stills cannot
 answer and let it stand as a known gap. Capturing stills of a motion question and presenting them
@@ -346,6 +363,12 @@ names. Never by direct database writes: a seed that reimplements what the servic
 identifier generation, derived snapshots, defaulting — gets it subtly wrong and produces a
 demo depicting a state the application itself would refuse. That is this skill's failure mode
 relocated into the setup.
+
+**Use data suitable for visual judgment.** Reuse provisioning helpers, but inspect their data:
+minimal test fixtures can obscure the very interaction a demo should explain. Choose synthetic
+or explicitly approved, sanitized examples with representative content, scale, and density.
+Keep contrast and detail sufficient to see the result. Never substitute live private data merely
+to make the recording look realistic; provision suitable data inside the isolated stack.
 
 **Pin what the screen reads from outside the stack, before the first step is written.**
 Isolating where the application *writes* says nothing about where it *reads*: a stack can own its
@@ -473,6 +496,14 @@ The artifact contract is fixed by this skill and identical across every profile:
 - The numbers are how a reviewer refers to a panel, so they stay stable: they are capture
   order, and they appear in both the grid and the opened view
 
+**Review the actual artifact before delivery.** For motion, watch the full recording at normal
+speed and intended display size; inspect frames more closely where timing or detail is unclear.
+Check that the action, its target, and its result are legible without consulting the script,
+that essential views stay in shot, and that unrelated setup or idle time does not dominate.
+For stills, inspect every panel in sequence. Passing assertions establish reached states, not
+presentation quality. Rework and recapture an unclear demo; do not approve it solely because the
+run passed. This visual review is an agent norm, not a guarantee enforced by the helper.
+
 **Hand the artifact to the developer at the end of the run.** Name the file to open. An artifact
 left in an output directory for someone to discover is an artifact nobody looks at.
 
@@ -518,4 +549,5 @@ Product and tracking commits use separate groups and the shared checks. Promotio
   that could not be was named, and its screen dropped or deliberately emptied
 - ✅ The run completed fully, or nothing was delivered
 - ✅ `index.html` opens over `file://` and every panel renders with its caption
+- ✅ The actual artifact was visually reviewed for legible actions, results, framing, and pacing
 - ✅ The developer was handed the path, not left to find it

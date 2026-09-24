@@ -44,7 +44,7 @@ and confirm the demo files appear in exactly one of them — rather than trying 
 directory somewhere the e2e config cannot see.
 
 Before copying into product paths, apply [product isolation](../../_shared/references/product-isolation.md).
-Copy the linked `storyboard.ts` helper, `capture-reporter.ts`, and `demo.ts` fixture into
+Copy the linked `storyboard.ts` and `multiview.ts` helpers, `capture-reporter.ts`, and `demo.ts` fixture into
 that directory. Keep the helper and reporter unchanged; adapt only the fixture's two
 marked project-specific lines. Include the completion reporter last in the demo config.
 A bundle is eligible for promotion only when that reporter seals its complete byte inventory
@@ -232,6 +232,11 @@ Migration supplies no completion proof: recapture through the current runner bef
 
 ## Motion capture
 
+**Capture boundary:** single-view motion retains the fixture page's `page.video()`, from page
+creation until close. Use *Two-view motion* below when the cause and result occupy different
+pages. Apply the skill's *Motion composition* review before recording; a receiver-only recording
+cannot show an essential off-screen action.
+
 Stills are what a walkthrough produces unless it says otherwise, and saying otherwise is one
 declaration at the top of the file. Nothing else changes: the same fixture, the same
 `demo.step`, the same refusal to deliver anything when a step's assertion fails.
@@ -295,20 +300,70 @@ path, and the person committing it decides. A limit that refused would throw awa
 correct artifact over a number — and what a recording should weigh depends entirely on what it
 is evidence for.
 
-Keep it small by keeping it short, which is the same discipline that makes it watchable: one
-motion question per walkthrough, and the steps around it captured as stills in a separate one.
-A recording holding to that lands well under a megabyte; one that runs to many is a walkthrough
-that grew, and splitting it is the fix whatever the file size says.
+Choose duration and resolution for the visible question. Follow the skill's motion composition
+and playback review; file size alone says nothing about clarity. Preserve readable content and
+real transition timing rather than shrinking an essential view or accelerating the interaction
+to meet an arbitrary size target.
 
 **Playback.** The sheet plays the recording inline over `file://` in the browsers this profile
 records for. A viewer whose browser will not play the format opens the file directly with
 anything that will — it sits beside `index.html` under its own name.
+
+## Two-view motion
+
+Two-view capture requires Chromium and `ffmpeg` on `PATH` with `drawtext`, `hstack`, and
+`libvpx` support. The two viewports are fixed at 1280 × 800; the output is a single
+2560 × 848 WebM at 25 fps, with permanent labels above the views. Use a wide player or
+full-screen playback and verify that both views remain readable. More than two views,
+audio, pause, and trimming are unsupported.
+
+Declare two distinct labels and disable Playwright video at file scope:
+
+```ts
+test.use({ demoViews: ["Editor", "Observer"], video: "off" });
+```
+
+The fixture page takes the first label. Open and initialize the second page through the
+project's normal isolated-session helpers, then call
+`await demo.registerView("Observer", observer)` and `await demo.startRecording()`.
+Both pages must have video disabled. Separate browser contexts are supported. Keep both pages
+and contexts open until fixture teardown; the helper closes the pages after composition,
+and the runner owns their contexts. Setup happens before the explicit start, so the recording
+begins with both intended starting states visible.
+
+Use `demo.step(caption, locator)` for each claimed state in either page. The helper prefixes
+claims with the registered label and refuses locators from other pages. Interact with the
+actual application; never script the receiving view's contents to imitate propagation.
+Both views receive pointer feedback, including after navigation. Two-view feedback uses
+immediate cursor/button changes: overlay transitions can stall Chromium screencast delivery.
+
+Frames carry Chromium's shared wall-clock timestamps. Composition samples both streams at
+the nearest frame on one common 25 fps timeline, advancing a future change by at most
+half an output frame; it does not align action and result events
+or reset each stream's start independently. Missing/invalid/non-monotonic timestamps, startup
+timeouts, wall-clock changes, lost sessions, or encoder errors fail the run and discard its
+owned output. Temporary frame files are removed before the completion receipt is emitted.
+The existing reporter and promotion procedure apply unchanged.
+
+Verify synchronization on the target runner using independent visible clocks in both pages,
+with staggered page creation and samples across the full recording. Relative error must stay
+within one output frame (40 ms). Repeat verification after browser/capture changes; capture
+load and compositor behavior can affect delivery. A failed timing check blocks delivery.
+Then review the real application's interaction, pointer placement, labels, and readable size,
+and exercise playback and seeking on the standalone promoted copy. Assertions prove claimed
+states; they do not certify intervening frames or application propagation latency.
 
 ## The capture helper — copy verbatim
 
 This is the guarantee. Copy it unchanged; do not adapt it, and do not add a capture path to it.
 
 [storyboard.ts](../scripts/storyboard.ts)
+
+## The multi-view capture backend — copy verbatim
+
+This module travels alongside the helper and is loaded only for two-view recording.
+
+[multiview.ts](../scripts/multiview.ts)
 
 ## The completion reporter — copy verbatim
 

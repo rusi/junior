@@ -385,17 +385,15 @@
 
         <section class="release-notes" aria-labelledby="whats-new">
             <h2 id="whats-new">What's new</h2>
-<h2>v2.1.0 - 2026-09-21</h2>
+<h2>v2.2.0 - 2026-09-24</h2>
 <h3>Added</h3>
 <ul>
-<li>Product isolation checks for complete trees, staged files and commit messages, and commit ranges, with content-bound review decisions.</li>
-<li><code>/jr-demo</code> promotion of selected, verified capture bundles into standalone documentation, with content verification and backups when replacing existing bundles.</li>
+<li>Optional synchronized multi-view recordings in <code>/jr-demo</code> for demonstrating collaborative features across multiple users, with two labeled side-by-side views. Requires Chromium and <code>ffmpeg</code>.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li>Planning, generation, review, and commit workflows keep product code, documentation, and media independent of private planning material.</li>
-<li>Product changes and planning updates use separate commits.</li>
-<li>Playwright captures record successful-run completion before becoming eligible for promotion. Refresh existing copied demo helpers and configuration, then recapture before promoting older bundles.</li>
+<li>Motion walkthroughs show essential actions and results together, preserve readable pacing, and require full playback review.</li>
+<li>When refreshing existing copied demo tooling, include the new <code>multiview.ts</code> helper alongside the updated <code>storyboard.ts</code> and <code>demo.ts</code> fixture.</li>
 </ul>
 
             <nav class="release-links" aria-label="Release notes">
