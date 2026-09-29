@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.2.1 - 2026-09-28
+
+### Changed
+
+- UI prototypes reuse the application’s components and styles and render within their actual host layout.
+- Prototype guidance prioritizes useful content, reduces redundant interface elements, and preserves useful controls during revisions.
+- Next-step guidance favors continuing related work in the current session when its context remains useful. `/jr-archive` distinguishes readiness to close from reasons to continue.
+
 ## v2.2.0 - 2026-09-24
 
 ### Added

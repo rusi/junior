@@ -25,6 +25,11 @@ phrases such as “archive this one,” does not authorize archiving, hiding, cl
 deleting the session through an app tool, API, CLI, or UI action. A safe verdict is
 information for the user, not permission for an automatic follow-up action.
 
+Archive readiness does not establish that closing is preferable. An invocation alone
+is not a request to move unfinished work to a new session. Choose the continuation
+location using `00-junior.md` → Suggest ONE next step; a safe verdict must not
+automatically produce a new-session recommendation.
+
 ## Step 0 — Ground the verdict in the PROJECT STATE first (before any of the five questions)
 
 All five checks below answer to **what is on disk, not what the conversation claimed.** A session can be pure

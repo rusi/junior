@@ -53,11 +53,34 @@ has no interface design work, return without creating an artifact.
 
 Keep the prototype beside its private specification. Any approved extraction into product paths uses [product isolation](../_shared/references/product-isolation.md); inspect its source, fixtures, links, captions, and rendered content before delivery.
 
-Use available rendering tools and the project's conventions; prescribe no framework.
-Reuse the actual application's visual language and place the change in its surrounding
-layout. Build the smallest runnable draft that answers the agreed design question,
-including the meaningful states needed to evaluate it. Avoid unrelated screens or
-polish before the user has seen this draft.
+For an existing product, use its actual framework, component library, design-system
+configuration, tokens, styles, and applicable widgets. Import and compose existing
+components; matching their appearance with standalone HTML/CSS is not reuse. Read
+the closest working implementation before adding only the missing UI. If no reusable
+component exists, build the new piece with the project's existing primitives and
+conventions rather than creating a parallel design system.
+
+Render the proposal inside its real host surface at the intended size. A widget is
+reviewed in the application's dashboard grid, a panel in its parent layout, and a
+dialog over its owning screen. Do not replace an embedded feature with a standalone
+showcase webpage or invent surrounding application chrome. Keep comparison controls
+outside the proposed product surface. A separate fixture harness may import the real
+host and substitute data or the proposed component without modifying production.
+
+If reuse is blocked, identify the concrete missing dependency or runtime constraint
+and ask before substituting a standalone approximation. A new product without an
+existing design system, or a user explicitly requesting another medium, may establish
+its own foundation. These reuse and fidelity requirements are workflow norms, not
+automatically enforced guarantees.
+
+Build the smallest runnable draft that answers the agreed design question, including
+its meaningful states. Avoid unrelated screens or polish before the user sees it.
+
+Every visible element must support a critical user action, decision, or orientation
+need. Remove redundant labels, explanations, status summaries, and oversized chrome;
+use progressive disclosure for secondary detail and protect space for the primary work.
+Compare density with the user's references at the actual viewing size. During revisions,
+preserve useful controls and information unless the requested change justifies removing them.
 
 Write directly beside the specification in `specs/mockups/`, adapting to its existing
 structure. Prefer one editable, runnable source where practical. If rendering requires
@@ -73,7 +96,9 @@ Apply the **Output Spec** below when writing the draft and its specification.
 
 ### 3. Show and Receive Feedback
 
-Check only that the draft opens and the main interaction can be tried. Fix anything
+Before showing an existing-product draft, confirm its actual component/style imports
+and host-surface integration, then check that it opens and the main interaction can be
+tried. A visual resemblance alone does not satisfy component reuse. Fix anything
 that prevents review, then show it immediately using the runtime's preview facility
 and provide a direct artifact link with launch instructions. Capture the state needed
 to orient the user; do not delay the first showing for a screenshot set, a test suite,
@@ -142,6 +167,7 @@ Apply these contents at each write and update, including drafts.
 - **Goes in:** interface and layout; user flows and meaningful states; keyboard and
   responsive behavior; relative links to editable source and runnable output; exact
   launch/build instructions; embedded screenshots with factual state captions;
+  reused project components and design-system imports, with any approved substitution;
   fixtures and unsupported behavior; observed prototype verification and remaining
   checks clearly separated from production requirements. Identify pending review
   without an approval-history narrative.
