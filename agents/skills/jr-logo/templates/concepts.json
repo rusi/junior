@@ -1,0 +1,18 @@
+{
+  "product": "Product Name",
+  "loop_seconds": 4,
+  "fps": 12.5,
+  "themes": {
+    "light": { "background": "#ffffff", "text": "#1f2937", "title": "#1f3864" },
+    "dark": { "background": "#0f1419", "text": "#e6edf3", "title": "#9dc3e6" }
+  },
+  "groups": [
+    {
+      "title": "First direction",
+      "marks": [
+        { "file": "anim-concept-a.svg", "label": "Concept A" },
+        { "file": "anim-concept-b.svg", "label": "Concept B" }
+      ]
+    }
+  ]
+}

@@ -142,7 +142,7 @@ The persist family this enforces:
 | A flagged caveat, gotcha, known limitation, "one thing to note" | Written into the file or doc it applies to |
 | A behavioral convention or rule that surfaced ("we always do X here") | The project's rules/conventions file — a durable, versioned file, never an agent's private memory store |
 | A captured follow-up / deferred work item | A tracked item (story/issue/backlog entry) that will actually resurface — not a line in chat |
-| A kickoff prompt for continuing project work | Continuation instructions in the tracked work item; `/jr feedback` is for Junior improvement proposals |
+| A kickoff prompt for continuing project work | Continuation instructions in the tracked work item; `/jr-feedback` is for Junior improvement proposals |
 | Code, spec, and doc edits themselves | Saved on disk; and if the user's workflow is commit-per-session, committed (see `jr-commit`) rather than left dangling |
 
 **A note on the last row:** do not commit on your own initiative if the user hasn't asked — but a large

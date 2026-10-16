@@ -1,6 +1,6 @@
 ---
 name: jr-status
-description: Run `/jr-status` to report git state, active work, and progress across the project.
+description: Run `/jr-status` to report git state, every feature and story with its state, active work, and project progress.
 ---
 
 # Status Command
@@ -123,7 +123,7 @@ comp-2-installation (1 feature active):
      • Next: Task 1.3 - Create directory structure
 ```
 
-### Step 4: All Features Summary
+### Step 4: All Features and Stories
 
 **Comprehensive feature view:**
 
@@ -136,52 +136,34 @@ For each feature:
 - Group by status: In Progress → Planning → Completed
 
 **Status determination:**
-- **In Progress:** Task progress > 0% and < 100%
-- **Planning:** Task progress = 0%
-- **Completed:** Task progress = 100%
+- **In Progress:** Some implementation tasks are done and work remains.
+- **Planning / Not Started:** No implementation tasks are done.
+- **Implemented awaiting verification:** Implementation is present but required verification remains open.
+- **Completed:** All required implementation and verification have supporting evidence.
+- **Blocked:** State the recorded blocker; retain task progress separately.
 
-**Output format (Stage 1 - Flat):**
+**Complete inventory (required in every report):**
 
-```
-📊 ALL FEATURES
-Total: 4 features | 35/98 tasks complete (36%)
+- Include every feature and every numbered story, including completed and not-started work. Group stories under their parent feature and components when present; active-work highlights do not replace this inventory.
+- Reconcile the story tracker with actual numbered story files. Show each story's ID, title, evidence-supported state, and implementation-task progress. Count implementation tasks separately from acceptance criteria and completion checks; never count the same work twice.
+- Distinguish not started, in progress, blocked, implemented awaiting verification, and completed when evidence warrants it. State the specific blocker or remaining verification briefly; do not infer completion from a label or a findings file alone.
+- Include roadmap features without specifications as not specified, with no stories yet. A feature without numbered stories still gets a feature row; report its actual checks if available, or unavailable progress rather than inventing tasks. Identify missing tracking files or tracker/file disagreements.
+- Keep unnumbered future-enhancement documents as backlog, outside the numbered-story inventory and task denominator. Do not shorten the inventory to active stories or omit rows to save space.
 
-In Progress (2):
-1. feat-1-core-commands (15/98 tasks - 15%)
-   • Next: Story 3 - Implement /jr-status Command
+Use one compact table per feature (nested under its component in Stage 2+), or an equivalent complete hierarchy:
 
-2. feat-2-advanced-features (2/15 tasks - 13%)
-   • Next: Story 1 - Initialize command
+```text
+📊 ALL FEATURES AND STORIES
 
-Planning (1):
-• feat-3-integrations (0/22 tasks)
-  • Start with: Story 1 - GitHub Integration
+feat-1-core-commands — In Progress — 15/98 implementation tasks (15%)
 
-Completed (1):
-• feat-0-bootstrap (8/8 tasks) ✅
-```
+| Story | Title | State | Tasks | Remaining work |
+|---|---|---|---|---|
+| 1 | Establish command foundation | Completed | 8/8 | — |
+| 2 | Report project status | In Progress | 7/10 | Inventory verification |
+| 3 | Generate feature specifications | Not Started | 0/80 | Implementation |
 
-**Output format (Stage 2+ - Component Tree):**
-
-```
-📊 ALL FEATURES
-Total: 3 components | 4 features | 35/98 tasks complete (36%)
-
-comp-1-core-framework (2 features, 17/113 tasks - 15%):
-  In Progress (2):
-  • feat-1-commands (15/98 tasks - 15%)
-    → Next: Story 3 - Implement /jr-status Command
-  • feat-4-refactor (2/15 tasks - 13%)
-    → Next: Story 1 - Initialize command
-
-comp-2-installation (1 feature, 0/22 tasks):
-  Planning (1):
-  • feat-3-installer (0/22 tasks)
-    → Start with: Story 1 - Bootstrap script
-
-comp-3-integrations (1 feature, 8/8 tasks - 100%):
-  Completed (1):
-  • feat-0-bootstrap (8/8 tasks) ✅
+feat-2-integrations — Not specified — no stories yet
 ```
 
 ### Step 5: Project Completion Percentage (Roadmap-Aware)
@@ -371,22 +353,8 @@ Uncommitted: 3 modified files
    • Next: Task 1.3 - Create directory structure
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 ALL FEATURES
-Total: 4 features | 17/123 tasks complete (14%)
-
-In Progress (2):
-1. feat-1-core-commands (15/98 tasks - 15%)
-   • Next: Story 3 - Implement /jr-status Command
-
-2. feat-2-advanced-features (2/15 tasks - 13%)
-   • Next: Story 1 - Initialize command
-
-Planning (1):
-• feat-3-integrations (0/22 tasks)
-  • Start with: Story 1 - GitHub Integration
-
-Completed (1):
-• feat-0-bootstrap (8/8 tasks) ✅
+📊 ALL FEATURES AND STORIES
+Render the complete feature/story inventory defined in Step 4, including all states.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🎯 PROJECT COMPLETION
@@ -449,11 +417,10 @@ Priority 3: Planning
 
 - **For:** the user picking up the project, cold or after an interruption. It answers *where the
   work stands and what to do next.*
-- **Goes in:** the report shape from Step 8, filled — git state, active work, feature summary,
+- **Goes in:** the report shape from Step 8, filled — git state, active work, complete feature/story inventory,
   completion percentage, research and experiments, next-action suggestions.
 - **Never goes in:** which directories were scanned and how many files were parsed · the percentage
-  arithmetic shown as working · the steps of this skill, by name or number · features enumerated
-  with nothing to say about them beyond a status word already in the table · anything the user
+  arithmetic shown as working · the steps of this skill, by name or number · duplicate feature or story lists beyond the required inventory · anything the user
   cannot act on or orient by. Baseline: `../_shared/references/artifact-output-spec.md`.
 - **Register:** headings are noun labels — never sentences, questions or conversational phrases.
   Prose states facts. No editorial lead, no anthropomorphising, no dramatic adjective. A percentage
@@ -463,7 +430,7 @@ Priority 3: Planning
 
 **Critical formatting requirements:**
 
-1. **Present as clean text** - NOT wrapped in code blocks
+1. **Present as clean text** - NOT wrapped in code blocks; render inventory tables as Markdown
 2. **Visual separators** - Use `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━` between major sections
 3. **Unicode icons** - 📍🔍📋📊🔬💡⚡✅🚧⚠️
 4. **Numbered lists** - For in-progress features (1. 2. 3.)
@@ -544,6 +511,7 @@ Project structure: Standard git repository
 - Cache file reads when analyzing multiple features
 
 **Accuracy:**
+- Always include the complete inventory from Step 4; reconcile trackers with numbered story files before reporting states
 - Always calculate status from actual task completion
 - Always calculate project completion from roadmap feature scope when `.junior/product/02-roadmap.md` exists
 - Never use stage buckets as the only denominator when roadmap lists individual features

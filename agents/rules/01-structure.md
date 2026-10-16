@@ -32,12 +32,15 @@ Junior maintains persistent memory in `.junior/`:
 
 ### Junior Feedback
 
-`/jr feedback` prepares a Junior improvement proposal for user-directed submission or
-writes it to a known Junior authoring checkout's `.junior/docs/feedback-<subject>.md`.
-The subcommand defines its content and delivery rules. Feedback is considered only when
-the user directs work to it; creation grants no implementation or submission authority.
-Existing handoff documents and inbox/archive contents remain user-owned and untouched.
-There is no global feedback store, startup discovery, collection, or mandatory archival.
+`/jr-feedback` saves a submission-ready Junior improvement proposal and verifies its
+bytes. A known, verified Junior authoring checkout receives `.junior/docs/feedback-<subject>.md`;
+without a known checkout, the explicitly requested proposal goes to `~/.junior/inbox/`.
+This narrow feedback delivery exception does not permit general project memory in a global
+store. The standalone skill defines content, collision safety, and truthful failure handling.
+`/jr sync` discovers and assesses delivered proposals in the source checkout and known global
+inbox. Creation and discovery grant no implementation or submission authority. Existing
+handoff documents and inbox/archive contents remain user-owned and untouched. There is
+no startup discovery, global collection, or mandatory archival.
 
 ## Product Isolation
 

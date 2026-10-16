@@ -1,5 +1,31 @@
 # Changelog
 
+## v2.3.0 - 2026-10-15
+
+### Added
+
+- `/jr-logo` for animated SVG concepts, themed previews, GIFs, and logo/favicon integration.
+- XCTest/XCUITest still storyboards for iOS Simulator, with verified export from successful test results.
+- `/jr-feedback` for verified file delivery to a selected source checkout or personal inbox.
+
+### Changed
+
+- Mobile visual explorations default to interactive web drafts informed by the application’s source.
+- Authorized work continues across workflow boundaries without repeated command invocations.
+- Implementation guidance includes rendered UI/UX refinement before completion.
+- Implementation, testing, and review workflows define artifact retention and cleanup.
+- Existing browser demo setups must copy `capture-directory.ts` and `viewer.ts` alongside the updated helpers.
+
+### Fixed
+
+- `/jr-status` includes every feature and numbered story, with evidence-supported states.
+- `/jr sync` assesses delivered feedback even when installed assets have no changes.
+- Multi-view recording acknowledges frames without waiting for disk writes and settles pending capture work before teardown.
+
+### Removed
+
+- `/jr feedback`; use `/jr-feedback`.
+
 ## v2.2.1 - 2026-09-28
 
 ### Changed

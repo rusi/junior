@@ -151,17 +151,18 @@ Open your project in Claude Code, Cursor, or Codex and start with `/jr-init` or 
 **Framework Operations (`jr` skill):**
 - `/jr install` - Install or upgrade Junior assets, globally or into a project
 - `/jr update` - Check and apply latest Junior framework updates
-- `/jr feedback` - Prepare or locally deliver an improvement proposal for Junior
-- `/jr sync` - Sync global Junior modifications back to source
+- `/jr sync` - Sync global Junior modifications back to source and assess delivered feedback
 - `/jr migrate` - Migrate legacy structures to current Junior conventions
 - `/jr maintenance` - Reorganize and normalize Junior artifacts/references
 
 **Software Development (`jr-*` skills):**
+- `/jr-feedback` - Save and verify a submission-ready improvement proposal for Junior
 - `/jr-init` - Define product vision and technical foundation
 - `/jr-roadmap` - Update product roadmap using feature layers and sequence-first planning (no timelines)
 - `/jr-feature` - Plan and create feature specifications
 - `/jr-add-story` - Add scoped stories to existing features
 - `/jr-ui-prototype` - Build, show, and iteratively refine interface prototypes before implementation
+- `/jr-logo` - Explore and refine animated logo concepts, then install the chosen mark and favicon
 - `/jr-implement` - Execute feature stories with TDD workflow
 - `/jr-test` - Post-implementation test-engineering audit gate with optional test-first mode
 - `/jr-demo` - Capture an assert-verified storyboard of the running application
@@ -178,15 +179,25 @@ Open your project in Claude Code, Cursor, or Codex and start with `/jr-init` or 
 
 ### Feedback
 
-Use `/jr feedback` when Junior should do something better: a rule that causes trouble,
+Use `/jr-feedback` when Junior should do something better: a rule that causes trouble,
 a missing workflow, or an installer issue. It prepares a concise proposal with expected
 and observed behavior, evidence, and a suggested improvement for you to review and submit.
 
-Name a known local Junior source checkout to save the proposal directly as
-`.junior/docs/feedback-<subject>.md` there. Otherwise, receive submission-ready Markdown
-in the conversation, or request a file at your chosen path. Feedback is considered when
-you direct work to it; preparation does not submit it or authorize implementation.
-Existing handoff documents are preserved. There is no global inbox or required archival.
+Name a known local Junior authoring checkout to save the proposal as
+`.junior/docs/feedback-<subject>.md` there. With no known checkout, it saves to
+`~/.junior/inbox/`, creating parents only for your feedback request. Each new proposal gets
+a distinct filename on collision; the writer verifies its complete bytes and returns a
+clickable path ready for you to review and submit. Invalid selected checkouts and write or
+readback failures are reported without a success claim or silent rerouting. Explicitly
+selected revisions preserve unrelated content and are verified separately.
+
+In Junior source, `/jr sync` checks local proposals and the known global inbox, assesses
+remaining work, and gives an actionable continuation even when installed assets have no
+changes. Implementation and submission require your authorization. See the
+[sync workflow](agents/skills/jr/references/subcommands/sync.md#step-3-discover-feedback-and-inspect-installation-state)
+for checked locations and assessment behavior. Installation creates no feedback inbox;
+startup performs no discovery, collection, or archival. Existing handoff documents remain
+untouched. The [feedback skill](agents/skills/jr-feedback/SKILL.md) defines the proposal contract.
 
 ### 🔄 Development Workflow
 

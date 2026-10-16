@@ -839,8 +839,9 @@ def migrate_renamed_files(
     return migrated
 
 
-def retired_handoff_source(source: str) -> bool:
-    return source == "agents/hooks/junior-session-start.py" or source.startswith("agents/skills/jr-handoff/")
+def retired_workflow_source(source: str) -> bool:
+    return source in ("agents/hooks/junior-session-start.py",
+                      "agents/skills/jr/references/subcommands/feedback.md") or source.startswith("agents/skills/jr-handoff/")
 
 
 def remove_obsolete_files(
@@ -881,7 +882,7 @@ def remove_obsolete_files(
 
         current_sha = sha256_file(path)
         if current_sha != installed_sha:
-            if overwrite and not retired_handoff_source(str(meta.get("source") or "")):
+            if overwrite and not retired_workflow_source(str(meta.get("source") or "")):
                 path.unlink()
                 removed.append(str(path))
                 remove_empty_parents(path, target_root)
@@ -1331,7 +1332,7 @@ def run_install_for_target(
     metadata_files: dict[str, dict[str, Any]] = {
         key: value for key, value in existing_files.items()
         if key not in new_manifest_keys and isinstance(value, dict)
-        and retired_handoff_source(str(value.get("source") or ""))
+        and retired_workflow_source(str(value.get("source") or ""))
         and key_to_path(install_root, key).is_file()
     }
     modified_files: list[str] = []
@@ -1525,9 +1526,9 @@ def source_path_for_sync(
     install_target: str,
     source_rel: str = "",
 ) -> Path | None:
-    """Resolve installed assets without resurrecting a retired handoff workflow."""
+    """Resolve installed assets without resurrecting retired workflows."""
     source = mapped_source_path(repo_root, key, install_target, source_rel)
-    if source is not None and retired_handoff_source(source.relative_to(repo_root).as_posix()) and not source.exists():
+    if source is not None and retired_workflow_source(source.relative_to(repo_root).as_posix()) and not source.exists():
         return None
     return source
 

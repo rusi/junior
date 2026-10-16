@@ -11,7 +11,7 @@ Systematic debugging workflow that transforms vague "something's broken" into st
 
 ## Type
 
-Contract-style (clarification → contract → approval → generation)
+Contract-style for a new investigation; continuation reuses the approved objective and existing evidence.
 
 ## When to Use
 
@@ -23,6 +23,10 @@ Contract-style (clarification → contract → approval → generation)
 ## Entry Check
 
 Before creating an investigation plan or contract, read any supplied finding or resolution and apply the workflow selection in `00-junior.md`, **Suggest ONE next step**. State the unresolved causal question that warrants investigation. If the evidence instead directs implementation, hand the existing finding or resolution to `/jr-implement`; do not manufacture hypotheses or create another investigation package.
+
+Apply `00-junior.md`, **Authorized Continuation**, at every workflow transition. An existing
+approved investigation does not need another contract approval merely because a diagnostic
+step needs implementation or an implementation attempt needs diagnosis.
 
 ## Execution Pattern
 
@@ -42,7 +46,7 @@ Before creating an investigation plan or contract, read any supplied finding or 
 **When the entry check establishes a need for investigation, this command:**
 1. Creates an investigation plan (hypotheses, steps, expected evidence)
 2. Executes immediately if simple (Steps 1-8)
-3. Stops after planning if complex → User runs `/jr-implement` to execute steps
+3. Routes complex execution to `/jr-implement` under Authorized Continuation; a planning-only request ends with the plan
 
 ## 🔴 CRITICAL: Evidence-Based Investigation
 
@@ -65,18 +69,10 @@ Before creating an investigation plan or contract, read any supplied finding or 
 git status --short
 ```
 
-If not clean:
-```
-⚠️ Uncommitted changes detected.
-
-Scope check:
-- Review changed paths from `git status --short`.
-- If changes are clearly isolated from the investigation scope, recommend proceeding.
-- If changes touch related areas or scope is unclear, ask for explicit override.
-
-Default: use /jr-commit first.
-Override: If you confirm the changes are unrelated, reply "override: proceed".
-```
+If not clean, identify the changed paths and their ownership. Preserve unrelated work;
+continue changes belonging to this investigation under `00-junior.md`, **Authorized
+Continuation**. Ask only when conflicting edits or unclear ownership prevent safe execution.
+A commit recommendation is not a prerequisite for continuing the approved investigation.
 
 ### Step 2: Initialize Tracking
 
@@ -200,9 +196,7 @@ Rank hypotheses by:
 Options: yes | edit: [changes] | add-hypothesis
 ```
 
-Wait for user approval.
-
-**Note:** If investigation requires complex implementation (building apps, hardware testing, etc.), plan will stop after generation. User will use `/jr-implement` to execute steps.
+For a new contract, obtain approval for unresolved scope or design decisions before dependent execution. Reuse approval already present in the session; do not ask again for an unchanged objective. Complex implementation uses the routing in Step 7.5.
 
 ### Output Spec
 
@@ -503,7 +497,7 @@ Create skeleton with same template structure but mark sections clearly:
 - ✅ Comparing file contents
 - ✅ Verifying environment variables
 
-**Complex Investigation (STOP and use `/jr-implement`):**
+**Complex Investigation (route execution through `/jr-implement`):**
 - ❌ Building test applications
 - ❌ Writing new code/components
 - ❌ Flashing hardware
@@ -511,14 +505,11 @@ Create skeleton with same template structure but mark sections clearly:
 - ❌ Trying alternative frameworks/stacks
 - ❌ Multi-hour investigations
 
-**Decision:**
-```
-if (steps require building/flashing/complex testing):
-    STOP after Step 7
-    Present: "Investigation plan created. Use /jr-implement to execute steps."
-else:
-    Continue to Step 8 (execute immediately)
-```
+**Decision:** Apply Authorized Continuation to the actual next action. For authorized complex
+execution, load `/jr-implement` with the existing step, execute its gates, and return findings
+to this investigation. For simple diagnostics, continue to Step 8. Stop at the plan when the
+user requested planning only; request a decision only when the next action crosses an
+unapproved boundary. Complexity alone does not require the user to invoke another command.
 
 ### Step 8: Investigation Execution
 
@@ -635,46 +626,12 @@ implemented, the original reproduction passes, and applicable regression and acc
 checks have supporting evidence. Record that evidence beside the completed checks. A
 resolution filename alone never establishes completion.
 
-**Present completion (for simple investigations executed immediately):**
-
-```
-✅ Investigation Complete!
-
-**Issue:** [Issue name]
-**Root Cause:** [Brief description]
-**Evidence:** [Key evidence that confirmed it]
-
-📁 Resolution documented at:
-   .junior/debugging/dbg-{N}-{name}/dbg-{N}-resolution.md
-
-🎯 Next Steps:
-1. Review the fix approach in resolution doc
-2. Run `/jr-implement` with this resolution to implement the verified correction
-3. Test the fix thoroughly
-
-What would you like to do next?
-```
-
-**Present completion (for complex investigations requiring /jr-implement):**
-
-```
-✅ Investigation Plan Created!
-
-**Issue:** [Issue name]
-**Steps:** [Number] investigation steps planned
-**Strategy:** [Brief description of approach]
-
-📁 Investigation plan documented at:
-   .junior/debugging/dbg-{N}-{name}/
-
-🎯 Next Steps:
-1. Review investigation plan: .junior/debugging/dbg-{N}-{name}/investigation/dbg-{N}-steps.md
-2. Execute Step 1: Use `/jr-implement` and reference "dbg-{N}-step-1-{name}"
-3. Document findings in step file
-4. Proceed based on results (decision tree in steps.md)
-
-Ready to start? Run `/jr-implement` to execute the first investigation step.
-```
+**Continuation and handoff:** Apply Authorized Continuation to the verified correction.
+When implementation is already authorized, announce the evidence-supported correction and
+load `/jr-implement` with the resolution in this session. When the requested diagnosis or
+plan is the complete deliverable, report it and recommend one continuation. If a decision
+or permission is missing, identify the actual boundary rather than asking the user to
+repeat a skill invocation.
 
 ## Tool Integration
 
@@ -718,80 +675,26 @@ Please provide more details.
 ```
 
 **No hypotheses confirmed:**
-```
-⚠️ All hypotheses ruled out
 
-We've tested all initial hypotheses without finding root cause.
-
-Options:
-1. Form new hypotheses based on what we've learned
-2. Expand investigation scope
-3. Document as "unresolved" for later
-
-What would you like to do?
-```
+Apply Authorized Continuation: use new evidence to form a testable hypothesis within the
+approved scope. If no supported next investigation remains, record what is missing and ask
+for that specific input or a scope decision. Do not ask the user to choose a command.
 
 **Multiple root causes:**
-```
-⚠️ Multiple contributing factors identified
 
-Evidence suggests this issue has multiple causes:
-1. [Cause 1 with evidence]
-2. [Cause 2 with evidence]
-
-Recommend addressing in order of impact.
-Continue to resolution? [yes/no]
-```
+Document each confirmed cause and its evidence, then recommend a correction order. Continue
+to resolution documentation without a separate approval prompt; apply Authorized Continuation
+before executing corrections and clarify only material scope or design choices.
 
 ---
 
 ## Using /jr-implement with Debug Steps
 
-**For complex investigations requiring implementation:**
-
-After `/jr-debug` creates the investigation plan, use `/jr-implement` to execute steps:
-
-```bash
-# User runs:
-/jr-implement
-
-# Junior asks: "What would you like to implement?"
-# User responds: "Execute debug step 1 from dbg-1-device-communication"
-
-# Junior:
-# 1. Reads dbg-1-step-1-minimal-test-app.md
-# 2. Generates implementation plan (build test app, test integration, collect logs)
-# 3. Executes systematically
-# 4. Updates step file with findings
-# 5. Updates dbg-1-steps.md progress
-```
-
-**Benefits:**
-- Systematic execution with progress tracking
-- Clear separation: `/jr-debug` = planning, `/jr-implement` = execution
-- User controls when investigation starts
-- Can pause/resume investigation work
-- Full implementation tracking (same as feature development)
-
-**Completion message for complex investigations:**
-
-```
-✅ Investigation Plan Created!
-
-**Issue:** [Issue name]
-**Steps:** [Number] investigation steps planned
-**Strategy:** [Brief description]
-
-📁 Investigation plan documented at:
-   .junior/debugging/dbg-{N}-{name}/
-
-🎯 Next Steps:
-1. Review the investigation plan in dbg-{N}-steps.md
-2. Use /jr-implement to execute Step 1: [step name]
-3. Document findings and proceed to next steps
-
-Ready to start? Run `/jr-implement` and reference this debug session.
-```
+Pass the existing step file to `/jr-implement` using the routing in Step 7.5. Keep its scope,
+acceptance evidence and findings in that work item. After execution, resume the investigation
+from the observed result; do not recreate the investigation or ask the user to restate it.
+Planning, implementation and verification remain distinct workflows within the same authorized
+objective. User-requested pauses and the authorization boundaries in the core rule still apply.
 
 ---
 

@@ -42,10 +42,10 @@ That sentence is about panels. A walkthrough recorded as motion has none, and wh
 is both real and weaker; step 4 says which half is which rather than letting this paragraph be
 read as covering it.
 
-**Know which half is which.** The helper also takes the page's own screenshot method away, so
-the obvious bypass fails the run loudly. It cannot take away every capture the runner offers: an
-element screenshot, a second page, the browser context's own APIs all stay reachable, and a
-walkthrough using one would write an image nothing asserted. No code stops that. You do.
+**Know which half is which.** The profile states which direct capture methods its helper can
+disable and which remain reachable. Where the runner permits it, the obvious bypass fails
+loudly. Other runner APIs may still write an image nothing asserted; forbidding those paths is
+a norm, not containment. Do not claim that every screenshot API has been disabled.
 
 You are the party the guarantee constrains, so your compliance cannot be what enforces it — which
 is why as much of it as could be made structural was. Where the line falls to a rule instead, it
@@ -336,8 +336,8 @@ captions and rendered content semantically before any product delivery.
 Each prose step becomes exactly one `step(caption, locator)` call, in order, in a walkthrough
 file at the location the profile names.
 
-**Open with a brief.** `brief(text)` sets a short paragraph above the panels: what this
-walkthrough shows, and what the reviewer is being asked to judge. A reviewer arriving at eight
+**Open with a brief.** Supply it through the profile's helper interface. It sets a short
+paragraph above the panels: what this walkthrough shows, and what the reviewer should judge. A reviewer arriving at eight
 screenshots with no framing has to infer the question from the pictures, and infers a different
 one than you meant. It is prose, not a panel — it appends nothing to the sheet and leaves the
 assert guarantee exactly where it was. **The run refuses to write a sheet without one**, because
@@ -428,9 +428,9 @@ stops covering it. Neither is the answer. Reach the state the claim is actually 
 control, change the mode, empty the list — and capture that. Where a claim has no state of its own
 to reach, it has nothing to show, and the honest panel count is the lower one.
 
-**A panel is the whole page, so the locator chooses the thumbnail rather than the crop.** The
-capture is full-page: nothing a caption describes can fall outside it, and a locator no longer
-has to be picked to keep the subject in shot. What the locator still decides is where the grid
+**A panel uses the profile’s capture boundary.** Browser panels capture the full page; native
+app panels capture the visible app viewport and require scrolling to show offscreen content.
+Keep the caption’s subject inside that boundary. What the locator still decides is where the grid
 thumbnail centres, since the sheet crops each thumbnail around the asserted element. Name the
 thing the caption is about and the thumbnail shows it; name a wrapper spanning the page and the
 thumbnail centres on nothing in particular.
@@ -488,7 +488,7 @@ The artifact contract is fixed by this skill and identical across every profile:
 - One output directory per demo, at a destination the run is given rather than one it fixes —
   so review captures remain beside their specification under `.junior/`. Promotion uses the
   profile's complete-bundle mechanism after explicit selection and review
-- Numbered full-page PNG panels — separate files, so each diffs and zooms independently
+- Numbered PNG panels within the profile's capture boundary — separate files, so each diffs and zooms independently
 - A generated `index.html` grid referencing them relatively, opening over `file://` with no
   server running
 - Every panel carries its caption and a number, laid out as a grid so eight panels scan at a

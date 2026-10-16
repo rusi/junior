@@ -1,6 +1,6 @@
 ---
 name: jr
-description: Run `/jr` to install, update, sync, migrate, or maintain Junior framework assets and contribute feedback.
+description: Run `/jr` to install, update, sync, migrate, or maintain Junior framework assets.
 ---
 
 # Junior
@@ -13,7 +13,6 @@ Provide one canonical meta-skill for Junior framework operations.
 
 - User asks to install or update Junior in a repository.
 - User asks to sync framework changes back to the source repo.
-- User asks to contribute feedback about Junior.
 - User asks to migrate legacy structure to current Junior conventions.
 - User asks to reorganize/normalize Junior artifacts.
 - User invokes `/jr <subcommand>`.
@@ -23,7 +22,6 @@ Provide one canonical meta-skill for Junior framework operations.
 - `install`
 - `update`
 - `sync`
-- `feedback`
 - `migrate`
 - `maintenance`
 
@@ -39,7 +37,6 @@ Provide one canonical meta-skill for Junior framework operations.
 
 Subcommand workflow map:
 
-- `feedback` -> `references/subcommands/feedback.md`
 - `sync` -> `references/subcommands/sync.md`
 - `migrate` -> `references/subcommands/migrate.md`
 - `maintenance` -> `references/subcommands/maintenance.md`
@@ -98,7 +95,6 @@ If subcommand is missing or ambiguous:
   *what changed on disk, and is it sound.*
 - **Goes in:** the subcommand that ran and why this one · files created, updated, and deleted, as a
   list of paths · anything a check found wrong, and whether it was fixed · the next command.
-  Feedback produces the improvement proposal defined in its subcommand workflow.
 - **Never goes in:** checks that passed, enumerated · the dispatch reasoning that selected the
   subcommand, beyond the one-line why · files read while deciding · the reference docs consulted.
   A verification pass that found nothing is one line, not a section.

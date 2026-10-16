@@ -72,6 +72,11 @@ rendered-content findings in the coverage map; repeat affected checks after inli
 
 **For each inventory group (oldest first):**
 
+Apply [Artifact Cleanup and Retention](../_shared/references/completion-evidence.md#artifact-cleanup-and-retention)
+before acceptance/demo resource setup and at each lifecycle boundary. Reconcile its measured
+verdict before each user-testing handoff, failed/interrupted halt, and the verification summary;
+retain resources needed for the authorized walkthrough.
+
 #### 4a. Gather Context (Read Both Code AND Reports)
 
 **Code changes:**
@@ -228,7 +233,7 @@ log is never evidence that the integration range has no work.
 - **For:** the user deciding whether to merge the integration branch. It answers *what was tested,
   what passed, and what stands in the way.*
 - **Goes in:** the template above, filled — branches, review-group count, the result table, fixes
-  applied, next steps.
+  applied, next steps · the shared artifact-disposition verdict from Step 4.
 - **Never goes in:** the walkthrough transcript, or what was clicked to reach a verdict · specs and
   agent reports quoted at length where the guidance already used them · features enumerated with
   no result to report · the steps of this skill. A feature that was skipped is one row with the

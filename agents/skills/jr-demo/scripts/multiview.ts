@@ -73,9 +73,14 @@ export class MultiViewCapture {
       }
       const file = `${view}-${stream.frames.length}.jpg`;
       stream.frames.push({ timestamp, file });
-      stream.pending = stream.pending.then(async () => {
-        await fs.writeFile(path.join(this.scratch, file), Buffer.from(event.data, 'base64'));
-        await session.send('Page.screencastFrameAck', { sessionId: event.sessionId });
+      // Disk latency must not throttle Chromium's finite in-flight frame allowance.
+      // Keep all operations owned until settled, including writes after an ack failure.
+      stream.pending = Promise.allSettled([
+        stream.pending,
+        fs.writeFile(path.join(this.scratch, file), Buffer.from(event.data, 'base64')),
+        session.send('Page.screencastFrameAck', { sessionId: event.sessionId }),
+      ]).then(results => {
+        for (const result of results) if (result.status === 'rejected') throw result.reason;
         ready();
       }).catch(error => { this.error = error; failed(error); });
     };
@@ -95,10 +100,10 @@ export class MultiViewCapture {
     this.stopped = true;
     // Release every session even if one page crashed or closed during the walkthrough.
     const results = await Promise.allSettled(this.streams.map(async stream => {
-      stream.removeListener();
       try {
         await stream.session.send('Page.stopScreencast');
       } finally {
+        stream.removeListener();
         await stream.pending;
         await stream.session.detach();
       }

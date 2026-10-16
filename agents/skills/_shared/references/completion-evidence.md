@@ -82,6 +82,65 @@ Update only stale or unsupported states. An already accurate checklist needs no 
 increase in checkmark count. In-progress work can retain justified unchecked items; only
 completed work requires all applicable completion criteria to be satisfied.
 
+## Artifact Cleanup and Retention
+
+Apply this policy when build, implementation, verification, review, or commit work creates
+or uses disposable resources: classify them before setup, finalize at their lifecycle
+boundary, and reconcile the result before each handoff, including failed or interrupted
+work. Follow repository-specific ownership, retention, and deletion-authorization rules.
+This policy grants no authority to remove existing storage or unrelated state.
+
+| Category | Disposition |
+|---|---|
+| Per-run scratch | Remove only resources proven to have been created and owned by this invocation, after dependencies stop and required evidence is preserved |
+| Review evidence | Retain in a deliberate destination outside disposable scratch; preserve existing outputs and verify the retained result opens or plays independently |
+| Reusable cache | Preserve by default; identify its owner, retention purpose, and supported clear operation if known, without executing an unselected clear |
+| Application or user state | Preserve, including resources needed for an authorized interactive handoff; report retained running services and their stop instructions |
+| Uncertain ownership or active use | Preserve and name the exact path and missing ownership, dependency, disposition, or access evidence |
+
+1. **Lifetime:** Use the creator's existing context/finally/trap mechanism where available.
+   Account for setup failure, run failure, and supported interruption. Stop and await owned
+   dependents before disposal; do not stop another owner's process. Do not delete through a
+   symlink into external state. Keep necessary live handoff resources deliberately retained.
+   Never claim guaranteed cleanup after uncatchable termination or host shutdown.
+2. **Evidence:** Select what review requires and preserve it before disposal. Use a distinct
+   output destination when existing output files would be overwritten. Verify it remains
+   usable without the scratch toolchain, browser profile, or temporary server. Failed export
+   retains recovery resources; partial output is not complete evidence.
+3. **Measurement:** Verify disposition on the filesystem after finalization. Report the
+   measured remaining paths and bytes, distinguishing owned disposable residue from
+   deliberately retained outputs, caches, and state, with their retention reasons. Name the
+   measured roots and metric (for example, file-content bytes versus allocated disk usage).
+   An absent owned scratch path establishes zero residue only for that path; do not scan
+   unrelated storage or claim a machine-wide zero. Unavailable measurements stay unverified.
+4. **Verdict:** Unknown ownership, active disposable dependencies, failed export, denied
+   deletion, or cleanup failure is a named blocker or explicit exception, never a hidden
+   pass. Preserve the original run failure alongside any finalization failure. State retained
+   paths, measured residue or the measurement blocker, and the specific next action needed.
+   Ask only for missing evidence, disposition, or permission; never retry unchanged denial.
+5. **Reuse:** Apply Evidence Reuse to cleanup measurements too. Reuse results only when the
+   same resource identities, contents, dependency state, and disposition remain applicable;
+   remeasure affected resources after changes. A command transition or commit reconciliation
+   creates no need to regenerate evidence, repeat valid checks, or clear caches. Other
+   completion gates still apply. When no disposable resources were created or used, say so
+   instead of manufacturing a cleanup operation.
+
+### Reusable Caches
+
+Record known caches in the consuming project's existing evidence or development guidance,
+not an invented machine inventory. Package-manager caches retain reusable downloads/builds;
+browser-tool caches retain installed browsers. These belong to their toolchain owner and
+are not per-run scratch. For uv, `uv cache dir` identifies the configured cache and
+`uv cache clean --cache-dir <resolved-cache-path> [package]` is a supported explicit clear;
+run it only for a separately authorized selection after checking active dependencies.
+For other tools, consult their installed CLI or project guidance; report unsupported or
+unknown clearing rather than inventing a recursive deletion command.
+
+Classification, invocation of finalizers, evidence review, and handoff reporting are agent
+norms. Creator code may enforce cleanup on its known paths; this prose guarantees neither
+arbitrary agent cleanup nor a complete audit trail. Keep observations in ordinary work
+evidence, never present a freehand action log as an authoritative audit record.
+
 ## Manual Verification
 
 Verify directly where possible. Do not ask again about a criterion supported by applicable

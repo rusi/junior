@@ -49,11 +49,22 @@ the existing layout. Behavior or layout decisions need an interactive prototype.
 Neither path skips showing the draft and receiving the user's response. If the parent
 has no interface design work, return without creating an artifact.
 
+Select the medium from the design question; honor an explicit user choice. For native
+mobile layout, hierarchy, density, visual progress, or motion exploration, default to
+a lightweight interactive web approximation without separate alternate-medium approval.
+Prefer one editable file without a build when sufficient. Without an explicit medium
+choice, use a native harness for questions that depend on native gestures, platform widgets,
+accessibility, keyboard behavior, system integration, or performance; state the concrete
+reason. If the chosen medium
+cannot establish part of the question, retain that limit; unavailable native tooling is
+a verification blocker, never a reason to substitute browser proof. Medium selection
+requires contextual judgment and is a workflow norm, not an enforced classifier.
+
 ### 2. Initial Prototype
 
 Keep the prototype beside its private specification. Any approved extraction into product paths uses [product isolation](../_shared/references/product-isolation.md); inspect its source, fixtures, links, captions, and rendered content before delivery.
 
-For an existing product, use its actual framework, component library, design-system
+For an existing web product, use its actual framework, component library, design-system
 configuration, tokens, styles, and applicable widgets. Import and compose existing
 components; matching their appearance with standalone HTML/CSS is not reuse. Read
 the closest working implementation before adding only the missing UI. If no reusable
@@ -63,11 +74,17 @@ conventions rather than creating a parallel design system.
 Render the proposal inside its real host surface at the intended size. A widget is
 reviewed in the application's dashboard grid, a panel in its parent layout, and a
 dialog over its owning screen. Do not replace an embedded feature with a standalone
-showcase webpage or invent surrounding application chrome. Keep comparison controls
-outside the proposed product surface. A separate fixture harness may import the real
-host and substitute data or the proposed component without modifying production.
+showcase webpage or invent surrounding application chrome. A separate fixture harness
+may import the real host and substitute data or the proposed component without modifying production.
 
-If reuse is blocked, identify the concrete missing dependency or runtime constraint
+For a mobile web approximation, derive the host layout, navigation, intended device
+dimensions, density, tokens, styles, and relevant domain behavior from the actual mobile
+source, including applicable nested structures and recently added capabilities. Preserve
+that context in the preview rather than inventing application chrome. State what is
+approximated and unsupported; source-informed HTML/CSS is not native component reuse.
+Native harnesses use the application's actual framework and reusable components.
+
+If required reuse is blocked, identify the concrete missing dependency or runtime constraint
 and ask before substituting a standalone approximation. A new product without an
 existing design system, or a user explicitly requesting another medium, may establish
 its own foundation. These reuse and fidelity requirements are workflow norms, not
@@ -92,18 +109,26 @@ do not invent real results, usage, measurements, persistence, or verification. K
 fixtures isolated from live writes and outbound integrations. Production changes need
 their own implementation scope.
 
+Define representative fixture contract cases before reimplementing domain semantics,
+including relevant nested boundaries. Keep scenario and comparison controls outside the
+app surface. Add presets, playback, or scrubbing only when they answer the design question;
+temporal controls must produce consistent states from the same fixture contract.
+
 Apply the **Output Spec** below when writing the draft and its specification.
 
 ### 3. Show and Receive Feedback
 
-Before showing an existing-product draft, confirm its actual component/style imports
-and host-surface integration, then check that it opens and the main interaction can be
-tried. A visual resemblance alone does not satisfy component reuse. Fix anything
-that prevents review, then show it immediately using the runtime's preview facility
+Before showing a draft, confirm its host fidelity and the reuse or approximation
+requirements for the selected medium, then check that it opens and the main interaction
+can be tried. A visual resemblance alone does not satisfy required component reuse.
+Fix anything that prevents review, then show it immediately using the runtime's preview facility
 and provide a direct artifact link with launch instructions. Capture the state needed
 to orient the user; do not delay the first showing for a screenshot set, a test suite,
 edge-case analysis, accessibility audits, responsive sweeps, or visual polish. Name
 what the user can try and the main unresolved design question.
+
+Open a mobile web draft in the user's available browser surface at the intended device
+dimensions. Keep fixture labels and approximation limits visible outside the app surface.
 
 Ask one focused feedback question and wait for the answer before choosing the next
 design revision or finalizing. Presenting screenshots alone is insufficient when the
@@ -134,11 +159,14 @@ has signaled held feedback, receive it before the next revision.
 
 Only after the user accepts the current design, review it for missed details and
 relevant edge cases, including empty, loading, error, and long-content states where
-applicable. Run the broader browser checks on the retained runnable artifact: agreed
-user flows and state transitions, keyboard operation and focus, and representative
+applicable. For web drafts, run broader browser checks on the retained runnable artifact:
+agreed user flows and state transitions, keyboard operation and focus, and representative
 viewport sizes. Capture the meaningful state set, inspect screenshots visually, and
 verify specification links and launch/build instructions from the retained source.
 Report unavailable checks accurately; never substitute intended behavior for a run.
+For native harnesses, run the corresponding checks in the selected native surface.
+Browser observations establish only the web prototype's behavior. Retain separate native
+accessibility, gesture, keyboard, integration, and performance requirements where relevant.
 
 Fix verification failures. If a fix changes the accepted appearance or interaction,
 return to the revision loop and show the result for acceptance. A technical repair
@@ -148,7 +176,8 @@ Finalize the UI specification around the accepted behavior and its fixture limit
 Keep production implementation tasks and acceptance criteria unchecked. Prototype
 design acceptance and prototype browser verification are separate from production DoD.
 
-For parent use, return artifact paths, accepted design decisions, fixture limitations,
+For parent use, return editable source and runnable artifact paths, exact launch instructions,
+matching captures, selected medium and its limits, accepted design decisions, fixture contracts,
 actual verification and any unresolved requirements. The parent reconciles its final
 specification and owns its review and the commit offer; do not nest a commit offer.
 For standalone use, follow the [planning completion handoff](../_shared/references/planning-completion.md)
@@ -168,8 +197,9 @@ Apply these contents at each write and update, including drafts.
   responsive behavior; relative links to editable source and runnable output; exact
   launch/build instructions; embedded screenshots with factual state captions;
   reused project components and design-system imports, with any approved substitution;
-  fixtures and unsupported behavior; observed prototype verification and remaining
-  checks clearly separated from production requirements. Identify pending review
+  selected medium, source-derived mobile host constraints and disclosed approximation;
+  representative fixture contracts and unsupported behavior; observed prototype verification
+  and remaining checks clearly separated from production requirements. Identify pending review
   without an approval-history narrative.
 - **Never goes in:** discovery narration, rule-compliance paperwork, source-scan counts,
   provenance stamps, abandoned drafts, feedback transcripts, invented measurements,
@@ -181,7 +211,8 @@ Apply these contents at each write and update, including drafts.
   to the interactions being considered.
 - **Goes in:** editable source and necessary assets, reproducible runnable output,
   realistic fixtures explicitly identified as such, working scoped controls, explicit
-  unsupported behavior, and browser-captured images of the matching source's states.
+  unsupported behavior, scenario controls outside the app surface, and captures of the
+  matching source's states in the selected medium.
 - **Never goes in:** live mutations, undisclosed simulation, real private data copied
   into fixtures, stale screenshots, agent reasoning or verification tooling presented
   as product UI, or unrequested screens and features.
@@ -209,5 +240,7 @@ browser access is a stated limitation to resolve, never evidence of verification
 ## Examples
 
 - `/jr-ui-prototype` to explore navigation within an existing application layout.
+- A mobile visual exploration opens a source-informed web draft; a native gesture
+  question uses the application's native harness.
 - A planning skill passes an approved form change and its specification destination;
   this workflow returns the design only after the user has reviewed and accepted it.

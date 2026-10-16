@@ -338,6 +338,11 @@ was written against, so report the missing spec rather than grading the prose.
 
 ### Step 6: Show What the Branch Changed
 
+Apply [Artifact Cleanup and Retention](../_shared/references/completion-evidence.md#artifact-cleanup-and-retention)
+before review/demo resource setup and at each resource lifecycle boundary. Reconcile its
+measured verdict before failed/interrupted handoffs and Step 7's final summary; preserve the
+review artifacts required by this step.
+
 **A review that only reads the diff cannot answer whether the result looks right.** The
 categories above find what is wrong in the code. This answers what the branch does to the
 screen — the question a reviewer would otherwise have to check out the branch and run it to
@@ -406,7 +411,7 @@ Use the findings from Steps 1–6 and the coverage from Step 7 to write the repo
 - **Goes in:** the eight category counts from Step 7, as a block · each finding that changed the
   code, named by file and what it now does · findings deliberately left, each with the reason ·
   the storyboard path on its own line, or the one line saying the diff renders nothing · the next
-  command.
+  command · the shared artifact-disposition verdict from Step 6.
 - **Never goes in:** which files were scanned and how many · the grep patterns and searches run ·
   the categories walked that found nothing, enumerated · rule numbers cited as justification where
   the finding already states the defect · fix attempts superseded by a later one in the same pass.

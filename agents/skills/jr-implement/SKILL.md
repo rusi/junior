@@ -196,10 +196,9 @@ git status --short
 Scope check:
 - Review changed paths from `git status --short`.
 - If changes are clearly isolated from this story's scope, recommend proceeding.
-- If changes touch related areas or scope is unclear, ask for explicit override.
+- If changes belong to this ongoing task, preserve them and continue under the existing authorization. Ask only if ownership or conflicting edits make the next change unsafe or ambiguous.
 
-Default: use /jr-commit first.
-Override: If you confirm the changes are unrelated, reply "override: proceed".
+Recommend /jr-commit only when a checkpoint would help; it is not a prerequisite for continuing an authorized task.
 ```
 
 **Note:** This is a recommendation, not a hard blocker — user may be continuing same story.
@@ -347,6 +346,11 @@ Use rules already loaded in context. Otherwise resolve the selected installation
 
 ### Step 5: Story Task Execution (TDD Workflow)
 
+Apply [Artifact Cleanup and Retention](../_shared/references/completion-evidence.md#artifact-cleanup-and-retention)
+before creating resources and at each task lifecycle boundary. Reconcile its measured verdict
+before failed/interrupted handoffs, Step 7a's interactive handoff, and Step 8's completion report;
+retain the resources required for the authorized tryout under that policy.
+
 Apply [product isolation](../_shared/references/product-isolation.md) before writing code,
 tests, docs, configuration, or copying tooling. Run its complete-tree check after product
 writes and before handoff; inspect indirect dependencies and rendered output semantically.
@@ -402,6 +406,19 @@ Mark complete when implementation makes tests pass.
 - Add complexity incrementally as required
 - Maintain compatibility - no regressions
 - Refactor when green - improve code quality while tests pass
+
+**UI/UX refinement (UI-affecting work):**
+
+Treat UI/UX polish as part of completion. Make routine design decisions proactively within
+approved scope, following established product/platform conventions and user-provided references.
+Review the changed interaction for visual hierarchy, spacing, familiar controls, feedback and
+accessibility. Use purposeful motion where it helps users follow a change, respecting reduced-motion
+preferences. Keep refinements confined to the changed interaction; raise tradeoffs that change
+scope or product identity.
+
+Inspect the rendered result and exercise changed interactions, including transitions where used.
+Use Steps 7 and 7a for visual confirmation and hands-on review; screenshots alone do not establish
+motion quality. This is a design and review norm, not an automated guarantee.
 
 **Additional execution gate for context-affecting stories:**
 - Implement/upgrade e2e context-switch tests in the same story turn by default.
@@ -978,7 +995,7 @@ Update story notes section to document the blocking issue.
 4. **Try alternative approach** - Is there another way to achieve the same goal?
 5. **Research solution** - Use available research tools for technical investigation
 6. **Break down into smaller components** - Can this be split into manageable pieces?
-7. **Maximum 3 attempts** - After 3 failed attempts, escalate or document as blocked
+7. **Maximum 3 attempts** - After three failed attempts at an approach, stop that approach and apply `00-junior.md`, **Authorized Continuation**. Escalate to evidence-based investigation when a causal question remains; load `/jr-debug` and continue within the authorized objective. Record the failed attempts and the new evidence required before another execution attempt. If no actionable investigation remains without user input, document the blocker and request that input. Switching skills does not reset the limit.
 
 **⚠️ CRITICAL: NO speculation or assumptions. See `13-software-implementation-principles.md` section 9 for evidence-based debugging process.**
 

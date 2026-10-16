@@ -44,7 +44,7 @@ and confirm the demo files appear in exactly one of them — rather than trying 
 directory somewhere the e2e config cannot see.
 
 Before copying into product paths, apply [product isolation](../../_shared/references/product-isolation.md).
-Copy the linked `storyboard.ts` and `multiview.ts` helpers, `capture-reporter.ts`, and `demo.ts` fixture into
+Copy the linked `storyboard.ts`, `capture-directory.ts`, `viewer.ts` and `multiview.ts` helpers, `capture-reporter.ts`, and `demo.ts` fixture into
 that directory. Keep the helper and reporter unchanged; adapt only the fixture's two
 marked project-specific lines. Include the completion reporter last in the demo config.
 A bundle is eligible for promotion only when that reporter seals its complete byte inventory
@@ -453,3 +453,11 @@ message that should have shown — and only then act again.
 
 A panel is one way to wait, and the better one where the intermediate state is worth showing.
 Where it is not, assert without capturing rather than padding the storyboard.
+
+## Shared capture directory and viewer — copy verbatim
+
+[capture-directory.ts](../scripts/capture-directory.ts)
+
+## Shared viewer — copy verbatim
+
+[viewer.ts](../scripts/viewer.ts)

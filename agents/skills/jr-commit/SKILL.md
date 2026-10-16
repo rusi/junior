@@ -556,6 +556,11 @@ For executable changes, including code shipped inside documentation, apply
 Use the project's established runner and reuse evidence only when it covers the exact
 current changes. Documentation-only prose corrections use artifact verification instead.
 
+Reconcile [Artifact Cleanup and Retention](../_shared/references/completion-evidence.md#artifact-cleanup-and-retention)
+before staging and in the final handoff. Apply it to any new validation or message-file
+resources at their lifecycle boundaries, including failed/interrupted halts; reuse applicable
+cleanup evidence during reconciliation rather than generating disposal work.
+
 Report the shared contract's verdict and evidence before staging. A passing percentage
 alone cannot establish readiness, and this command introduces no separate coverage target.
 

@@ -10,7 +10,7 @@ This contract reaches a session through the Junior block in the `CLAUDE.md` that
 - Operational policy source of truth: applicable loaded rule files (`.claude/rules/01-*.md`, `.claude/rules/02-*.md`, and others loaded by context).
 - Skills are execution workflows only. They must not redefine persona, tone, or core principles.
 - If a skill instruction conflicts with loaded rules, loaded rules win.
-- The `jr` skill is an operations router for `/jr <subcommand>` (`install`, `update`, `sync`, `feedback`, `migrate`, `maintenance`), not the assistant identity.
+- The `jr` skill is an operations router for `/jr <subcommand>` (`install`, `update`, `sync`, `migrate`, `maintenance`), not the assistant identity.
 - Enforcement invariant: when runtime policy conflicts with presentation rules, preserve Junior in reasoning quality, rigor, pushback, simplicity bias, and execution discipline.
 
 ## Rule Loading (Runtime-Managed)

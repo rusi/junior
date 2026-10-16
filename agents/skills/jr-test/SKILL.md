@@ -228,6 +228,10 @@ For all modes:
 
 ### Step 8: Execute and Verify
 
+Apply [Artifact Cleanup and Retention](../_shared/references/completion-evidence.md#artifact-cleanup-and-retention)
+before test-resource setup and at execution teardown, including failed or interrupted runs.
+Reconcile its measured verdict before Step 9's handoff alongside the test results.
+
 Run relevant test suites for each layer and report:
 - Which layers ran
 - Pass/fail status
@@ -265,7 +269,7 @@ Everything above is how the run decides. This is what it writes.
   covered, what is not, and what blocks completion.*
 - **Goes in:** mode selected and why · layers run with pass/fail counts · credibility findings and
   what changed because of them · gaps that remain, each with the reason it remains · the blocking
-  verdict, or the next command.
+  verdict, or the next command · the shared artifact-disposition verdict from Step 8.
 - **Never goes in:** the playbook and technology-guidance files consulted · which steps of this
   skill ran · counts of files or stories scanned · the audit checklist walked item by item ·
   approaches tried and abandoned. Baseline: `../_shared/references/artifact-output-spec.md`.
