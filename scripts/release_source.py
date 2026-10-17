@@ -15,6 +15,7 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
+from typing import BinaryIO, cast
 
 REPOSITORY = "rusi/junior"
 TARGETS = ("claude", "cursor", "codex")
@@ -67,7 +68,8 @@ def api_json(path: str):
 
 
 def release_tags() -> list[dict]:
-    tags, page = [], 1
+    tags: list[dict] = []
+    page = 1
     while True:
         batch = api_json(f"tags?per_page=100&page={page}")
         tags.extend(tag for tag in batch if re.fullmatch(r"v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)", tag["name"]))
@@ -128,7 +130,7 @@ def show_installed(root: Path, targets: list[str]) -> None:
         manifest = root / f".{target}/.junior-install.json"
         if manifest.is_file():
             metadata = json.loads(manifest.read_text())
-            print(f"Installed {target}: {metadata.get('release') or metadata.get('commit_hash', 'unknown')}")
+            print(f"Currently installed {target}: {metadata.get('release') or metadata.get('commit_hash', 'unknown')}")
 
 
 def choose_version(tags: list[dict]) -> str:
@@ -166,7 +168,7 @@ def download_release(release: Release, directory: Path) -> Path:
                 target.mkdir(parents=True, exist_ok=True)
             else:
                 target.parent.mkdir(parents=True, exist_ok=True)
-                with stream.extractfile(member) as source:
+                with cast(BinaryIO, stream.extractfile(member)) as source:
                     target.write_bytes(source.read())
                 target.chmod(member.mode & 0o777)
     roots = list(unpacked.iterdir())
@@ -223,8 +225,11 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         target = args.target or prompt("Install for [claude/cursor/codex/all]: ").lower()
         targets = parse_install_targets(target)
+        if "codex" in targets and sys.version_info < (3, 11):
+            version = ".".join(map(str, sys.version_info[:3]))
+            raise ValueError(f"Codex installation requires Python 3.11 or newer; found {sys.executable} ({version}).")
         show_installed(destination, targets)
-        release = requested_release(args)
+        release = cast(Release, requested_release(args))
         print(f"Install Junior {release.name} ({release.sha[:7]}) for {', '.join(targets)}")
         print(f"Destination: {destination} ({scope})")
         if not args.yes and prompt("Continue? [y/N]: ").lower() not in ("y", "yes"):
@@ -233,8 +238,13 @@ def main(argv: list[str] | None = None) -> int:
         with tempfile.TemporaryDirectory(prefix="junior-bootstrap-") as temporary:
             source = download_release(release, Path(temporary))
             command = installer_command(source, targets, scope, destination)
-            return subprocess.run(command, check=False).returncode
+            sys.stdout.flush()
+            result = subprocess.run(command, check=False).returncode
+            if result:
+                print(f"Installation failed: installer exited with exit code {result}.", file=sys.stderr)
+            return result
     except (OSError, ValueError, KeyError, tarfile.TarError, subprocess.CalledProcessError) as error:
+        sys.stdout.flush()
         print(f"Installation failed: {error}", file=sys.stderr)
         return 1
 

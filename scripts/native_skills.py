@@ -291,10 +291,16 @@ def plan_install(repo: Path, root: Path, project: bool, targets: list[str], vers
                     plan.handled[target].add(key)
             elif rel.parts[:2] not in ((".cursor", "rules"), (".agents", "rules")):
                 plan.retain(target, path, "preserved instruction or asset outside legacy cleanup")
+        rule_names = {p.with_suffix(suffix).name for p in (repo / "agents/rules").glob("*.md")
+                      for suffix in (".md", ".mdc")}
         for directory in (root / f".{target}/skills", root / f".{target}/rules", root / f".{target}/commands"):
             if directory.is_dir():
                 for path in sorted(p for p in directory.rglob("*") if p.is_file()):
-                    if path.resolve() not in owned:
+                    relative = path.relative_to(directory)
+                    name = relative.parts[0] if directory.name == "skills" else Path(relative.parts[0]).stem
+                    relevant = (relative.name in rule_names if directory.name == "rules" else
+                                name in ("jr", "_shared") or name.startswith("jr-"))
+                    if relevant and path.resolve() not in owned:
                         plan.retain(target, path, "unowned; no ownership evidence")
 
     source_files = {p.relative_to(repo).as_posix(): p for p in (repo / "agents/skills").rglob("*") if p.is_file()}

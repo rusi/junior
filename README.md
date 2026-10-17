@@ -157,6 +157,7 @@ Open your project in Claude Code, Cursor, or Codex and start with `/jr-init` or 
 
 **Software Development (`jr-*` skills):**
 - `/jr-feedback` - Save and verify a submission-ready improvement proposal for Junior
+- `/jr-new-project` - Create a repository and committed brief for a fresh coding session
 - `/jr-init` - Define product vision and technical foundation
 - `/jr-roadmap` - Update product roadmap using feature layers and sequence-first planning (no timelines)
 - `/jr-feature` - Plan and create feature specifications

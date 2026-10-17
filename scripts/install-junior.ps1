@@ -50,15 +50,6 @@ if ($Force) {
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $PyScript = Join-Path $ScriptDir "junior.py"
 
-$Python = Get-Command python3 -ErrorAction SilentlyContinue
-if (-not $Python) {
-    $Python = Get-Command python -ErrorAction SilentlyContinue
-}
-if (-not $Python) {
-    Write-Host "[ERROR] Python is required to install Junior (python3 or python not found)." -ForegroundColor Red
-    exit 1
-}
-
 $mode = if ($SyncBack) { "sync-back" } else { "install" }
 $argsList = @($PyScript, $mode)
 if (-not $SyncBack -and -not $Target) {
@@ -75,5 +66,9 @@ if ($IgnoreDirty) { $argsList += "--ignore-dirty" }
 if ($Yes) { $argsList += "--yes" }
 if ($Overwrite) { $argsList += "--overwrite" }
 
-& $Python.Source @argsList
+$Python = & {
+    . (Join-Path $ScriptDir '../docs/install.ps1') -Target $Target
+    Find-JuniorPython -Targets $Target
+}
+& $Python @argsList
 exit $LASTEXITCODE

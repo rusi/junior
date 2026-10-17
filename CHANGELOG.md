@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.4.0 - 2026-10-17
+
+### Added
+
+- `/jr-new-project` creates a repository and committed project brief for a fresh coding session.
+
+### Fixed
+
+- Installers select a compatible available Python interpreter, including Python 3.11+ for Codex.
+- Installation output distinguishes currently installed versions from new results, preserves message order, and reports failures explicitly.
+- Cleanup warnings focus on Junior assets, omitting unrelated runtime and user files.
+
 ## v2.3.0 - 2026-10-15
 
 ### Added

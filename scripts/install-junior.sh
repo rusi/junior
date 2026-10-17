@@ -18,24 +18,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PY_SCRIPT="$SCRIPT_DIR/junior.py"
 
-find_python() {
-  if command -v python3 >/dev/null 2>&1; then
-    echo "python3"
-    return
-  fi
-  if command -v python >/dev/null 2>&1; then
-    echo "python"
-    return
-  fi
-  echo ""
-}
-
-PYTHON_BIN="$(find_python)"
-if [ -z "$PYTHON_BIN" ]; then
-  echo "[ERROR] Python is required to install Junior (python3 or python not found)." >&2
-  exit 1
-fi
-
 MODE="install"
 ARGS=()
 
@@ -53,6 +35,10 @@ while [[ $# -gt 0 ]]; do
       ARGS+=("--target" "$2")
       shift 2
       ;;
+    --target=*)
+      ARGS+=("--target" "${1#*=}")
+      shift
+      ;;
     *)
       ARGS+=("$1")
       shift
@@ -64,6 +50,9 @@ if [[ "$MODE" == "install" && ! " ${ARGS[*]} " =~ " --target " ]]; then
   echo "[ERROR] Missing required --target: claude, cursor, codex, all, or csv list" >&2
   exit 1
 fi
+
+source "$SCRIPT_DIR/../docs/install.sh"
+PYTHON_BIN="$(find_python ${ARGS[@]+"${ARGS[@]}"})"
 
 if [[ ${#ARGS[@]} -gt 0 ]]; then
   exec "$PYTHON_BIN" "$PY_SCRIPT" "$MODE" "${ARGS[@]}"
